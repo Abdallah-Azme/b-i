@@ -1,0 +1,104 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Business & Investments | الأعمال والاستثمارات</title>
+    <link rel="icon" href="https://raiyansoft.com/wp-content/uploads/2025/12/bni-icon.png" type="image/png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@100..900&display=swap" rel="stylesheet">
+    <style>
+      body {
+        font-family: 'Alexandria', sans-serif;
+        background-color: #000000;
+        color: #ffffff;
+      }
+      
+      /* Money formatting to ensure correct BiDi behavior */
+      .money {
+        unicode-bidi: isolate;
+        white-space: nowrap;
+        display: inline-block;
+      }
+
+      /* Desktop Custom Scrollbar (Only for non-mobile) */
+      @media (min-width: 769px) {
+        ::-webkit-scrollbar {
+          width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+          background: #111;
+        }
+        ::-webkit-scrollbar-thumb {
+          background: #333;
+          border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+          background: #555;
+        }
+      }
+
+      /* Mobile: Hide visible scrollbar globally while keeping scroll functionality */
+      @media (max-width: 768px) {
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        ::-webkit-scrollbar {
+          display: none !important;
+          width: 0 !important;
+          height: 0 !important;
+          background: transparent !important;
+          -webkit-appearance: none !important;
+        }
+        
+        /* Hide scrollbar for IE, Edge and Firefox */
+        html, body, #root, main, div, section, article, aside, ul {
+          -ms-overflow-style: none !important;  /* IE and Edge */
+          scrollbar-width: none !important;  /* Firefox */
+        }
+        
+        /* Catch-all to ensure nested scroll containers also hide bars */
+        * {
+          -ms-overflow-style: none !important;
+          scrollbar-width: none !important;
+        }
+      }
+    </style>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              brand: {
+                black: '#000000',
+                dark: '#0A0A0A',
+                gray: '#1F1F1F',
+                silver: '#E0E0E0',
+                gold: '#D4AF37', // Luxury accent
+                white: '#FFFFFF'
+              }
+            }
+          }
+        }
+      }
+    </script>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.1",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.1/",
+    "react/": "https://aistudiocdn.com/react@^19.2.1/",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.556.0",
+    "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.10.1"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
