@@ -9,7 +9,7 @@ export const useAuth = () => {
   const unlockProject = useAuthStore((state) => state.unlockProject);
   const toggleFavorite = useAuthStore((state) => state.toggleFavorite);
   const updateUser = useAuthStore((state) => state.updateUser);
-  const addProject = useAuthStore((state) => state.addProject);
+  const refreshProfile = useAuthStore((state) => state.refreshProfile);
   const requestInterest = useAuthStore((state) => state.requestInterest);
   const toggleInterestInvestor = useAuthStore((state) => state.toggleInterestInvestor);
   const isInterestedInInvestor = useAuthStore((state) => state.isInterestedInInvestor);
@@ -23,7 +23,7 @@ export const useAuth = () => {
     unlockProject,
     toggleFavorite,
     updateUser,
-    addProject,
+    refreshProfile,
     requestInterest,
     toggleInterestInvestor,
     isInterestedInInvestor,

@@ -11,9 +11,11 @@ export const metadata = {
 export default async function InvestorsPage() {
   const queryClient = new QueryClient();
 
+  const defaultFilters = { filterType: '', filterExp: '', filterField: '', filterCapital: '' };
+
   await queryClient.prefetchQuery({
-    queryKey: ['investors'],
-    queryFn: () => investorService.getAllInvestors(),
+    queryKey: ['investors', defaultFilters],
+    queryFn: () => investorService.getAllInvestors(defaultFilters),
   });
 
   return (

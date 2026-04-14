@@ -13,9 +13,11 @@ export async function generateMetadata() {
 export default async function ProjectsPage() {
   const queryClient = new QueryClient();
 
+  const defaultFilters = { category: '', listingType: '', sort: 'newest' };
+
   await queryClient.prefetchQuery({
-    queryKey: ['projects'],
-    queryFn: () => projectService.getAllProjects(),
+    queryKey: ['projects', defaultFilters],
+    queryFn: () => projectService.getAllProjects(defaultFilters),
   });
 
   return (

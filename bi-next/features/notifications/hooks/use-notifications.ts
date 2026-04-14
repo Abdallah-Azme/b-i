@@ -12,119 +12,30 @@ interface NotificationsState {
   markAllAsRead: () => void;
   removeNotification: (id: string) => void;
   clearAll: () => void;
+  fetchNotifications: () => Promise<void>;
 }
 
-const MOCK_NOTIFICATIONS: NotificationItem[] = [
-  {
-    id: 'n-1',
-    type: 'interest',
-    title: { ar: 'اهتمام جديد', en: 'New Interest' },
-    message: { ar: 'قام مستثمر بتسجيل اهتمام بمشروعك PROJ-1002', en: 'An investor registered interest in PROJ-1002' },
-    createdAt: new Date(Date.now() - 5 * 60000).toISOString(),
-    isRead: false,
-    link: '/projects/PROJ-1002'
-  },
-  {
-    id: 'n-2',
-    type: 'deal',
-    title: { ar: 'تحديث الصفقة', en: 'Deal Update' },
-    message: { ar: 'تم قبول العرض المبدئي لصفقة المطعم', en: 'Initial offer accepted for the Restaurant deal' },
-    createdAt: new Date(Date.now() - 45 * 60000).toISOString(),
-    isRead: false,
-    link: '/dashboard'
-  },
-  {
-    id: 'n-3',
-    type: 'system',
-    title: { ar: 'توثيق الحساب', en: 'Account Verification' },
-    message: { ar: 'تم توثيق حسابك بنجاح. يمكنك الآن الوصول لكل الميزات.', en: 'Your account is successfully verified. You have full access.' },
-    createdAt: new Date(Date.now() - 2 * 3600000).toISOString(),
-    isRead: true
-  },
-  {
-    id: 'n-4',
-    type: 'project',
-    title: { ar: 'مشروع جديد', en: 'New Project' },
-    message: { ar: 'تمت إضافة مشروع جديد في قطاع التكنولوجيا', en: 'A new project was added in the Technology sector' },
-    createdAt: new Date(Date.now() - 5 * 3600000).toISOString(),
-    isRead: false,
-    link: '/projects'
-  },
-  {
-    id: 'n-5',
-    type: 'deal',
-    title: { ar: 'شراء كراسة', en: 'Booklet Purchased' },
-    message: { ar: 'قام مستثمر بشراء كراسة المشروع PROJ-1044', en: 'An investor purchased the booklet for PROJ-1044' },
-    createdAt: new Date(Date.now() - 24 * 3600000).toISOString(),
-    isRead: true
-  },
-  {
-    id: 'n-6',
-    type: 'system',
-    title: { ar: 'تنبيه أمان', en: 'Security Alert' },
-    message: { ar: 'تم تسجيل دخول جديد من جهاز غير معروف', en: 'New login detected from an unknown device' },
-    createdAt: new Date(Date.now() - 36 * 3600000).toISOString(),
-    isRead: true
-  },
-  {
-    id: 'n-7',
-    type: 'interest',
-    title: { ar: 'رسالة من الإدارة', en: 'Admin Message' },
-    message: { ar: 'يرجى تحديث بيانات الملف الشخصي لاستكمال الإجراءات', en: 'Please update your profile to complete procedures' },
-    createdAt: new Date(Date.now() - 48 * 3600000).toISOString(),
-    isRead: false,
-    link: '/dashboard'
-  },
-  {
-    id: 'n-8',
-    type: 'project',
-    title: { ar: 'فرصة مميزة', en: 'Featured Opportunity' },
-    message: { ar: 'فرصة استثمارية ذهبية في قطاع العقارات متاحة الآن', en: 'Golden investment opportunity in Real Estate is now live' },
-    createdAt: new Date(Date.now() - 72 * 3600000).toISOString(),
-    isRead: true,
-    link: '/projects'
-  },
-  {
-    id: 'n-9',
-    type: 'deal',
-    title: { ar: 'اكتمال صفقة', en: 'Deal Completed' },
-    message: { ar: 'مبروك! تم إغلاق جولة الاستثمار لمشروع القهوة', en: 'Congrats! Investment round closed for the Coffee project' },
-    createdAt: new Date(Date.now() - 96 * 3600000).toISOString(),
-    isRead: true
-  },
-  {
-    id: 'n-10',
-    type: 'system',
-    title: { ar: 'تحديث النظام', en: 'System Update' },
-    message: { ar: 'تم تحديث سياسة الخصوصية الخاصة بالمنصة', en: 'Platform Privacy Policy has been updated' },
-    createdAt: new Date(Date.now() - 120 * 3600000).toISOString(),
-    isRead: true,
-    link: '/privacy-policy'
-  },
-  {
-    id: 'n-11',
-    type: 'interest',
-    title: { ar: 'تذكير', en: 'Reminder' },
-    message: { ar: 'لديك طلبات صداقة معلقة من مستثمرين آخرين', en: 'You have pending connection requests from investors' },
-    createdAt: new Date(Date.now() - 144 * 3600000).toISOString(),
-    isRead: true
-  },
-  {
-    id: 'n-12',
-    type: 'project',
-    title: { ar: 'مشروع مماثل', en: 'Similar Project' },
-    message: { ar: 'مشروع مشابه لاهتماماتك تم نشره للتو', en: 'A project matching your interests was just published' },
-    createdAt: new Date(Date.now() - 24 * 3600000).toISOString(),
-    isRead: false,
-    link: '/projects'
-  }
-];
+// Mocks removed since we fetch natively via API.
 
 export const useNotificationsStore = create<NotificationsState>()(
   persist(
     (set, get) => ({
-      notifications: MOCK_NOTIFICATIONS,
-      unreadCount: MOCK_NOTIFICATIONS.filter(n => !n.isRead).length,
+      notifications: [],
+      unreadCount: 0,
+      
+      fetchNotifications: async () => {
+        try {
+          const { api } = await import('@/shared/services/api-client');
+          const response = await api.get('/v1/notifications');
+          const notifications = response?.data || [];
+          set({ 
+            notifications,
+            unreadCount: notifications.filter((notif: any) => !notif.isRead).length
+          });
+        } catch (e) {
+          console.warn('Failed to fetch notifications');
+        }
+      },
       
       addNotification: (n) => {
         const newNotification: NotificationItem = {
@@ -140,7 +51,7 @@ export const useNotificationsStore = create<NotificationsState>()(
         });
       },
       
-      markAsRead: (id) => {
+      markAsRead: async (id) => {
         const notifications = get().notifications.map(n => 
           n.id === id ? { ...n, isRead: true } : n
         );
@@ -148,6 +59,11 @@ export const useNotificationsStore = create<NotificationsState>()(
           notifications,
           unreadCount: notifications.filter(notif => !notif.isRead).length
         });
+        
+        try {
+           const { api } = await import('@/shared/services/api-client');
+           await api.post(`/v1/notifications/${id}/read`);
+        } catch (e) { /* ignore */ }
       },
       
       markAllAsRead: () => {
@@ -183,5 +99,6 @@ export const useNotifications = () => {
     markAllAsRead: store.markAllAsRead,
     removeNotification: store.removeNotification,
     clearAll: store.clearAll,
+    fetchNotifications: store.fetchNotifications
   };
 };

@@ -11,6 +11,8 @@ import {
 import { ListingPurpose, FinancialStatus, Language } from '@/shared/types';
 import { CATEGORIES, FINANCIAL_HEALTH_MAP } from '@/features/projects/services/project-api';
 import { Link } from '@/i18n/routing';
+import { useMutation } from '@tanstack/react-query';
+import { api } from '@/shared/services/api-client';
 
 const FINANCIAL_STATUS_ORDER: FinancialStatus[] = [
   'Very Strong', 'Strong', 'Stable', 'Moderate', 
@@ -18,7 +20,7 @@ const FINANCIAL_STATUS_ORDER: FinancialStatus[] = [
 ];
 
 export const AddListingClient: React.FC = () => {
-  const { user, addProject } = useAuth();
+  const { user } = useAuth();
   const locale = useLocale() as Language;
   const router = useRouter();
   const t = useTranslations();
@@ -29,7 +31,6 @@ export const AddListingClient: React.FC = () => {
   const [purposeError, setPurposeError] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [termsError, setTermsError] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -76,7 +77,21 @@ export const AddListingClient: React.FC = () => {
     });
   };
 
-  if (!user && !isSubmitting) {
+  const submitProjectMutation = useMutation({
+    mutationFn: async (payload: any) => {
+      // Dispatch payload to backend creation endpoint
+      return api.post('/v1/company/opportunities', payload);
+    },
+    onSuccess: () => {
+      setShowSuccess(true);
+      setTimeout(() => {
+        setShowSuccess(false);
+        router.push('/dashboard');
+      }, 2500);
+    }
+  });
+
+  if (!user && !submitProjectMutation.isPending) {
     router.push('/login-type');
     return null;
   }
@@ -120,31 +135,26 @@ export const AddListingClient: React.FC = () => {
         return;
     }
     if (validateStep2()) {
-        setIsSubmitting(true);
-        setTimeout(() => {
-          // Pass the form data to the store to add the project
-          addProject({
-            name: { ar: formData.companyName, en: formData.companyName },
-            category: { ar: CATEGORIES.find(c => c.en === formData.sector)?.ar || formData.sector, en: formData.sector },
-            capital: 0,
-            age: { ar: `${formData.companyAge} سنوات`, en: `${formData.companyAge} Years` },
-            shareOffered: Number(formData.shareToSell) || 0,
-            askingPrice: Number(formData.requestedInvestment) || 0,
-            descriptionShort: { ar: formData.investmentReason, en: formData.investmentReason },
-            descriptionFull: { ar: formData.fullDetails, en: formData.fullDetails },
-            financialHealth: formData.financialHealth,
-            listingPurpose: purpose || 'investment',
-            legalEntity: { ar: formData.legalEntity, en: formData.legalEntity },
-            companyStage: { ar: formData.companyStage, en: formData.companyStage }
-          });
-          
-          setIsSubmitting(false);
-          setShowSuccess(true);
-          setTimeout(() => {
-            setShowSuccess(false);
-            router.push('/dashboard');
-          }, 2500);
-        }, 1500);
+        submitProjectMutation.mutate({
+           purpose: purpose || 'investment',
+           title: { en: formData.companyName, ar: formData.companyName },
+           category_id: 1, // Fallback integer required by DB, UI currently gives string
+           capital: Number(formData.requestedInvestment) || 0,
+           age: { en: `${formData.companyAge} Years`, ar: `${formData.companyAge} سنوات` },
+           share_offered: Number(formData.shareToSell) || 0,
+           asking_price: Number(formData.requestedInvestment) || 0,
+           short_description: { en: formData.investmentReason, ar: formData.investmentReason },
+           full_description: { en: formData.fullDetails, ar: formData.fullDetails },
+           financial_health: formData.financialHealth,
+           legal_entity: { en: formData.legalEntity, ar: formData.legalEntity },
+           stage: { en: formData.companyStage, ar: formData.companyStage },
+           // Admin verification info attached payload
+           admin_company_name: formData.adminCompanyName,
+           company_owner_name: formData.companyOwnerName,
+           license_number: formData.licenseNumber,
+           contact_phone: formData.phone,
+           contact_email: formData.email,
+        });
       }
     };
 
@@ -347,8 +357,8 @@ export const AddListingClient: React.FC = () => {
                      <button type="button" onClick={() => setStep(1)} className="flex-1 bg-white/10 text-white font-bold py-4 rounded-xl hover:bg-white/20 transition">
                         {isAr ? 'السابق' : 'Back'}
                      </button>
-                     <button type="submit" disabled={isSubmitting} className="flex-2 bg-brand-gold text-black font-bold text-lg py-4 rounded-xl hover:bg-yellow-500 transition shadow-lg shadow-brand-gold/20 disabled:opacity-50 disabled:cursor-not-allowed">
-                        {isSubmitting ? (
+                     <button type="submit" disabled={submitProjectMutation.isPending} className="flex-2 bg-brand-gold text-black font-bold text-lg py-4 rounded-xl hover:bg-yellow-500 transition shadow-lg shadow-brand-gold/20 disabled:opacity-50 disabled:cursor-not-allowed">
+                        {submitProjectMutation.isPending ? (
                             <span className="flex items-center justify-center gap-2 font-sans">
                               <span className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin"></span>
                                {isAr ? 'جاري المعالجة...' : 'Processing...'}

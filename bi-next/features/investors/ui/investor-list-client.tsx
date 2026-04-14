@@ -15,7 +15,6 @@ interface InvestorListClientProps {
 }
 
 export const InvestorListClient: React.FC<InvestorListClientProps> = ({ initialInvestors = [] }) => {
-  const { data: investors = initialInvestors } = useInvestors();
   const locale = useLocale() as Language;
 
   const { user } = useAuth();
@@ -27,26 +26,15 @@ export const InvestorListClient: React.FC<InvestorListClientProps> = ({ initialI
   const [filterCapital, setFilterCapital] = useState<string>('');
   const [showMobileFilters, setShowMobileFilters] = useState(false);
 
-  const filteredInvestors = useMemo(() => {
-    let result = [...investors];
+  const filters = useMemo(() => ({
+    filterType,
+    filterExp,
+    filterField,
+    filterCapital
+  }), [filterType, filterExp, filterField, filterCapital]);
 
-    if (filterType) {
-      result = result.filter(i => i.investorType === filterType);
-    }
-    if (filterExp) {
-      result = result.filter(i => i.experience === filterExp);
-    }
-    if (filterField) {
-      result = result.filter(i => i.preferredField === filterField);
-    }
-    if (filterCapital) {
-      if (filterCapital === 'low') result = result.filter(i => i.capital < 100000);
-      else if (filterCapital === 'mid') result = result.filter(i => i.capital >= 100000 && i.capital < 500000);
-      else if (filterCapital === 'high') result = result.filter(i => i.capital >= 500000);
-    }
-
-    return result;
-  }, [investors, filterType, filterExp, filterField, filterCapital]);
+  const { data: investors = initialInvestors, isLoading } = useInvestors(filters);
+  const filteredInvestors = investors;
 
   const resetFilters = () => {
     setFilterType('');
@@ -159,17 +147,23 @@ export const InvestorListClient: React.FC<InvestorListClientProps> = ({ initialI
            </h2>
          </div>
 
-         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-20">
-           {filteredInvestors.map(investor => (
-             <InvestorCard 
-               key={investor.id} 
-               investor={investor} 
-               locale={locale} 
-               userRole={user?.role} 
-               t={t} 
-             />
-           ))}
-         </div>
+         {isLoading ? (
+           <div className="flex justify-center items-center py-20">
+             <span className="w-10 h-10 border-4 border-brand-gold/30 border-t-brand-gold rounded-full animate-spin"></span>
+           </div>
+         ) : (
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-20">
+             {filteredInvestors.map((investor: any) => (
+               <InvestorCard 
+                 key={investor.id} 
+                 investor={investor} 
+                 locale={locale} 
+                 userRole={user?.role} 
+                 t={t} 
+               />
+             ))}
+           </div>
+         )}
 
          {filteredInvestors.length === 0 && (
            <EmptyState 

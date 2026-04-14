@@ -1,4 +1,5 @@
 import { Project, AdStatus, FinancialStatus } from '@/shared/types';
+import { api } from '@/shared/services/api-client';
 
 // Global Fallback Image
 export const FALLBACK_IMAGE = "https://b3businessbrokers.com/wp-content/uploads/2024/05/AdobeStock_157565392-min.jpeg";
@@ -145,21 +146,81 @@ export const EXTRA_STATS = {
 };
 
 // Mocking API service
+function mapOpportunity(apiData: any): Project {
+   return {
+      id: apiData.id ? String(apiData.id) : `PROJ-${Math.floor(Math.random() * 9999)}`,
+      ownerId: apiData.user_id ? String(apiData.user_id) : 'UNKNOWN',
+      listingPurpose: apiData.purpose === 'sale' ? 'sale' : 'investment',
+      name: { 
+        en: apiData.title?.en || apiData.title || apiData.name?.en || 'Opportunity', 
+        ar: apiData.title?.ar || apiData.title || apiData.name?.ar || 'فرصة' 
+      },
+      category: { 
+        en: apiData.category?.name?.en || apiData.category?.en || 'Business', 
+        ar: apiData.category?.name?.ar || apiData.category?.ar || 'أعمال' 
+      },
+      image: apiData.image || apiData.cover_image || FALLBACK_IMAGE,
+      capital: apiData.capital || apiData.value || 0,
+      age: { en: apiData.age?.en || 'Unknown', ar: apiData.age?.ar || 'غير معروف' },
+      shareOffered: apiData.share_offered || apiData.equity_offered || 0,
+      askingPrice: apiData.asking_price || apiData.required_investment || 0,
+      location: { 
+        en: apiData.location?.en || apiData.country || 'Kuwait', 
+        ar: apiData.location?.ar || 'الكويت' 
+      },
+      descriptionShort: { 
+        en: apiData.short_description?.en || apiData.short_description || '', 
+        ar: apiData.short_description?.ar || apiData.short_description || '' 
+      },
+      descriptionFull: { 
+        en: apiData.full_description?.en || apiData.full_description || '', 
+        ar: apiData.full_description?.ar || apiData.full_description || '' 
+      },
+      financialHealth: apiData.financial_health || 'Unknown',
+      status: apiData.status || 'published',
+      createdAt: apiData.created_at || new Date().toISOString(),
+      companyStage: { en: apiData.stage?.en || 'Growth', ar: apiData.stage?.ar || 'نمو' },
+      viewsCount: apiData.views_count || 0
+   };
+}
+
 export const projectService = {
   getLatestProjects: async () => {
-    return SAMPLE_PROJECTS
-      .filter(p => p.status === 'published' || p.status === 'approved')
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-      .slice(0, 4);
-  },
-  getAllProjects: async (category?: string) => {
-    let filtered = SAMPLE_PROJECTS.filter(p => p.status === 'published' || p.status === 'approved');
-    if (category) {
-      filtered = filtered.filter(p => p.category.en === category);
+    try {
+      const response = await api.get('/v1/company/opportunities', { query: { per_page: 4 } });
+      const projects = response?.data?.data || response?.data || response || [];
+      return projects.map(mapOpportunity);
+    } catch {
+       return [];
     }
-    return filtered;
+  },
+  getAllProjects: async (filters?: any) => {
+    try {
+      const query: any = {};
+      if (typeof filters === 'string') {
+         query.category = filters;
+      } else if (filters) {
+          if (filters.category) query.category = filters.category;
+          if (filters.sort) query.sort = filters.sort;
+          if (filters.minPrice) query.min_price = filters.minPrice;
+          if (filters.maxPrice && filters.maxPrice < 1000000000) query.max_price = filters.maxPrice;
+      }
+      
+      const response = await api.get('/v1/company/opportunities', { query });
+      const projects = response?.data?.data || response?.data || response || [];
+      return projects.map(mapOpportunity);
+    } catch {
+       return [];
+    }
   },
   getProjectById: async (id: string) => {
-    return SAMPLE_PROJECTS.find(p => p.id === id);
+    try {
+      const response = await api.get(`/v1/company/opportunities/${id}`);
+      const proj = response?.data || response || null;
+      if (!proj) return null;
+      return mapOpportunity(proj);
+    } catch {
+       return null;
+    }
   }
 };

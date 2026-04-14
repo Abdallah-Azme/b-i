@@ -34,7 +34,6 @@ export async function generateMetadata({params}: {params: Promise<{locale: strin
     description,
     keywords: ['investment', 'business for sale', 'kuwait', 'startups', 'capital', 'استثمار', 'مشاريع للبيع', 'الكويت', 'ريادة أعمال'],
     authors: [{ name: 'B&I Team' }],
-    viewport: 'width=device-width, initial-scale=1',
     robots: 'index, follow',
     openGraph: {
       title,
@@ -51,6 +50,11 @@ export async function generateMetadata({params}: {params: Promise<{locale: strin
     },
   };
 }
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+};
 
 export default async function LocaleLayout({
   children,

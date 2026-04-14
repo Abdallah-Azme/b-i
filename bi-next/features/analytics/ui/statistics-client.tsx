@@ -3,12 +3,16 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { Briefcase, Users, Building, FileText, CheckCircle, Activity, Radio } from 'lucide-react';
-import { SAMPLE_PROJECTS, EXTRA_STATS } from '@/features/projects/services/project-api';
-import { SAMPLE_INVESTORS } from '@/features/investors/services/investor-api';
+import { EXTRA_STATS } from '@/features/projects/services/project-api';
+import { useProjects } from '@/features/projects/hooks/use-projects';
+import { useInvestors } from '@/features/investors/hooks/use-investors';
 
 export const StatisticsClient: React.FC = () => {
   const t = useTranslations('stats');
   const [onlineUsers, setOnlineUsers] = useState(24);
+
+  const { data: projects = [] } = useProjects();
+  const { data: investors = [] } = useInvestors();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -20,7 +24,7 @@ export const StatisticsClient: React.FC = () => {
   const stats = [
     {
        label: t('projects'),
-       value: SAMPLE_PROJECTS.length,
+       value: projects.length,
        icon: Briefcase,
        color: 'text-blue-400',
        bg: 'bg-blue-500/10',
@@ -28,7 +32,7 @@ export const StatisticsClient: React.FC = () => {
     },
     {
        label: t('investors'),
-       value: SAMPLE_INVESTORS.length,
+       value: investors.length,
        icon: Users,
        color: 'text-brand-gold',
        bg: 'bg-brand-gold/10',

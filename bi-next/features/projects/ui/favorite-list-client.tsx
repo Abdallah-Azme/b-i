@@ -36,7 +36,7 @@ export const FavoriteListClient: React.FC<FavoriteListClientProps> = ({ initialP
     return <div className="min-h-screen flex items-center justify-center text-white">Loading...</div>;
   }
 
-  const favProjects = projects.filter(p => user.favorites.includes(p.id));
+  const favProjects = projects.filter((p: Project) => user.favorites.includes(p.id));
 
 
   return (
@@ -52,7 +52,7 @@ export const FavoriteListClient: React.FC<FavoriteListClientProps> = ({ initialP
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {favProjects.map(project => {
+          {favProjects.map((project: Project) => {
             const unlocked = user.unlockedProjects?.includes(project.id);
             return (
               <Link href={`/projects/${project.id}`} key={project.id} className="group bg-brand-gray/30 border border-white/10 hover:border-brand-gold/50 rounded-xl overflow-hidden transition-all hover:-translate-y-1 block relative shadow-lg">

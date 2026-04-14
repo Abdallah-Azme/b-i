@@ -5,8 +5,8 @@ import { useLocale, useTranslations } from 'next-intl';
 import { Globe, User as UserIcon, LogOut } from 'lucide-react';
 import { Link, usePathname, useRouter } from '@/i18n/routing';
 import { Logo } from './logo';
-import { SAMPLE_PROJECTS } from '@/features/projects/services/project-api';
-import { SAMPLE_INVESTORS } from '@/features/investors/services/investor-api';
+import { useProjects } from '@/features/projects/hooks/use-projects';
+import { useInvestors } from '@/features/investors/hooks/use-investors';
 import { useAuth } from '@/features/auth/hooks/use-auth';
 
 export const TopNavbar: React.FC = () => {
@@ -16,12 +16,15 @@ export const TopNavbar: React.FC = () => {
   const router = useRouter();
   const { user, logout } = useAuth();
   
+  const { data: projects = [] } = useProjects();
+  const { data: investors = [] } = useInvestors();
+
   const isActive = (path: string) => pathname === path ? "text-brand-gold font-bold" : "text-gray-300 hover:text-brand-gold transition-colors";
 
   const totalStats = useMemo(() => {
-    // Exact totals from React logic (projects + investors + static stats)
-    return SAMPLE_PROJECTS.length + SAMPLE_INVESTORS.length + 142 + 89 + 34;
-  }, []);
+    // Exact totals from live logic + static ones
+    return projects.length + investors.length + 142 + 89 + 34;
+  }, [projects.length, investors.length]);
 
   const toggleLanguage = () => {
     const nextLocale = locale === 'en' ? 'ar' : 'en';

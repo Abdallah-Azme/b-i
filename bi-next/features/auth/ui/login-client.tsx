@@ -7,6 +7,7 @@ import { useAuth } from '@/features/auth/hooks/use-auth';
 import { useLocale, useTranslations } from 'next-intl';
 import { AlertCircle, LogIn } from 'lucide-react';
 import { UserRole } from '@/shared/types';
+import { useMutation } from '@tanstack/react-query';
 
 export const LoginClient: React.FC = () => {
   const searchParams = useSearchParams();
@@ -20,18 +21,24 @@ export const LoginClient: React.FC = () => {
 
   const [formData, setFormData] = useState({
     email: role === 'advertiser' ? 'advertiser@bi.com' : 'investor@bi.com',
-    phone: role === 'advertiser' ? '88880000' : '80808080'
+    password: 'password123'
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const loginMutation = useMutation({
+    mutationFn: () => login({
+        role,
+        email: formData.email,
+        password: formData.password,
+    }),
+    onSuccess: () => {
+      router.push('/dashboard');
+    }
+  });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    if (name === 'phone') {
-      if (!/^\d*$/.test(value)) return;
-      if (value.length > 8) return;
-    }
     setFormData(prev => ({ ...prev, [name]: value }));
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
@@ -46,10 +53,8 @@ export const LoginClient: React.FC = () => {
       newErrors.email = t('invalidEmail');
     }
     
-    if (!formData.phone.trim()) {
-      newErrors.phone = t('required');
-    } else if (formData.phone.length !== 8) {
-      newErrors.phone = t('invalidPhone');
+    if (!formData.password.trim()) {
+      newErrors.password = t('required');
     }
 
     setErrors(newErrors);
@@ -59,12 +64,7 @@ export const LoginClient: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (validate()) {
-      setIsSubmitting(true);
-      setTimeout(() => {
-        setIsSubmitting(false);
-        login(role, formData.email);
-        router.push('/dashboard');
-      }, 1000);
+      loginMutation.mutate();
     }
   };
 
@@ -95,30 +95,26 @@ export const LoginClient: React.FC = () => {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-300">{t('phone')}</label>
-            <div className={`flex bg-[#121212] border ${errors.phone ? 'border-red-500' : 'border-white/15'} rounded-lg overflow-hidden transition focus-within:border-brand-gold focus-within:ring-2 focus-within:ring-brand-gold/20`}>
-               <div className="px-4 py-3 bg-white/5 border-r border-white/10 text-gray-400 select-none ltr:border-r rtl:border-l rtl:border-r-0">
-                 +965
-               </div>
+            <label className="text-sm font-medium text-gray-300">{t('password')}</label>
+            <div className={`flex bg-[#121212] border ${errors.password ? 'border-red-500' : 'border-white/15'} rounded-lg overflow-hidden transition focus-within:border-brand-gold focus-within:ring-2 focus-within:ring-brand-gold/20`}>
                <input 
-                  type="tel" 
-                  name="phone"
-                  value={formData.phone}
+                  type="password" 
+                  name="password"
+                  value={formData.password}
                   onChange={handleChange}
-                  placeholder="xxxxxxxx"
-                  maxLength={8}
+                  placeholder="••••••••"
                   className="w-full bg-transparent border-none px-4 py-3 text-white outline-none placeholder-gray-600 font-sans"
                 />
             </div>
-            {errors.phone && <span className="text-xs text-red-500 flex items-center gap-1"><AlertCircle size={10} /> {errors.phone}</span>}
+            {errors.password && <span className="text-xs text-red-500 flex items-center gap-1"><AlertCircle size={10} /> {errors.password}</span>}
           </div>
 
           <button 
             type="submit" 
-            disabled={isSubmitting}
+            disabled={loginMutation.isPending}
             className="w-full bg-brand-gold text-black font-bold text-lg py-3 rounded-xl hover:bg-yellow-500 transition shadow-lg shadow-brand-gold/20 disabled:opacity-50 mt-4 flex items-center justify-center gap-2"
           >
-            {isSubmitting ? (
+            {loginMutation.isPending ? (
               <span className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin"></span>
             ) : (
               <>

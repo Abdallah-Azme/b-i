@@ -64,7 +64,7 @@ export function HomePageContent({ latestProjects = [] }: HomePageContentProps) {
            </div>
            
            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" role="list">
-              {projects.map((project) => (
+              {projects.map((project: Project) => (
                 <ProjectCard key={project.id} project={project} />
               ))}
            </div>
@@ -104,7 +104,7 @@ export function HomePageContent({ latestProjects = [] }: HomePageContentProps) {
         <h2 className="text-3xl font-bold mb-10 text-center">{tHome('exploreSectors')}</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4" role="list">
           {CATEGORIES.slice(0, 10).map((cat, idx) => {
-            const count = allProjects.filter(p => p.category.en === cat.en && (p.status === 'published' || p.status === 'approved')).length; 
+            const count = allProjects.filter((p: Project) => p.category.en === cat.en && (p.status === 'published' || p.status === 'approved')).length; 
             return (
               <Link role="listitem" href={`/projects?cat=${cat.en}`} key={idx} className="group relative overflow-hidden rounded-xl aspect-square bg-brand-gray border border-white/5 hover:border-brand-gold/50 transition flex items-center justify-center p-4 text-center">
                 <div className="relative z-10 flex flex-col items-center">

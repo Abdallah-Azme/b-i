@@ -14,7 +14,6 @@ interface ProjectListClientProps {
 }
 
 export const ProjectListClient: React.FC<ProjectListClientProps> = ({ initialProjects = [] }) => {
-  const { data: projects = initialProjects } = useProjects();
   const locale = useLocale() as Language;
   const searchParams = useSearchParams();
 
@@ -40,27 +39,14 @@ export const ProjectListClient: React.FC<ProjectListClientProps> = ({ initialPro
     window.history.replaceState({}, '', url);
   }, [filterCat]);
 
-  const filteredProjects = useMemo(() => {
-    let result = [...projects];
-    
-    if (filterCat) {
-      result = result.filter(p => p.category.en === filterCat);
-    }
+  const filters = useMemo(() => ({
+    category: filterCat,
+    listingType: filterPurpose,
+    sort: sortOption
+  }), [filterCat, filterPurpose, sortOption]);
 
-    if (filterPurpose) {
-       result = result.filter(p => p.listingPurpose === filterPurpose);
-    }
-    
-    if (sortOption === 'price_asc') {
-      result.sort((a, b) => a.askingPrice - b.askingPrice);
-    } else if (sortOption === 'price_desc') {
-      result.sort((a, b) => b.askingPrice - a.askingPrice);
-    } else if (sortOption === 'newest') {
-      result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    }
-
-    return result;
-  }, [projects, filterCat, filterPurpose, sortOption]);
+  const { data: projects = initialProjects, isLoading } = useProjects(filters);
+  const filteredProjects = projects;
 
   const resetFilters = () => {
     setFilterCat('');
@@ -154,20 +140,26 @@ export const ProjectListClient: React.FC<ProjectListClientProps> = ({ initialPro
            <h2 className="text-2xl font-bold">{tNav('projects')} <span className="text-gray-500 text-lg font-normal font-sans">({filteredProjects.length})</span></h2>
          </div>
 
-         <div className="grid grid-cols-1 gap-6">
-           {filteredProjects.map(project => (
-             <ProjectHorizontalCard 
-               key={project.id} 
-               project={project} 
-             />
-           ))}
-           {filteredProjects.length === 0 && (
-             <div className="py-20 text-center bg-brand-gray/30 rounded-xl border border-dashed border-white/10">
-               <p className="text-gray-400">{locale === 'en' ? 'No projects match your filters.' : 'لا توجد مشاريع تطابق مرشحاتك.'}</p>
-               <button onClick={resetFilters} className="text-brand-gold hover:underline mt-2">{tFilters('reset')}</button>
-             </div>
-           )}
-         </div>
+         {isLoading ? (
+           <div className="flex justify-center items-center py-20">
+             <span className="w-10 h-10 border-4 border-brand-gold/30 border-t-brand-gold rounded-full animate-spin"></span>
+           </div>
+         ) : (
+           <div className="grid grid-cols-1 gap-6">
+             {filteredProjects.map((project: any) => (
+               <ProjectHorizontalCard 
+                 key={project.id} 
+                 project={project} 
+               />
+             ))}
+             {filteredProjects.length === 0 && (
+               <div className="py-20 text-center bg-brand-gray/30 rounded-xl border border-dashed border-white/10">
+                 <p className="text-gray-400">{locale === 'en' ? 'No projects match your filters.' : 'لا توجد مشاريع تطابق مرشحاتك.'}</p>
+                 <button onClick={resetFilters} className="text-brand-gold hover:underline mt-2">{tFilters('reset')}</button>
+               </div>
+             )}
+           </div>
+         )}
       </div>
     </div>
   );

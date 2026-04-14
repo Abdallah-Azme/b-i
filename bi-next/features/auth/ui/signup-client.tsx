@@ -8,6 +8,8 @@ import { Briefcase, TrendingUp, CheckCircle, AlertCircle, Upload, FileText } fro
 import { CATEGORIES } from '@/features/projects/services/project-api';
 import { Language } from '@/shared/types';
 import { Link } from '@/i18n/routing';
+import { useMutation } from '@tanstack/react-query';
+import { api } from '@/shared/services/api-client';
 
 export const SignupClient: React.FC = () => {
   const searchParams = useSearchParams();
@@ -48,7 +50,6 @@ export const SignupClient: React.FC = () => {
 
   const [formData, setFormData] = useState(getDefaults(role));
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isOtherSector, setIsOtherSector] = useState(false);
   const [agreed, setAgreed] = useState(false);
   
@@ -138,14 +139,42 @@ export const SignupClient: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const registerMutation = useMutation({
+    mutationFn: async () => {
+      const fd = new FormData();
+      fd.append('first_name', formData.firstName);
+      fd.append('last_name', formData.lastName);
+      fd.append('email', formData.email);
+      fd.append('phone', formData.phone);
+      fd.append('password', formData.password);
+      fd.append('agreed_to_terms', '1');
+
+      if (role === 'investor') {
+        fd.append('investor_type', formData.investorType!);
+        fd.append('investor_experience', formData.investorExperience!);
+        fd.append('capital', formData.investorCapital);
+        fd.append('available_capital', formData.investorCapital);
+        fd.append('previous_investments_count', formData.investmentCount);
+        fd.append('preferred_sector_id', '1'); // Requires dynamic mapping to actual DB IDs
+        fd.append('category_id', '1'); // Requires dynamic mapping to actual DB IDs
+        
+        return api.post('/v1/auth/register/investor', fd);
+      } else {
+        if (licenseFile) {
+          fd.append('company_license_file', licenseFile);
+        }
+        return api.post('/v1/auth/register/advertiser', fd);
+      }
+    },
+    onSuccess: () => {
+      router.push('/verify-email');
+    }
+  });
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (validate()) {
-      setIsSubmitting(true);
-      setTimeout(() => {
-        setIsSubmitting(false);
-        router.push('/verify-email');
-      }, 1500);
+      registerMutation.mutate();
     }
   };
 
@@ -463,10 +492,10 @@ export const SignupClient: React.FC = () => {
           <div className="pt-2">
             <button 
               type="submit" 
-              disabled={isSubmitting}
+              disabled={registerMutation.isPending}
               className="w-full bg-brand-gold text-black font-bold text-lg py-4 rounded-xl hover:bg-yellow-500 transition shadow-lg shadow-brand-gold/20 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? (
+              {registerMutation.isPending ? (
                  <span className="flex items-center justify-center gap-2">
                    <span className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin"></span>
                    {locale === 'en' ? 'Processing...' : 'جاري المعالجة...'}

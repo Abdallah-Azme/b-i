@@ -3,14 +3,19 @@
 import React from 'react';
 import { IncomingRequest } from '@/shared/types';
 
-// Mock Data
-const SAMPLE_INCOMING_REQUESTS: IncomingRequest[] = [
-  { id: 'ir1', projectName: { ar: 'متجر الإلكترونيات', en: 'Electronics Store' }, investorName: 'Ahmed Abdullah', date: '2024-03-12', status: 'new' },
-  { id: 'ir2', projectName: { ar: 'مطعم جديد', en: 'New Restaurant' }, investorName: 'Sarah Smith', date: '2024-03-10', status: 'replied' }
-];
+import { useQuery } from '@tanstack/react-query';
+import { api } from '@/shared/services/api-client';
 
 export const IncomingRequestsTab: React.FC<{ locale: string }> = ({ locale }) => {
   const isAr = locale === 'ar';
+  
+  const { data: requests = [], isLoading } = useQuery({
+    queryKey: ['incomingRequests'],
+    queryFn: async () => {
+       const res = await api.get('/v1/company/opportunities/requests');
+       return (res?.data || []) as IncomingRequest[];
+    }
+  });
   
   const getWhatsAppLink = (req: IncomingRequest) => {
     const projectName = req.projectName[locale as keyof typeof req.projectName];
@@ -20,9 +25,17 @@ export const IncomingRequestsTab: React.FC<{ locale: string }> = ({ locale }) =>
     return `https://wa.me/96560070353?text=${encodeURIComponent(message)}`;
   };
 
+  if (isLoading) {
+    return <div className="p-8 text-center text-gray-500 animate-pulse">Loading requests...</div>;
+  }
+
+  if (!requests.length) {
+    return <div className="p-8 text-center text-gray-500 border border-white/5 rounded-xl bg-brand-gray/20">No incoming requests yet.</div>;
+  }
+
   return (
     <div className="space-y-4">
-      {SAMPLE_INCOMING_REQUESTS.map(req => (
+      {requests.map(req => (
         <div key={req.id} className="bg-brand-gray/20 p-4 rounded-xl border border-white/5 flex items-center justify-between">
           <div>
             <h4 className="font-bold text-white">{req.projectName[locale as keyof typeof req.projectName]}</h4>

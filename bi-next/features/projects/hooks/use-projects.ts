@@ -1,10 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { projectService } from '../services/project-api';
 
-export const useProjects = (category?: string) => {
+export const useProjects = (filters?: any) => {
   return useQuery({
-    queryKey: ['projects', category],
-    queryFn: () => projectService.getAllProjects(category),
+    queryKey: ['projects', filters],
+    queryFn: () => projectService.getAllProjects(filters),
   });
 };
 

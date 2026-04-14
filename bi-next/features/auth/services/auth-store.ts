@@ -2,54 +2,69 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { User, UserRole, Project } from '@/shared/types';
 import { SAMPLE_PROJECTS } from '@/features/projects/services/project-api';
+import { api } from '@/shared/services/api-client';
 
 interface AuthState {
   user: User | null;
+  token: string | null;
   isLoading: boolean;
   interestedInvestors: string[];
-  login: (role: UserRole, email?: string) => void;
+  login: (payload: { role: UserRole; email: string; phone?: string; password?: string }) => Promise<void>;
   logout: () => void;
-  unlockProject: (projectId: string) => void;
-  toggleFavorite: (projectId: string) => void;
+  unlockProject: (projectId: string) => Promise<void>;
+  toggleFavorite: (projectId: string) => Promise<void>;
   updateUser: (userData: Partial<User>) => void;
-  addProject: (projectData: Partial<Project>) => void;
-  requestInterest: (projectId: string) => void;
-  toggleInterestInvestor: (investorId: string) => void;
+  requestInterest: (projectId: string) => Promise<void>;
+  toggleInterestInvestor: (investorId: string) => Promise<void>;
   isInterestedInInvestor: (investorId: string) => boolean;
+  refreshProfile: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
       user: null,
+      token: null,
       isLoading: true, // This will be set to false after hydration
       interestedInvestors: [],
       
-      login: (role: UserRole, email: string = 'user@bi-platform.com') => {
-        // Migration/Normalization: Handle demo user matching
-        const userId = (role === 'advertiser' && email.includes('advertiser')) 
-            ? 'USR-DEMO-OWNER' 
-            : `USR-${Math.floor(Math.random() * 10000)}`;
+      login: async (payload) => {
+        const { role, email, phone, password } = payload;
+        
+        const formData = new FormData();
+        formData.append('email', email);
+        if (password) formData.append('password', password);
+        else if (phone) formData.append('password', phone); 
+        formData.append('role', role);
+        formData.append('device_token', 'web-token');
+        formData.append('device_type', 'web');
 
-        const licenseUrl = role === 'advertiser' 
-          ? 'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=400&q=80' 
-          : undefined;
+        // ofetch automatically throws errors for non-2xx responses
+        const data = await api.post('/v1/auth/login', formData);
 
-        const mockUser: User = {
-          id: userId,
-          email: email,
-          name: role === 'investor' ? 'Verified Investor' : 'Business Owner',
-          role,
-          subscriptionPlan: role === 'investor' ? 'premium' : undefined,
-          favorites: [],
-          unlockedProjects: (role === 'advertiser' && email.includes('advertiser')) ? ['PROJ-1000', 'PROJ-1001'] : [],
-          companyLicenseUrl: licenseUrl
-        };
-        set({ user: mockUser });
+        if (data.key === 'success' || data.data?.token) {
+           const token = data.data?.token || 'mock_token';
+           const userId = `USR-${Math.floor(Math.random() * 10000)}`;
+
+           const mockUser: User = {
+             id: data.data?.user?.id || userId,
+             email: data.data?.user?.email || email,
+             name: data.data?.user?.first_name ? `${data.data.user.first_name} ${data.data.user.last_name}` : (role === 'investor' ? 'Verified Investor' : 'Business Owner'),
+             role,
+             subscriptionPlan: role === 'investor' ? 'premium' : undefined,
+             favorites: [],
+             unlockedProjects: [],
+             companyLicenseUrl: undefined
+           };
+           
+           set({ user: mockUser, token });
+        } else {
+           throw new Error(data.msg || 'Login failed');
+        }
       },
       
       logout: () => {
-        set({ user: null });
+        set({ user: null, token: null });
       },
       
       updateUser: (userData: Partial<User>) => {
@@ -58,73 +73,70 @@ export const useAuthStore = create<AuthState>()(
         set({ user: { ...user, ...userData } });
       },
       
-      unlockProject: (projectId: string) => {
+      refreshProfile: async () => {
+        try {
+           const response = await api.get('/v1/auth/me');
+           if (response?.data?.user) {
+              const u = response.data.user;
+              set({ user: { 
+                 id: u.id, 
+                 email: u.email, 
+                 name: `${u.first_name || ''} ${u.last_name || ''}`.trim() || 'User',
+                 role: u.role || 'investor',
+                 subscriptionPlan: u.subscription_plan,
+                 favorites: Array.isArray(u.favorites) ? u.favorites : [],
+                 unlockedProjects: Array.isArray(u.unlocked_projects) ? u.unlocked_projects : [],
+              } });
+           }
+        } catch (e) {
+           console.warn('Failed to refresh profile');
+        }
+      },
+
+      unlockProject: async (projectId: string) => {
         const { user } = get();
         if (!user) return;
         
-        const unlockedProjects = [...(user.unlockedProjects || [])];
-        if (!unlockedProjects.includes(projectId)) {
-          unlockedProjects.push(projectId);
+        try {
+          await api.post(`/v1/company/opportunities/${projectId}/buy`);
+          const unlockedProjects = [...(user.unlockedProjects || []), projectId];
+          set({ user: { ...user, unlockedProjects } });
+          const isAr = typeof window !== 'undefined' && window.location.pathname.startsWith('/ar');
+          alert(isAr ? 'تم الدفع بنجاح. تم فتح الملف.' : 'Payment Successful. File Unlocked.');
+        } catch (e: any) {
+           alert(e.message || 'Failed to unlock');
         }
-        
-        set({ user: { ...user, unlockedProjects } });
-        
-        // Match React alert behavior
-        const isAr = typeof window !== 'undefined' && window.location.pathname.startsWith('/ar');
-        alert(isAr ? 'تم الدفع بنجاح. تم فتح الملف.' : 'Payment Successful. File Unlocked.');
       },
       
-      toggleFavorite: (projectId: string) => {
-        const { user } = get();
-        if (!user) {
-          const isAr = typeof window !== 'undefined' && window.location.pathname.startsWith('/ar');
-          alert(isAr ? 'يرجى تسجيل الدخول لحفظ المفضلة.' : 'Please login to save favorites.');
-          return;
-        }
-        
-        const favorites = user.favorites.includes(projectId)
-          ? user.favorites.filter(id => id !== projectId)
-          : [...user.favorites, projectId];
-        
-        set({ user: { ...user, favorites } });
-      },
-
-      addProject: (projectData: Partial<Project>) => {
+      toggleFavorite: async (projectId: string) => {
         const { user } = get();
         if (!user) return;
         
-        const newProject: Project = {
-           id: `PROJ-${Math.floor(Math.random() * 100000)}`,
-           ownerId: user.id,
-           name: projectData.name || { ar: 'مشروع جديد', en: 'New Project' },
-           category: projectData.category || { ar: 'غير محدد', en: 'Uncategorized' },
-           image: projectData.image || "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=800&q=80",
-           capital: projectData.capital || 0,
-           age: projectData.age || { ar: '0 سنوات', en: '0 Years' },
-           shareOffered: projectData.shareOffered || 0,
-           askingPrice: projectData.askingPrice || 0,
-           location: projectData.location || { ar: 'الكويت', en: 'Kuwait' },
-           descriptionShort: projectData.descriptionShort || { ar: '', en: '' },
-           descriptionFull: projectData.descriptionFull || { ar: '', en: '' },
-           financialHealth: projectData.financialHealth || 'Stable',
-           status: 'pending',
-           createdAt: new Date().toISOString(),
-           listingPurpose: projectData.listingPurpose || 'investment',
-           companyStage: projectData.companyStage || { ar: 'تأسيسی', en: 'Seed' },
-           viewsCount: 0,
-           ...projectData
-        } as Project;
-
-        // Mutate the mock data list to simulate backend save
-        SAMPLE_PROJECTS.unshift(newProject);
+        try {
+          // Optimistic UI update
+          const favorites = user.favorites.includes(projectId)
+            ? user.favorites.filter(id => id !== projectId)
+            : [...user.favorites, projectId];
+          set({ user: { ...user, favorites } });
+          
+          await api.post(`/v1/company/opportunities/${projectId}/favorite`);
+        } catch (e: any) {
+          // Revert on failure
+          get().refreshProfile();
+        }
       },
 
-      requestInterest: (_projectId: string) => {
-        const isAr = typeof window !== 'undefined' && window.location.pathname.startsWith('/ar');
-        alert(isAr ? 'تم تسجيل اهتمامك. سيتصل بك المسؤول قريباً.' : 'Interest registered. Admin will contact you shortly.');
+      requestInterest: async (projectId: string) => {
+        try {
+          await api.post(`/v1/company/opportunities/${projectId}/interest`);
+          const isAr = typeof window !== 'undefined' && window.location.pathname.startsWith('/ar');
+          alert(isAr ? 'تم تسجيل اهتمامك. سيتصل بك المسؤول قريباً.' : 'Interest registered. Admin will contact you shortly.');
+        } catch (e: any) {
+          alert('Error registering interest');
+        }
       },
 
-      toggleInterestInvestor: (investorId: string) => {
+      toggleInterestInvestor: async (investorId: string) => {
         const { user, interestedInvestors } = get();
         const isAr = typeof window !== 'undefined' && window.location.pathname.startsWith('/ar');
 
@@ -135,8 +147,13 @@ export const useAuthStore = create<AuthState>()(
         
         if (interestedInvestors.includes(investorId)) return;
         
-        set({ interestedInvestors: [...interestedInvestors, investorId] });
-        alert(isAr ? 'تم إرسال الاهتمام للإدارة.' : 'Interest sent to admin.');
+        try {
+           await api.post(`/v1/general/investors/${investorId}/interest`);
+           set({ interestedInvestors: [...interestedInvestors, investorId] });
+           alert(isAr ? 'تم إرسال الاهتمام للإدارة.' : 'Interest sent to admin.');
+        } catch (e) {
+           alert('Error sending interest');
+        }
       },
 
       isInterestedInInvestor: (investorId: string) => {

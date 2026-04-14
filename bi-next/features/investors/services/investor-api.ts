@@ -1,25 +1,38 @@
 import { PublicInvestor } from '@/shared/types';
-import { CATEGORIES } from '@/features/projects/services/project-api';
-
-export const SAMPLE_INVESTORS: PublicInvestor[] = Array.from({ length: 15 }, (_, i) => {
-  const types: Array<'company' | 'angel' | 'crowdfunding'> = ['company', 'angel', 'crowdfunding'];
-  const experiences: Array<'beginner' | 'intermediate' | 'expert'> = ['beginner', 'intermediate', 'expert'];
-  const cat = CATEGORIES[i % CATEGORIES.length];
-  
-  return {
-    id: `INV-${8920 + i}`,
-    investorType: types[i % 3],
-    capital: (Math.floor(Math.random() * 90) + 10) * 10000,
-    preferredField: cat.en,
-    experience: experiences[i % 3],
-    joinedAt: new Date(Date.now() - Math.random() * 10000000000).toISOString(),
-  };
-});
+import { api } from '@/shared/services/api-client';
 
 export const investorService = {
-  getAllInvestors: async () => {
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 0));
-    return SAMPLE_INVESTORS;
+  getAllInvestors: async (filters: any = {}): Promise<PublicInvestor[]> => {
+    const query: any = {
+      page: 1,
+      per_page: 50 // Temp pagination bypass
+    };
+    
+    if (filters.filterType) query.investor_type = filters.filterType;
+    if (filters.filterExp) query.investor_experience = filters.filterExp;
+    if (filters.filterField) query.preferred_field = filters.filterField;
+    if (filters.filterCapital) {
+      if (filters.filterCapital === 'low') { query.max_capital = 99999; }
+      else if (filters.filterCapital === 'mid') { query.min_capital = 100000; query.max_capital = 499999; }
+      else if (filters.filterCapital === 'high') { query.min_capital = 500000; }
+    }
+
+    try {
+      const response = await api.get('/v1/general/investors', { query });
+      const investors = response?.data?.data || response?.data || response || [];
+      
+      // Normalize backend JSON map to frontend PublicInvestor format safely
+      return investors.map((inv: any) => ({
+        id: inv.id ? String(inv.id) : `INV-${Math.floor(Math.random()*1000)}`,
+        investorType: inv.investor_type || 'angel',
+        capital: inv.capital || inv.available_capital || 0,
+        preferredField: inv.preferred_field || inv.category?.name || inv.category?.en || 'Tech',
+        experience: inv.investor_experience || 'intermediate',
+        joinedAt: inv.created_at || new Date().toISOString(),
+      }));
+    } catch (e) {
+      console.error("Investors fetch array mapped:", e);
+      return [];
+    }
   }
 };
