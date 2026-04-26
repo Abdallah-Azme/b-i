@@ -12,6 +12,7 @@ import {
   OpportunitiesListResponse,
   OpportunitiesQueryParams,
   OpportunityDetailResponse,
+  WhoWeAreResponse,
 } from '../types';
 
 export const generalService = {
@@ -27,7 +28,7 @@ export const generalService = {
     api.get<GeneralContentResponse>('/v1/general/privacy-policy'),
 
   getWhoWeAre: async () =>
-    api.get<GeneralContentResponse>('/v1/general/who-we-are'),
+    api.get<WhoWeAreResponse>('/v1/general/who-we-are'),
 
   // ─── Categories ──────────────────────────────────────────────────────────
   getCategories: async (params?: { page?: number; per_page?: number }) =>

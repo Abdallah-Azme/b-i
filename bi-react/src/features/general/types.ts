@@ -89,6 +89,25 @@ export interface GeneralContentResponse {
   data: string;
 }
 
+export interface WhoWeAreData {
+  items: Feature[];
+  whoWeAreSettings: {
+    title: string;
+    description: string;
+  };
+}
+
+export interface WhoWeAreResponse {
+  key: string;
+  msg: string;
+  code: number;
+  response_status: {
+    error: boolean;
+    validation_errors: any[];
+  };
+  data: WhoWeAreData;
+}
+
 export interface Investor {
   id: number;
   display_id: string;

@@ -39,7 +39,12 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   // Calculate Total Stats for Badge
   const totalStats = useMemo(() => {
     if (!s) return 0;
-    return s.projects_count + s.investors_count + s.advertisers_count + s.proposed_deals_count + s.successful_deals_count;
+    return (s.projects_count || 0) + 
+           (s.investors_count || 0) + 
+           (s.advertisers_count || 0) + 
+           (s.proposed_deals_count || 0) + 
+           (s.successful_deals_count || 0) + 
+           (s.online_users_count || 0);
   }, [s]);
 
   // Mobile Tab Bar Item Component
@@ -162,7 +167,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
             <Link to="/" className={isActive('/')}>{t('nav.home')}</Link>
             <Link to="/projects" className={isActive('/projects')}>{t('nav.projects')}</Link>
             <Link to="/investors" className={isActive('/investors')}>{t('nav.investors')}</Link>
-            <Link to="/pricing" className={isActive('/pricing')}>{t('nav.pricing')}</Link>
+            {/* <Link to="/pricing" className={isActive('/pricing')}>{t('nav.pricing')}</Link> */}
             <Link to="/about" className={isActive('/about')}>{t('nav.about')}</Link>
           </div>
         </div>
@@ -199,7 +204,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
               <ul className="space-y-3">
                 <li><Link to="/projects" className="text-gray-400 hover:text-white text-sm">{t('nav.projects')}</Link></li>
                 <li><Link to="/investors" className="text-gray-400 hover:text-white text-sm">{t('nav.investors')}</Link></li>
-                <li><Link to="/pricing" className="text-gray-400 hover:text-white text-sm">{t('nav.pricing')}</Link></li>
+                {/* <li><Link to="/pricing" className="text-gray-400 hover:text-white text-sm">{t('nav.pricing')}</Link></li> */}
                 <li><Link to="/about" className="text-gray-400 hover:text-white text-sm">{t('nav.about')}</Link></li>
               </ul>
             </div>
