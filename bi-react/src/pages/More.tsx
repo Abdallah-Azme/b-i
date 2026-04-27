@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { useStore } from '../context/Store';
+import { useStore } from '../hooks/useStore';
 import { Link } from '@tanstack/react-router';
 import { User as UserIcon, Bell, Heart, Globe2, Info, Mail, FileText, Shield, Lock, LogOut } from 'lucide-react';
 import { useWhoWeAre } from '../features/general/hooks/useGeneralLookups';

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useStore } from '../context/Store';
+import { useStore } from '../hooks/useStore';
 import { useTranslation } from 'react-i18next';
 import { ArrowRight, ArrowLeft, Info } from 'lucide-react';
 import { Link } from '@tanstack/react-router';

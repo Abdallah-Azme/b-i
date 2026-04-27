@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useStore } from '../context/Store';
+import { useStore } from '../hooks/useStore';
 import { FALLBACK_IMAGE } from '../constants';
 import { useTranslation } from 'react-i18next';
 import { Navigate, Link } from '@tanstack/react-router';

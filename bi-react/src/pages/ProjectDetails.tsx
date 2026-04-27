@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useParams, Navigate, useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
-import { useStore } from '../context/Store';
+import { useStore } from '../hooks/useStore';
 import { FALLBACK_IMAGE } from '../constants';
 import { Lock, Unlock, MapPin, DollarSign, Calendar, CheckCircle, Store, Layers, Loader2 } from 'lucide-react';
 import { Money } from '../components/Money';

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Lock } from 'lucide-react';
-import { useStore } from '../../../context/Store';
+import { useStore } from '../../../hooks/useStore';
 import { usePrivacyPolicy } from '../hooks/usePrivacyPolicy';
 
 export const PrivacyPolicyContent: React.FC = () => {

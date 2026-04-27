@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useStore } from '../context/Store';
+import { useStore } from '../hooks/useStore';
 import { ArrowRight, ArrowLeft } from 'lucide-react';
 import { Link } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useStore } from '../context/Store';
+import { useStore } from '../hooks/useStore';
 import { FALLBACK_IMAGE } from '../constants';
 import { Filter, Lock, Unlock, ArrowRight, ChevronDown, ChevronUp, X, Loader2 } from 'lucide-react';
 import { Link, useSearch } from '@tanstack/react-router';

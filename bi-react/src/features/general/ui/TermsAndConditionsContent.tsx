@@ -1,6 +1,6 @@
 import React from 'react';
 import { Shield } from 'lucide-react';
-import { useStore } from '../../../context/Store';
+import { useStore } from '../../../hooks/useStore';
 import { useTermsAndConditions } from '../hooks/useTermsAndConditions';
 
 export const TermsAndConditionsContent: React.FC = () => {

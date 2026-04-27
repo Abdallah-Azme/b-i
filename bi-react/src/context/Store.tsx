@@ -1,156 +1,14 @@
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { User, UserRole, Project, Language, NotificationItem } from '../types';
-import { SAMPLE_PROJECTS } from '../constants';
 import i18n from '@/i18n';
 import { generalService } from '../features/general/services/generalService';
-
-interface StoreContextType {
-  user: User | null;
-  lang: Language;
-  projects: Project[];
-  notifications: NotificationItem[];
-  unreadNotificationsCount: number;
-  toggleLanguage: () => void;
-  login: (role: UserRole | 'company', email?: string) => void;
-  logout: () => void;
-  unlockProject: (projectId: string) => void;
-  isProjectUnlocked: (projectId: string) => boolean;
-  isPubliclyVisible: (project: Project) => boolean;
-  requestInterest: (projectId: string) => void;
-  interestedInvestors: string[];
-  toggleInterestInvestor: (investorId: string) => void;
-  isInterestedInInvestor: (investorId: string) => boolean;
-  toggleFavorite: (projectId: string) => void;
-  isFavorite: (projectId: string) => boolean;
-  addProject: (projectData: Partial<Project>) => void;
-  markNotificationAsRead: (id: string) => void;
-  markAllNotificationsAsRead: () => void;
-  deleteNotification: (id: string) => void;
-  clearAllNotifications: () => void;
-  updateUser: (userData: Partial<User>) => void;
-}
-
-const StoreContext = createContext<StoreContextType | undefined>(undefined);
-
-// Demo Data Generator for Store Initialization
-const generateDemoNotifications = (): NotificationItem[] => {
-  const now = Date.now();
-  const minute = 60 * 1000;
-  const hour = 60 * minute;
-  const day = 24 * hour;
-
-  return [
-    {
-      id: 'n-1',
-      type: 'interest',
-      title: { ar: 'اهتمام جديد', en: 'New Interest' },
-      message: { ar: 'قام مستثمر بتسجيل اهتمام بمشروعك PROJ-1002', en: 'An investor registered interest in PROJ-1002' },
-      createdAt: new Date(now - 5 * minute).toISOString(),
-      isRead: false,
-      link: '/projects/PROJ-1002'
-    },
-    {
-      id: 'n-2',
-      type: 'deal',
-      title: { ar: 'تحديث الصفقة', en: 'Deal Update' },
-      message: { ar: 'تم قبول العرض المبدئي لصفقة المطعم', en: 'Initial offer accepted for the Restaurant deal' },
-      createdAt: new Date(now - 45 * minute).toISOString(),
-      isRead: false,
-      link: '/dashboard'
-    },
-    {
-      id: 'n-3',
-      type: 'system',
-      title: { ar: 'توثيق الحساب', en: 'Account Verification' },
-      message: { ar: 'تم توثيق حسابك بنجاح. يمكنك الآن الوصول لكل الميزات.', en: 'Your account is successfully verified. You have full access.' },
-      createdAt: new Date(now - 2 * hour).toISOString(),
-      isRead: true
-    },
-    {
-      id: 'n-4',
-      type: 'project',
-      title: { ar: 'مشروع جديد', en: 'New Project' },
-      message: { ar: 'تمت إضافة مشروع جديد في قطاع التكنولوجيا', en: 'A new project was added in the Technology sector' },
-      createdAt: new Date(now - 5 * hour).toISOString(),
-      isRead: false,
-      link: '/projects'
-    },
-    {
-      id: 'n-5',
-      type: 'deal',
-      title: { ar: 'شراء كراسة', en: 'Booklet Purchased' },
-      message: { ar: 'قام مستثمر بشراء كراسة المشروع PROJ-1044', en: 'An investor purchased the booklet for PROJ-1044' },
-      createdAt: new Date(now - 1 * day).toISOString(),
-      isRead: true
-    },
-    {
-      id: 'n-6',
-      type: 'system',
-      title: { ar: 'تنبيه أمان', en: 'Security Alert' },
-      message: { ar: 'تم تسجيل دخول جديد من جهاز غير معروف', en: 'New login detected from an unknown device' },
-      createdAt: new Date(now - 1.5 * day).toISOString(),
-      isRead: true
-    },
-    {
-      id: 'n-7',
-      type: 'interest',
-      title: { ar: 'رسالة من الإدارة', en: 'Admin Message' },
-      message: { ar: 'يرجى تحديث بيانات الملف الشخصي لاستكمال الإجراءات', en: 'Please update your profile to complete procedures' },
-      createdAt: new Date(now - 2 * day).toISOString(),
-      isRead: false,
-      link: '/dashboard'
-    },
-    {
-      id: 'n-8',
-      type: 'project',
-      title: { ar: 'فرصة مميزة', en: 'Featured Opportunity' },
-      message: { ar: 'فرصة استثمارية ذهبية في قطاع العقارات متاحة الآن', en: 'Golden investment opportunity in Real Estate is now live' },
-      createdAt: new Date(now - 3 * day).toISOString(),
-      isRead: true,
-      link: '/projects'
-    },
-    {
-      id: 'n-9',
-      type: 'deal',
-      title: { ar: 'اكتمال صفقة', en: 'Deal Completed' },
-      message: { ar: 'مبروك! تم إغلاق جولة الاستثمار لمشروع القهوة', en: 'Congrats! Investment round closed for the Coffee project' },
-      createdAt: new Date(now - 4 * day).toISOString(),
-      isRead: true
-    },
-    {
-      id: 'n-10',
-      type: 'system',
-      title: { ar: 'تحديث النظام', en: 'System Update' },
-      message: { ar: 'تم تحديث سياسة الخصوصية الخاصة بالمنصة', en: 'Platform Privacy Policy has been updated' },
-      createdAt: new Date(now - 5 * day).toISOString(),
-      isRead: true,
-      link: '/privacy-policy'
-    },
-    {
-      id: 'n-11',
-      type: 'interest',
-      title: { ar: 'تذكير', en: 'Reminder' },
-      message: { ar: 'لديك طلبات صداقة معلقة من مستثمرين آخرين', en: 'You have pending connection requests from investors' },
-      createdAt: new Date(now - 6 * day).toISOString(),
-      isRead: true
-    },
-    {
-      id: 'n-12',
-      type: 'project',
-      title: { ar: 'مشروع مماثل', en: 'Similar Project' },
-      message: { ar: 'مشروع مشابه لاهتماماتك تم نشره للتو', en: 'A project matching your interests was just published' },
-      createdAt: new Date(now - 1 * day).toISOString(),
-      isRead: false,
-      link: '/projects'
-    }
-  ];
-};
+import { StoreContext } from './StoreContext';
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [lang, setLang] = useState<Language>('ar');
   const [user, setUser] = useState<User | null>(null);
-  const [projects, setProjects] = useState<Project[]>(SAMPLE_PROJECTS);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [interestedInvestors, setInterestedInvestors] = useState<string[]>([]);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [isNotificationsInitialized, setIsNotificationsInitialized] = useState(false);
@@ -183,15 +41,10 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         const parsed = JSON.parse(saved);
         setNotifications(parsed);
       } catch (e) {
-        // Fallback if corrupted
-        const demo = generateDemoNotifications();
-        setNotifications(demo);
-        localStorage.setItem('bi_notifications', JSON.stringify(demo));
+        setNotifications([]);
       }
     } else {
-      const demo = generateDemoNotifications();
-      setNotifications(demo);
-      localStorage.setItem('bi_notifications', JSON.stringify(demo));
+      setNotifications([]);
     }
     setIsNotificationsInitialized(true);
   }, []);
@@ -211,18 +64,13 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const login = (roleInput: UserRole | 'company', email: string = 'user@bi-platform.com') => {
-    // Migration/Normalization: Handle legacy 'company' role input
     const role: UserRole = roleInput === 'company' ? 'advertiser' : roleInput;
-
-    // Fixed ID for demo advertiser to allow showing "My Projects"
     const userId = (role === 'advertiser' && email.includes('advertiser')) 
         ? 'USR-DEMO-OWNER' 
         : `USR-${Math.floor(Math.random() * 10000)}`;
 
-    // Mock login with random ID and provided email
-    // If role is advertiser (formerly company), we simulate a license URL being present
     const licenseUrl = role === 'advertiser' 
-      ? 'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=400&q=80' // Mock Document Image
+      ? 'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=400&q=80' 
       : undefined;
 
     setUser({
@@ -246,9 +94,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       alert(lang === 'en' ? 'Only business owners can express interest.' : 'فقط أصحاب الأعمال يمكنهم إبداء الاهتمام.');
       return;
     }
-    
     if (isInterestedInInvestor(investorId)) return;
-    
     setInterestedInvestors(prev => [...prev, investorId]);
     alert(lang === 'en' ? 'Interest sent to admin.' : 'تم إرسال الاهتمام للإدارة.');
   };
@@ -256,8 +102,6 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const unlockProject = (projectId: string) => {
     if (!user) return;
     if (user.unlockedProjects.includes(projectId)) return;
-    
-    // Simulate payment success
     setUser({ ...user, unlockedProjects: [...user.unlockedProjects, projectId] });
     alert(lang === 'en' ? 'Payment Successful. File Unlocked.' : 'تم الدفع بنجاح. تم فتح الملف.');
   };
@@ -280,12 +124,10 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       alert(lang === 'en' ? 'Please login to save favorites.' : 'يرجى تسجيل الدخول لحفظ المفضلة.');
       return;
     }
-    
     const isFav = user.favorites.includes(projectId);
     const newFavorites = isFav 
       ? user.favorites.filter(id => id !== projectId)
       : [...user.favorites, projectId];
-      
     setUser({ ...user, favorites: newFavorites });
   };
 
@@ -294,10 +136,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return user.favorites.includes(projectId);
   };
 
-  // Add Project / Listing
   const addProject = (projectData: Partial<Project>) => {
     if (!user) return;
-    
     const newProject: Project = {
        id: `PROJ-${Math.floor(Math.random() * 100000)}`,
        ownerId: user.id,
@@ -317,11 +157,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
        listingPurpose: projectData.listingPurpose || 'investment',
        ...projectData
     } as Project;
-
     setProjects(prev => [newProject, ...prev]);
   };
 
-  // Notification Methods
   const unreadNotificationsCount = notifications.filter(n => !n.isRead).length;
 
   const markNotificationAsRead = (id: string) => {
@@ -354,10 +192,4 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       {children}
     </StoreContext.Provider>
   );
-};
-
-export const useStore = () => {
-  const context = useContext(StoreContext);
-  if (!context) throw new Error("useStore must be used within StoreProvider");
-  return context;
 };

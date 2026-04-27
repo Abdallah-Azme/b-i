@@ -1,5 +1,5 @@
 import React from "react";
-import { useStore } from "../../../context/Store";
+import { useStore } from "../../../hooks/useStore";
 import { useWhoWeAre } from "../hooks/useWhoWeAre";
 
 export const WhoWeAreContent: React.FC = () => {

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useStore } from '../context/Store';
+import { useStore } from '../hooks/useStore';
 import { Navigate, useNavigate, Link, useParams } from '@tanstack/react-router';
 import { CATEGORIES, COMPANY_STAGES, FINANCIAL_STATUS_ORDER, FINANCIAL_HEALTH_MAP } from '../constants';
 import { ArrowLeft, ArrowRight, TrendingUp, Store, Lock, Globe, FileText, CheckCircle } from 'lucide-react';

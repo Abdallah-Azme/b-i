@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useStore } from '../../../context/Store';
+import { useStore } from '../../../hooks/useStore';
 import { X, Mail, Key, Lock, Loader2, ArrowLeft } from 'lucide-react';
 import { 
   useEmailChangeRequestCurrent, 

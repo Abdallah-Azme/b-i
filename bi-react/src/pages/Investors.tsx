@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useStore } from '../context/Store';
+import { useStore } from '../hooks/useStore';
 import { Filter, Users, DollarSign, Briefcase, Award, ChevronDown, ChevronUp, X, CheckCircle, Loader2 } from 'lucide-react';
 import { Money } from '../components/Money';
 import { useInvestors } from '../features/general/hooks/useInvestors';

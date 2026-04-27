@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useStore } from "../context/Store";
+import { useStore } from "../hooks/useStore";
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
   Settings,
@@ -63,7 +63,7 @@ const formatCompact = (num: number) => {
 
 // Deterministic demo stats based on project
 const getDemoStats = (project: any) => {
-  const seed = parseInt(project.id.replace(/\D/g, "") || "123");
+  const seed = parseInt(String(project.id).replace(/\D/g, "") || "123");
   const isHighValue = project.askingPrice > 500000;
 
   const views = isHighValue ? 300 + (seed % 2000) : 2000 + (seed % 13000);

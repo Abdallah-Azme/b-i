@@ -1,6 +1,6 @@
 
 import React, { useMemo } from 'react';
-import { useStore } from '../context/Store';
+import { useStore } from '../hooks/useStore';
 import { useTranslation } from 'react-i18next';
 import { useStatistics } from '../features/general/hooks/useStatistics';
 import { Logo } from './Logo';

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useStore } from '../context/Store';
+import { useStore } from '../hooks/useStore';
 import { useNavigate, Link } from '@tanstack/react-router';
 import { Mail, Key, Lock, ArrowRight, ArrowLeft, Loader2, CheckCircle } from 'lucide-react';
 import { useForgotPasswordRequestCode, useForgotPasswordVerifyCode, useForgotPasswordReset } from '../features/auth/hooks/useForgotPassword';

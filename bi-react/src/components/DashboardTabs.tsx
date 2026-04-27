@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useStore } from "../context/Store";
+import { useStore } from "../hooks/useStore";
 import { useChangePassword } from "../features/auth/hooks/useChangePassword";
 import { useDeleteAccount, useAuth } from "../features/auth/hooks/useAuth";
 import {

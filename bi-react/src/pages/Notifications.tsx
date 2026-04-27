@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { useStore } from '../context/Store';
+import { useStore } from '../hooks/useStore';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { 
   ArrowLeft, ArrowRight, CheckCheck, Trash2, 

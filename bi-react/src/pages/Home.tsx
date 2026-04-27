@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useStore } from '../context/Store';
+import { useStore } from '../hooks/useStore';
 import { FALLBACK_IMAGE } from '../constants';
 import { Link } from '@tanstack/react-router';
 import { ArrowRight, CheckCircle2, TrendingUp, Shield } from 'lucide-react';
