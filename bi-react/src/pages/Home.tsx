@@ -242,7 +242,7 @@ export const Home: React.FC = () => {
             {homeData.sections.map((section) => (
               <Link 
                 to="/projects" 
-                search={{ cat: section.name }} 
+                search={{ cat: String(section.id) }} 
                 key={section.id} 
                 className="group relative overflow-hidden rounded-2xl aspect-[4/3] bg-brand-black border border-white/5 hover:border-brand-gold/50 transition-all duration-500 flex flex-col items-center justify-center p-6 text-center hover:shadow-2xl hover:shadow-brand-gold/5"
               >

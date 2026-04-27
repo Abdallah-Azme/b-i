@@ -1,18 +1,19 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useStore } from '../context/Store';
-import { Navigate, useNavigate, Link } from '@tanstack/react-router';
+import { Navigate, useNavigate, Link, useParams } from '@tanstack/react-router';
 import { CATEGORIES, COMPANY_STAGES, FINANCIAL_STATUS_ORDER, FINANCIAL_HEALTH_MAP } from '../constants';
 import { ArrowLeft, ArrowRight, TrendingUp, Store, Lock, Globe, FileText, CheckCircle } from 'lucide-react';
 import { ListingPurpose, FinancialStatus } from '../types';
 import { useCategories } from '../features/general/hooks/useCategories';
 import { useMyOpportunityDetail, useUpdateOpportunity } from '../features/company/hooks/useOpportunities';
+import { useAuth } from '../features/auth/hooks/useAuth';
 
 export const EditListing: React.FC = () => {
   const { id } = useParams({ from: '/advertiser/edit-listing/$id' });
   const { t, i18n } = useTranslation();
   const lang = i18n.language as 'ar' | 'en';
-  const { user } = useStore();
+  const { user: apiUser, isAuthenticated, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { data: categoriesData } = useCategories({ per_page: 100 });
   const categories = categoriesData?.data?.categories ?? [];
@@ -83,9 +84,14 @@ export const EditListing: React.FC = () => {
     }
   }, [existingProject]);
 
-  if (isLoading) return <div className="p-12 text-center text-white">Loading...</div>;
+  if (isLoading || authLoading) return <div className="p-12 text-center text-white">Loading...</div>;
 
-  if (!user || user.role !== 'advertiser') return <Navigate to="/dashboard" />;
+  const storedRole = localStorage.getItem("auth_role");
+  const userRole = (apiUser?.role as any)?.key ?? apiUser?.role ?? storedRole;
+
+  if (!isAuthenticated || userRole !== "advertiser") {
+    return <Navigate to="/dashboard" />;
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;

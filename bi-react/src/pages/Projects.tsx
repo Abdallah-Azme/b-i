@@ -21,7 +21,7 @@ export const Projects: React.FC = () => {
   const initialCat = search.cat ? Number(search.cat) : undefined;
 
   const [filterCat, setFilterCat] = useState<number | undefined>(initialCat);
-  const [filterPurpose, setFilterPurpose] = useState<'request_investment' | 'sell_business' | undefined>();
+  const [filterPurpose, setFilterPurpose] = useState<'request_investment' | 'sell_business' | undefined>(undefined);
 
   // Mobile Filter Visibility State
   const [showMobileFilters, setShowMobileFilters] = useState(false);
@@ -31,8 +31,8 @@ export const Projects: React.FC = () => {
   const categories = categoriesData?.data?.categories ?? [];
 
   const { data: opportunitiesData, isLoading } = useOpportunities({
-    category_id: filterCat,
-    goal: filterPurpose,
+    ...(filterCat !== undefined && { category_id: filterCat }),
+    ...(filterPurpose ? { goal: filterPurpose } : {}),
     page: 1,
     per_page: 50, // Get a chunk of them for now
   });
@@ -92,7 +92,7 @@ export const Projects: React.FC = () => {
                 <select 
                   className="w-full bg-black border border-white/20 rounded-lg p-2 text-sm focus:border-brand-gold outline-none"
                   value={filterPurpose || ''}
-                  onChange={(e) => setFilterPurpose(e.target.value as 'request_investment' | 'sell_business' | undefined)}
+                  onChange={(e) => setFilterPurpose((e.target.value || undefined) as 'request_investment' | 'sell_business' | undefined)}
                 >
                   <option value="">{t('filters.allTypes')}</option>
                   <option value="sell_business">{t('filters.forSale')}</option>
