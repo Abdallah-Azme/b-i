@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useParams, Navigate, useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { useStore } from "../hooks/useStore";
+import { useAuth } from "../features/auth/hooks/useAuth";
 import { FALLBACK_IMAGE } from "../constants";
 import {
   Lock,
@@ -29,7 +30,8 @@ export const ProjectDetails: React.FC = () => {
   const lang = i18n.language as "ar" | "en";
   const { id } = useParams({ from: "/projects/$id" });
   const navigate = useNavigate();
-  const { user } = useStore();
+  const queryClient = useQueryClient();
+  const { isAuthenticated } = useAuth();
 
   const [showStageTooltip, setShowStageTooltip] = useState(false);
   const [tooltipPlacement, setTooltipPlacement] = useState<"top" | "bottom">(
@@ -38,6 +40,7 @@ export const ProjectDetails: React.FC = () => {
   const stageCardRef = useRef<HTMLDivElement>(null);
 
   const { data, isLoading } = useOpportunityDetail(id);
+  console.log({ data });
   const project = data?.data;
 
   const buySeat = useBuySeat();
@@ -73,12 +76,12 @@ export const ProjectDetails: React.FC = () => {
   const unlocked = project.file_access.is_open || project.has_seat;
 
   const handlePurchase = () => {
-    if (!user) {
+    if (!isAuthenticated) {
       navigate({ to: "/login-type" });
       return;
     }
     buySeat.mutate(
-      { id: project.id },
+      { id },
       {
         onSuccess: (response: any) => {
           // If response returns a session_id, open payment modal
@@ -88,7 +91,7 @@ export const ProjectDetails: React.FC = () => {
           } else {
             toast.success(t("common.purchaseSuccess"));
             queryClient.invalidateQueries({
-              queryKey: ["opportunity-detail", project.id],
+              queryKey: ["opportunity", id],
             });
           }
         },
@@ -325,20 +328,31 @@ export const ProjectDetails: React.FC = () => {
               <div className="mt-8 flex gap-4 border-t border-green-500/20 pt-6">
                 <button
                   onClick={() => {
-                    if (!user) {
+                    if (!isAuthenticated) {
                       navigate({ to: "/login-type" });
                       return;
                     }
-                    submitInterest.mutate({ id: project.id });
+                    submitInterest.mutate(
+                      { id },
+                      {
+                        onSuccess: (res: any) => {
+                          toast.success(
+                            res.msg || t("common.interestSubmitted"),
+                          );
+                        },
+                      },
+                    );
                   }}
                   disabled={
-                    submitInterest.isPending || submitInterest.isSuccess
+                    submitInterest.isPending ||
+                    submitInterest.isSuccess ||
+                    !project.can_submit_interest
                   }
                   className="flex-1 bg-brand-gold text-black font-bold py-3 rounded-lg hover:bg-yellow-500 transition disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2"
                 >
                   {submitInterest.isPending ? (
                     <Loader2 className="animate-spin" size={20} />
-                  ) : submitInterest.isSuccess ? (
+                  ) : (submitInterest.isSuccess || project.has_submitted_interest) ? (
                     "Interest Submitted ✓"
                   ) : (
                     t("common.interested")
@@ -370,9 +384,17 @@ export const ProjectDetails: React.FC = () => {
                 </div>
                 <button
                   onClick={handlePurchase}
-                  className="bg-white text-black px-8 py-3 rounded-lg font-bold hover:bg-gray-200 transition shadow-lg shadow-white/10"
+                  disabled={buySeat.isPending || !project.can_buy_seat}
+                  className="bg-white text-black px-8 py-3 rounded-lg font-bold hover:bg-gray-200 transition shadow-lg shadow-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {t("common.buyFile")} (<Money value={project.seat_price} />)
+                  {buySeat.isPending ? (
+                    <Loader2 size={18} className="animate-spin mx-auto" />
+                  ) : (
+                    <>
+                      {t("common.buyFile")} (
+                      <Money value={project.seat_price} />)
+                    </>
+                  )}
                 </button>
               </div>
             </div>
@@ -416,7 +438,7 @@ export const ProjectDetails: React.FC = () => {
             setPaymentSessionId(null);
             toast.success(t("common.purchaseSuccess"));
             queryClient.invalidateQueries({
-              queryKey: ["opportunity-detail", project.id],
+              queryKey: ["opportunity", id],
             });
           }}
         />
