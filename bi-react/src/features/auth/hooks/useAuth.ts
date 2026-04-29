@@ -2,8 +2,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { authService } from '../services/auth.service';
 import { LoginPayload } from '../types';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 export const useLogin = () => {
+  const { t } = useTranslation();
   return useMutation({
     mutationFn: (payload: LoginPayload) => authService.login(payload),
     onSuccess: (response) => {
@@ -12,7 +14,7 @@ export const useLogin = () => {
         // role is { key: "investor"|"advertiser", label: "..." }
         const roleKey = (response.data.role as any)?.key ?? response.data.role;
         if (roleKey) localStorage.setItem('auth_role', roleKey);
-        toast.success('Successfully logged in');
+        toast.success(t('auth.loginSuccess'));
         window.location.href = '/dashboard';
       }
     },
@@ -20,12 +22,13 @@ export const useLogin = () => {
 };
 
 export const useUpdateProfile = () => {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload: FormData) => authService.updateProfile(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['profile'] });
-      toast.success('Profile updated successfully');
+      toast.success(t('auth.profileUpdateSuccess'));
     },
   });
 };

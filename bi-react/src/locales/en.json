@@ -288,6 +288,8 @@
     "signIn": "Sign In",
     "signingIn": "Signing in...",
     "loginBtn": "Login",
+    "loginSuccess": "Successfully logged in",
+    "profileUpdateSuccess": "Profile updated successfully",
     "createAccount": "Create Account",
     "firstName": "First Name",
     "lastName": "Last Name",

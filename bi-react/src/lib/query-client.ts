@@ -1,6 +1,7 @@
 import { QueryClient, QueryCache, MutationCache } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { extractApiError } from './fetcher';
+import i18n from '../i18n';
 
 /**
  * Flatten { field: ["msg1", "msg2"], ... } into a single string with
@@ -33,7 +34,7 @@ export const queryClient = new QueryClient({
       const message =
         apiError?.serverData?.msg ||
         (error instanceof Error ? error.message : null) ||
-        'Something went wrong';
+        i18n.t('common.error');
       toast.error(message);
     },
   }),
@@ -48,7 +49,7 @@ export const queryClient = new QueryClient({
           ? formatValidationErrors(validationErrors)
           : null;
 
-        toast.error(apiError.serverData.msg || 'Action failed', {
+        toast.error(apiError.serverData.msg || i18n.t('common.error'), {
           // Only attach description when there are actual field errors
           ...(description ? { description, duration: 8000 } : {}),
         });
@@ -57,7 +58,7 @@ export const queryClient = new QueryClient({
 
       // Fallback for non-API errors
       const message =
-        error instanceof Error ? error.message : 'Action failed';
+        error instanceof Error ? error.message : i18n.t('common.error');
       toast.error(message);
     },
   }),

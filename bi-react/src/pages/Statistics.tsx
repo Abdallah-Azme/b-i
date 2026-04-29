@@ -1,4 +1,4 @@
-import React from 'react';
+import { Link } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import { Briefcase, Users, Building, FileText, CheckCircle, Activity, Radio } from 'lucide-react';
 import { useStatistics } from '../features/general/hooks/useStatistics';
@@ -15,7 +15,8 @@ export const Statistics: React.FC = () => {
        icon: Briefcase,
        color: 'text-blue-400',
        bg: 'bg-blue-500/10',
-       border: 'border-blue-500/20'
+       border: 'border-blue-500/20',
+       link: '/projects'
     },
     {
        label: t('stats.investors'),
@@ -23,7 +24,8 @@ export const Statistics: React.FC = () => {
        icon: Users,
        color: 'text-brand-gold',
        bg: 'bg-brand-gold/10',
-       border: 'border-brand-gold/20'
+       border: 'border-brand-gold/20',
+       link: '/investors'
     },
     {
        label: t('stats.owners'),
@@ -31,7 +33,8 @@ export const Statistics: React.FC = () => {
        icon: Building,
        color: 'text-purple-400',
        bg: 'bg-purple-500/10',
-       border: 'border-purple-500/20'
+       border: 'border-purple-500/20',
+       link: '/projects'
     },
     {
        label: t('stats.proposed'),
@@ -39,7 +42,8 @@ export const Statistics: React.FC = () => {
        icon: FileText,
        color: 'text-orange-400',
        bg: 'bg-orange-500/10',
-       border: 'border-orange-500/20'
+       border: 'border-orange-500/20',
+       link: '/projects'
     },
     {
        label: t('stats.successful'),
@@ -47,7 +51,8 @@ export const Statistics: React.FC = () => {
        icon: CheckCircle,
        color: 'text-green-400',
        bg: 'bg-green-500/10',
-       border: 'border-green-500/20'
+       border: 'border-green-500/20',
+       link: '/projects'
     },
     {
        label: t('stats.usersOnline'),
@@ -55,7 +60,8 @@ export const Statistics: React.FC = () => {
        icon: Radio,
        color: 'text-emerald-400',
        bg: 'bg-emerald-500/10',
-       border: 'border-emerald-500/20'
+       border: 'border-emerald-500/20',
+       link: '/'
     }
   ];
 
@@ -84,8 +90,9 @@ export const Statistics: React.FC = () => {
                </div>
              ))
            : stats.map((stat, index) => (
-               <div
+               <Link
                  key={index}
+                 to={stat.link as any}
                  className={`p-8 rounded-2xl border backdrop-blur-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-xl flex flex-col items-center text-center group ${stat.bg} ${stat.border}`}
                >
                  <div className={`w-16 h-16 rounded-full ${stat.bg} flex items-center justify-center mb-4 transition-transform group-hover:scale-110 border ${stat.border}`}>
@@ -93,7 +100,7 @@ export const Statistics: React.FC = () => {
                  </div>
                  <h3 className="text-gray-400 text-sm font-bold uppercase tracking-widest mb-2">{stat.label}</h3>
                  <p className={`text-5xl font-bold ${stat.color} drop-shadow-lg font-sans`}>{stat.value}</p>
-               </div>
+               </Link>
              ))}
        </div>
       
