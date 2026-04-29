@@ -135,21 +135,21 @@ const ProjectCard: React.FC<{ project: any; type: "ad" | "booklet" }> = ({
             <div className="flex items-center gap-4 text-xs font-bold">
               <div
                 className="flex items-center gap-1.5"
-                title={isAr ? "عدد المهتمين" : "Interest"}
+                title={t('dashboard.interestTooltip')}
               >
                 <span>{formatCompact(stats.interest)}</span>{" "}
                 <Star size={14} className="text-white/80" />
               </div>
               <div
                 className="flex items-center gap-1.5"
-                title={isAr ? "عدد شراء الكراسة" : "Booklet Purchases"}
+                title={t('dashboard.bookletTooltip')}
               >
                 <span>{formatCompact(stats.purchases)}</span>{" "}
                 <FileText size={14} className="text-white/80" />
               </div>
               <div
                 className="flex items-center gap-1.5"
-                title={isAr ? "عدد المشاهدات" : "Views"}
+                title={t('dashboard.viewsTooltip')}
               >
                 <span>{formatCompact(stats.views)}</span>{" "}
                 <Eye size={14} className="text-white/80" />
@@ -172,7 +172,7 @@ const ProjectCard: React.FC<{ project: any; type: "ad" | "booklet" }> = ({
               <MapPin size={12} />
               <span>{locationName}</span>
             </div>
-            <div className="text-right">
+            <div className="text-end">
               <span className="block text-[10px] text-gray-500 uppercase">
                 {t("dashboard.value")}
               </span>
@@ -298,7 +298,7 @@ export const Dashboard: React.FC = () => {
             <div className="w-10 h-10 bg-black/10 rounded-full flex items-center justify-center">
               <LogIn size={20} className="text-black" />
             </div>
-            <div className="flex-1 text-left rtl:text-right">
+            <div className="flex-1 text-start">
               <h3 className="font-bold text-lg">{t("dashboard.login")}</h3>
               <p className="text-xs opacity-75 font-medium">
                 {t("dashboard.loginDesc")}
@@ -319,7 +319,7 @@ export const Dashboard: React.FC = () => {
             className="w-full flex items-center gap-4 p-4 bg-brand-gray/20 border border-white/5 rounded-xl hover:bg-brand-gray/40 transition group"
           >
             <Globe2 className="text-brand-gold" size={20} />
-            <div className="flex-1 text-left rtl:text-right flex justify-between items-center">
+            <div className="flex-1 text-start flex justify-between items-center">
               <span className="font-medium text-gray-200">
                 {t("moreMenu.language")}
               </span>
@@ -375,7 +375,9 @@ export const Dashboard: React.FC = () => {
         </div>
 
         <div className="p-8 text-center mt-auto">
-          <p className="text-xs text-gray-600">App Version 1.0.3</p>
+          <p className="text-xs text-gray-600">
+            {t("common.appVersion", { version: "1.0.3" })}
+          </p>
         </div>
       </div>
     );

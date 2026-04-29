@@ -72,7 +72,7 @@ export const ChangeEmailModal = ({ onClose }: { onClose: () => void }) => {
             onClick={() => setStep((s) => (s - 1) as any)}
             className="mb-6 flex items-center text-sm font-bold text-gray-400 hover:text-white transition"
           >
-            <ArrowLeft size={16} className={`mr-2 ${lang === 'ar' ? 'rotate-180' : ''}`} />
+            <ArrowLeft size={16} className={`me-2 ${lang === 'ar' ? 'rotate-180' : ''}`} />
             {t('common.back')}
           </button>
         )}
@@ -80,10 +80,10 @@ export const ChangeEmailModal = ({ onClose }: { onClose: () => void }) => {
         <div className="text-center mb-8">
           <h2 className="text-2xl font-bold text-white mb-2">{t('dashboard.changeEmail')}</h2>
           <p className="text-gray-400 text-sm">
-            {step === 1 && "Enter your password to verify your identity"}
-            {step === 2 && "Enter the OTP sent to your current email"}
-            {step === 3 && "Enter your new email address"}
-            {step === 4 && "Enter the OTP sent to your new email"}
+            {step === 1 && t('dashboard.changeEmailStep1')}
+            {step === 2 && t('dashboard.changeEmailStep2')}
+            {step === 3 && t('dashboard.changeEmailStep3')}
+            {step === 4 && t('dashboard.changeEmailStep4')}
           </p>
         </div>
 
@@ -97,7 +97,7 @@ export const ChangeEmailModal = ({ onClose }: { onClose: () => void }) => {
                 value={currentPassword}
                 onChange={e => setCurrentPassword(e.target.value)}
                 placeholder={t('dashboard.currentPassword')}
-                className="w-full bg-[#121212] border border-white/15 rounded-xl py-3 pl-12 pr-4 text-white focus:border-brand-gold outline-none"
+                className="w-full bg-[#121212] border border-white/15 rounded-xl py-3 ps-12 pe-4 text-white focus:border-brand-gold outline-none"
               />
             </div>
             <button type="submit" disabled={requestCurrent.isPending} className="w-full bg-brand-gold text-black font-bold py-3 rounded-xl hover:bg-yellow-500 transition disabled:opacity-50 flex justify-center">
@@ -116,7 +116,7 @@ export const ChangeEmailModal = ({ onClose }: { onClose: () => void }) => {
                 value={currentOtp}
                 onChange={e => setCurrentOtp(e.target.value)}
                 placeholder={t('auth.verificationCode')}
-                className="w-full bg-[#121212] border border-white/15 rounded-xl py-3 pl-12 pr-4 text-white focus:border-brand-gold outline-none tracking-widest text-center"
+                className="w-full bg-[#121212] border border-white/15 rounded-xl py-3 ps-12 pe-4 text-white focus:border-brand-gold outline-none tracking-widest text-center"
                 maxLength={6}
               />
             </div>
@@ -135,8 +135,8 @@ export const ChangeEmailModal = ({ onClose }: { onClose: () => void }) => {
                 required
                 value={newEmail}
                 onChange={e => setNewEmail(e.target.value)}
-                placeholder="New Email Address"
-                className="w-full bg-[#121212] border border-white/15 rounded-xl py-3 pl-12 pr-4 text-white focus:border-brand-gold outline-none"
+                placeholder={t('dashboard.newEmailPlaceholder')}
+                className="w-full bg-[#121212] border border-white/15 rounded-xl py-3 ps-12 pe-4 text-white focus:border-brand-gold outline-none"
               />
             </div>
             <button type="submit" disabled={requestNew.isPending} className="w-full bg-brand-gold text-black font-bold py-3 rounded-xl hover:bg-yellow-500 transition disabled:opacity-50 flex justify-center">
@@ -155,7 +155,7 @@ export const ChangeEmailModal = ({ onClose }: { onClose: () => void }) => {
                 value={newOtp}
                 onChange={e => setNewOtp(e.target.value)}
                 placeholder={t('auth.verificationCode')}
-                className="w-full bg-[#121212] border border-white/15 rounded-xl py-3 pl-12 pr-4 text-white focus:border-brand-gold outline-none tracking-widest text-center"
+                className="w-full bg-[#121212] border border-white/15 rounded-xl py-3 ps-12 pe-4 text-white focus:border-brand-gold outline-none tracking-widest text-center"
                 maxLength={6}
               />
             </div>

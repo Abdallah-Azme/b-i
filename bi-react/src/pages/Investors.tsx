@@ -332,15 +332,15 @@ export const Investors: React.FC = () => {
       {selectedInvestorId && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
           <div className="bg-brand-gray p-6 rounded-xl border border-white/10 max-w-sm w-full text-center">
-            <h3 className="text-xl font-bold text-white mb-2">Send Interest?</h3>
-            <p className="text-sm text-gray-400 mb-6">Are you sure you want to send an investment interest request to this investor?</p>
+            <h3 className="text-xl font-bold text-white mb-2">{t('investorsPage.sendInterestTitle')}</h3>
+            <p className="text-sm text-gray-400 mb-6">{t('investorsPage.sendInterestConfirm')}</p>
             <div className="flex gap-4">
               <button onClick={() => setSelectedInvestorId(null)} className="flex-1 bg-brand-gray border border-white/10 text-white py-2 rounded-lg font-bold">{t('dashboard.cancel')}</button>
               <button 
                 onClick={() => {
                   sendInterest.mutate({ investor_id: selectedInvestorId }, {
                     onSuccess: () => {
-                      toast.success('Interest sent successfully');
+                      toast.success(t('investorsPage.interestSentSuccess'));
                       toggleInterestInvestor(selectedInvestorId.toString());
                       setSelectedInvestorId(null);
                     },
@@ -349,7 +349,7 @@ export const Investors: React.FC = () => {
                 disabled={sendInterest.isPending} 
                 className="flex-1 flex justify-center items-center bg-brand-gold text-black py-2 rounded-lg font-bold disabled:opacity-50"
               >
-                {sendInterest.isPending ? <Loader2 className="animate-spin" size={20} /> : 'Send'}
+                {sendInterest.isPending ? <Loader2 className="animate-spin" size={20} /> : t('investorsPage.send')}
               </button>
             </div>
           </div>

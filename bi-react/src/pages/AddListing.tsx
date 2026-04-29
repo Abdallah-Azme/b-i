@@ -20,6 +20,7 @@ import {
   DollarSign,
   PieChart,
   FileEdit,
+  Image as ImageIcon,
 } from "lucide-react";
 import {
   FINANCIAL_HEALTH_MAP,
@@ -30,6 +31,7 @@ import { useCreateOpportunity } from "../features/company/hooks/useOpportunities
 import { useCategories } from "../features/general/hooks/useCategories";
 import { FinancialStatus } from "../types";
 import { useAuth } from "../features/auth/hooks/useAuth";
+import { FileUpload } from "../components/ui/FileUpload";
 
 export const AddListing: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -291,7 +293,7 @@ export const AddListing: React.FC = () => {
                   setPurpose("request_investment");
                   setPurposeError(false);
                 }}
-                className={`p-6 rounded-xl border text-left transition-all group ${purpose === "request_investment" ? "bg-brand-gold text-black border-brand-gold" : "bg-black/40 border-white/10 hover:border-brand-gold/50"}`}
+                className={`p-6 rounded-xl border text-start transition-all group ${purpose === "request_investment" ? "bg-brand-gold text-black border-brand-gold" : "bg-black/40 border-white/10 hover:border-brand-gold/50"}`}
               >
                 <div
                   className={`w-12 h-12 rounded-lg flex items-center justify-center mb-4 transition-colors ${purpose === "request_investment" ? "bg-black/20" : "bg-brand-gold/10 text-brand-gold group-hover:bg-brand-gold/20"}`}
@@ -313,7 +315,7 @@ export const AddListing: React.FC = () => {
                   setPurpose("sell_business");
                   setPurposeError(false);
                 }}
-                className={`p-6 rounded-xl border text-left transition-all group ${purpose === "sell_business" ? "bg-brand-gold text-black border-brand-gold" : "bg-black/40 border-white/10 hover:border-brand-gold/50"}`}
+                className={`p-6 rounded-xl border text-start transition-all group ${purpose === "sell_business" ? "bg-brand-gold text-black border-brand-gold" : "bg-black/40 border-white/10 hover:border-brand-gold/50"}`}
               >
                 <div
                   className={`w-12 h-12 rounded-lg flex items-center justify-center mb-4 transition-colors ${purpose === "sell_business" ? "bg-black/20" : "bg-brand-gold/10 text-brand-gold group-hover:bg-brand-gold/20"}`}
@@ -686,70 +688,66 @@ export const AddListing: React.FC = () => {
                   </div>
 
                   {/* File Uploads */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-300">
-                        {t("auth.companyImage")}{" "}
-                        <span className="text-brand-gold">*</span>
-                      </label>
-                      <input
-                        type="file"
-                        name="image"
-                        accept="image/*"
-                        onChange={handleFileChange}
-                        className={`w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-brand-gold file:text-black hover:file:bg-brand-gold/90 border ${errors.image ? "border-red-500" : "border-transparent"}`}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-300">
-                        {t("auth.companyLicense")}{" "}
-                        <span className="text-brand-gold">*</span>
-                      </label>
-                      <input
-                        type="file"
-                        name="license_file"
-                        accept=".pdf,.png,.jpg"
-                        onChange={handleFileChange}
-                        className={`w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-brand-gold file:text-black hover:file:bg-brand-gold/90 border ${errors.license_file ? "border-red-500" : "border-transparent"}`}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-300">
-                        Commercial Record <span className="text-brand-gold">*</span>
-                      </label>
-                      <input
-                        type="file"
-                        name="commercial_record_file"
-                        accept=".pdf,.png,.jpg"
-                        onChange={handleFileChange}
-                        className={`w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-brand-gold file:text-black hover:file:bg-brand-gold/90 border ${errors.commercial_record_file ? "border-red-500" : "border-transparent"}`}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-300">
-                        Tax Certificate <span className="text-brand-gold">*</span>
-                      </label>
-                      <input
-                        type="file"
-                        name="tax_certificate_file"
-                        accept=".pdf,.png,.jpg"
-                        onChange={handleFileChange}
-                        className={`w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-brand-gold file:text-black hover:file:bg-brand-gold/90 border ${errors.tax_certificate_file ? "border-red-500" : "border-transparent"}`}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-300">
-                        Financial Statements{" "}
-                        <span className="text-brand-gold">*</span>
-                      </label>
-                      <input
-                        type="file"
-                        name="financial_statements_file"
-                        accept=".pdf,.png,.jpg"
-                        onChange={handleFileChange}
-                        className={`w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-brand-gold file:text-black hover:file:bg-brand-gold/90 border ${errors.financial_statements_file ? "border-red-500" : "border-transparent"}`}
-                      />
-                    </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+                    <FileUpload
+                      label={t("auth.companyImage")}
+                      value={files.image}
+                      onChange={(file) => {
+                        setFiles(prev => ({ ...prev, image: file }));
+                        if (errors.image) setErrors(prev => { const e = {...prev}; delete e.image; return e; });
+                      }}
+                      error={errors.image}
+                      accept="image/*"
+                      icon={<ImageIcon size={16} className="text-brand-gold" />}
+                    />
+                    
+                    <FileUpload
+                      label={t("auth.companyLicense")}
+                      value={files.license_file}
+                      onChange={(file) => {
+                        setFiles(prev => ({ ...prev, license_file: file }));
+                        if (errors.license_file) setErrors(prev => { const e = {...prev}; delete e.license_file; return e; });
+                      }}
+                      error={errors.license_file}
+                      accept=".pdf,.png,.jpg"
+                      icon={<FileBadge size={16} className="text-brand-gold" />}
+                    />
+
+                    <FileUpload
+                      label={t("auth.commercialRecord")}
+                      value={files.commercial_record_file}
+                      onChange={(file) => {
+                        setFiles(prev => ({ ...prev, commercial_record_file: file }));
+                        if (errors.commercial_record_file) setErrors(prev => { const e = {...prev}; delete e.commercial_record_file; return e; });
+                      }}
+                      error={errors.commercial_record_file}
+                      accept=".pdf,.png,.jpg"
+                      icon={<FileText size={16} className="text-brand-gold" />}
+                    />
+
+                    <FileUpload
+                      label={t("auth.taxCertificate")}
+                      value={files.tax_certificate_file}
+                      onChange={(file) => {
+                        setFiles(prev => ({ ...prev, tax_certificate_file: file }));
+                        if (errors.tax_certificate_file) setErrors(prev => { const e = {...prev}; delete e.tax_certificate_file; return e; });
+                      }}
+                      error={errors.tax_certificate_file}
+                      accept=".pdf,.png,.jpg"
+                      icon={<FileText size={16} className="text-brand-gold" />}
+                    />
+
+                    <FileUpload
+                      label={t("auth.financialStatements")}
+                      value={files.financial_statements_file}
+                      onChange={(file) => {
+                        setFiles(prev => ({ ...prev, financial_statements_file: file }));
+                        if (errors.financial_statements_file) setErrors(prev => { const e = {...prev}; delete e.financial_statements_file; return e; });
+                      }}
+                      error={errors.financial_statements_file}
+                      accept=".pdf,.png,.jpg"
+                      icon={<Activity size={16} className="text-brand-gold" />}
+                    />
                   </div>
                 </div>
               </div>

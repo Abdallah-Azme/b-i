@@ -53,9 +53,7 @@ export const IncomingRequestsTab: React.FC = () => {
   const getWhatsAppLink = (req: any) => {
     const projectName = req.opportunity?.company_name || "Project";
     const investorName = req.investor?.name || "Investor";
-    const message = isAr
-      ? `السلام عليكم، أود الاستفسار عن الطلب المقدم على مشروع ${projectName} من شركة ${investorName}.`
-      : `Hello, I would like to inquire about the request submitted for the project ${projectName} from the company ${investorName}.`;
+    const message = t('dashboard.waMessage', { projectName, investorName });
     return `https://wa.me/96560070353?text=${encodeURIComponent(message)}`;
   };
 
@@ -191,7 +189,7 @@ export const OngoingRequestsTab: React.FC = () => {
                 {deal.counterparty?.name || "N/A"}
               </p>
             </div>
-            <div className="text-right">
+            <div className="text-end">
               <span className="block text-[10px] font-bold text-white">
                 {deal.status?.toUpperCase() || "ACTIVE"}
               </span>
@@ -236,7 +234,7 @@ export const VerificationInfoTab: React.FC<{ onEditProfile?: () => void }> = ({
       <div className="grid grid-cols-2 gap-4 text-sm">
         <p className="text-gray-400">
           {t("dashboard.companyName")}
-          <span className="text-white ml-2">
+          <span className="text-white ms-2">
             {info.first_name} {info.last_name}
           </span>
         </p>
@@ -250,7 +248,7 @@ export const VerificationInfoTab: React.FC<{ onEditProfile?: () => void }> = ({
 
       {pendingRequest && (
         <div className="mt-4 p-3 bg-brand-gold/10 border border-brand-gold/20 rounded-lg text-brand-gold text-sm font-medium">
-          Update request under review
+          {t('dashboard.updateReview')}
         </div>
       )}
 
@@ -296,7 +294,7 @@ export const SettingsTab: React.FC = () => {
       return;
     }
     if (newPassword !== confirmPassword) {
-      toast.error("Passwords do not match");
+      toast.error(t('auth.passwordsDoNotMatch'));
       return;
     }
     changePassword.mutate(

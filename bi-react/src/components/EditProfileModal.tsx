@@ -134,7 +134,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClos
 
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
-              <label className="text-sm text-gray-400">Code</label>
+              <label className="text-sm text-gray-400">{t('auth.countryCode')}</label>
               <input type="text" value={formData.country_code} onChange={(e) => setFormData({...formData, country_code: e.target.value})} className="w-full bg-[#121212] border border-white/15 rounded-lg px-4 py-3 text-white focus:border-brand-gold outline-none" placeholder="965" required />
             </div>
             <div className="space-y-2 col-span-2">
@@ -154,7 +154,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClos
                   <input type="number" value={formData.capital} onChange={(e) => setFormData({...formData, capital: e.target.value})} className="w-full bg-[#121212] border border-white/15 rounded-lg px-4 py-3 text-white focus:border-brand-gold outline-none" />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm text-gray-400">Available Capital</label>
+                  <label className="text-sm text-gray-400">{t('auth.availableCapital')}</label>
                   <input type="number" value={formData.available_capital} onChange={(e) => setFormData({...formData, available_capital: e.target.value})} className="w-full bg-[#121212] border border-white/15 rounded-lg px-4 py-3 text-white focus:border-brand-gold outline-none" />
                 </div>
               </div>
@@ -162,7 +162,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClos
               <div className="space-y-2">
                 <label className="text-sm text-gray-400">{t('auth.investorSector')}</label>
                 <select value={formData.preferred_sector_id} onChange={(e) => setFormData({...formData, preferred_sector_id: e.target.value})} className="w-full bg-[#121212] border border-white/15 rounded-lg px-4 py-3 text-white focus:border-brand-gold outline-none">
-                  <option value="">Select...</option>
+                  <option value="">{t('common.select')}</option>
                   {sectorsData?.data?.map((s: any) => (
                     <option key={s.id} value={s.id}>{s.name}</option>
                   ))}
@@ -172,7 +172,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClos
               <div className="space-y-2">
                 <label className="text-sm text-gray-400">{t('auth.investorExperience')}</label>
                 <select value={formData.experience_level} onChange={(e) => setFormData({...formData, experience_level: e.target.value})} className="w-full bg-[#121212] border border-white/15 rounded-lg px-4 py-3 text-white focus:border-brand-gold outline-none">
-                  <option value="">Select...</option>
+                  <option value="">{t('common.select')}</option>
                   {experiencesData?.data?.map((exp: any) => (
                     <option key={exp.id} value={exp.id}>{exp.name}</option>
                   ))}
@@ -182,7 +182,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClos
               <div className="space-y-2">
                 <label className="text-sm text-gray-400">{t('auth.investorType')}</label>
                 <select value={formData.investor_type} onChange={(e) => setFormData({...formData, investor_type: e.target.value})} className="w-full bg-[#121212] border border-white/15 rounded-lg px-4 py-3 text-white focus:border-brand-gold outline-none">
-                  <option value="">Select...</option>
+                  <option value="">{t('common.select')}</option>
                   {investorTypesData?.data?.map((t: any) => (
                     <option key={t.id} value={t.type}>{t.name}</option>
                   ))}

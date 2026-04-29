@@ -39,7 +39,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ sessionId, onClose, 
           <X size={20} />
         </button>
 
-        <h2 className="text-xl font-bold text-black mb-6 text-center">Complete Payment</h2>
+        <h2 className="text-xl font-bold text-black mb-6 text-center">{t('common.completePayment')}</h2>
         
         <div id="mf-payment" className="min-h-[300px]"></div>
 

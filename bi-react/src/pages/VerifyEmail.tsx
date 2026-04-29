@@ -270,7 +270,7 @@ export const VerifyEmail: React.FC = () => {
           <p className="text-gray-500 text-sm leading-relaxed">{t('auth.secureVerificationDesc')}</p>
           <div className="flex flex-col gap-3 pt-4">
             {['auth.securePoint1', 'auth.securePoint2', 'auth.securePoint3'].map((key) => (
-              <div key={key} className="flex items-center gap-3 text-left">
+              <div key={key} className="flex items-center gap-3 text-start">
                 <div className="w-2 h-2 rounded-full bg-brand-gold flex-shrink-0" />
                 <span className="text-gray-400 text-sm">{t(key)}</span>
               </div>

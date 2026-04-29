@@ -24,6 +24,7 @@ import {
 import { useWhoWeAre } from "../features/general/hooks/useGeneralLookups";
 import { PaymentModal } from "../components/PaymentModal";
 import { toast } from "sonner";
+import { FavoriteButton } from "@/components/FavoriteButton";
 
 export const ProjectDetails: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -157,11 +158,12 @@ export const ProjectDetails: React.FC = () => {
               </h1>
               <p className="text-gray-300 text-sm flex items-center gap-2 mt-2">
                 <span className="opacity-60 font-sans">
-                  ID: {project.opportunity_number}
+                  {t('nav.idLabel')}: {project.opportunity_number}
                 </span>
               </p>
             </div>
-            <div className="mt-4 md:mt-0 flex gap-2">
+            <div className="mt-4 md:mt-0 flex gap-2 items-center">
+              <FavoriteButton projectId={id} size={24} className="backdrop-blur-md border border-white/10" />
               {/* Ad Status Badge */}
               <span
                 className={`flex items-center gap-2 text-white text-sm font-bold uppercase tracking-wider bg-black/60 px-4 py-2 rounded border border-white/10`}
@@ -353,7 +355,7 @@ export const ProjectDetails: React.FC = () => {
                   {submitInterest.isPending ? (
                     <Loader2 className="animate-spin" size={20} />
                   ) : (submitInterest.isSuccess || project.has_submitted_interest) ? (
-                    "Interest Submitted ✓"
+                    t('nav.interestSubmitted') + " ✓"
                   ) : (
                     t("common.interested")
                   )}

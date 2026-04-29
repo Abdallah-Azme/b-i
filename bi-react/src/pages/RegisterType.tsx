@@ -32,7 +32,7 @@ export const RegisterType: React.FC = () => {
             <div className="flex-shrink-0 h-12 w-12 bg-brand-gold/10 rounded-full flex items-center justify-center text-brand-gold">
                <TrendingUp size={24} />
             </div>
-            <div className="ml-4 rtl:mr-4 rtl:ml-0 text-left rtl:text-right flex-1">
+            <div className="ms-4 text-start flex-1">
               <h3 className="text-lg font-medium text-white group-hover:text-brand-gold transition">
                 {t('auth.investor')}
               </h3>
@@ -49,7 +49,7 @@ export const RegisterType: React.FC = () => {
             <div className="flex-shrink-0 h-12 w-12 bg-brand-gold/10 rounded-full flex items-center justify-center text-brand-gold">
                <Briefcase size={24} />
             </div>
-            <div className="ml-4 rtl:mr-4 rtl:ml-0 text-left rtl:text-right flex-1">
+            <div className="ms-4 text-start flex-1">
               <h3 className="text-lg font-medium text-white group-hover:text-brand-gold transition">
                 {t('auth.advertiser')}
               </h3>

@@ -57,7 +57,7 @@ export const ForgotPassword = () => {
               onClick={() => setStep((s) => (s - 1) as any)}
               className="mb-8 flex items-center text-sm font-bold text-gray-400 hover:text-white transition"
             >
-              <ArrowLeft size={16} className={`mr-2 ${lang === 'ar' ? 'rotate-180' : ''}`} />
+              <ArrowLeft size={16} className={`me-2 ${lang === 'ar' ? 'rotate-180' : ''}`} />
               {t('common.back')}
             </button>
           )}
@@ -75,7 +75,7 @@ export const ForgotPassword = () => {
             {step === 1 && (
               <form onSubmit={handleRequestCode} className="space-y-6 animate-fade-in relative z-10">
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-gray-300 ml-1">{t('auth.emailOrPhone')}</label>
+                  <label className="text-sm font-bold text-gray-300 ms-1">{t('auth.emailOrPhone')}</label>
                   <div className="relative">
                     <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={20} />
                     <input 
@@ -83,7 +83,7 @@ export const ForgotPassword = () => {
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full bg-black/50 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition"
+                      className="w-full bg-black/50 border border-white/10 rounded-xl py-3 ps-12 pe-4 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition"
                     />
                   </div>
                 </div>
@@ -101,7 +101,7 @@ export const ForgotPassword = () => {
             {step === 2 && (
               <form onSubmit={handleVerifyCode} className="space-y-6 animate-fade-in relative z-10">
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-gray-300 ml-1">{t('auth.verificationCode')}</label>
+                  <label className="text-sm font-bold text-gray-300 ms-1">{t('auth.verificationCode')}</label>
                   <div className="relative">
                     <Key className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={20} />
                     <input 
@@ -109,7 +109,7 @@ export const ForgotPassword = () => {
                       required
                       value={code}
                       onChange={(e) => setCode(e.target.value)}
-                      className="w-full bg-black/50 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition tracking-widest font-mono text-center"
+                      className="w-full bg-black/50 border border-white/10 rounded-xl py-3 ps-12 pe-4 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition tracking-widest font-mono text-center"
                       maxLength={6}
                     />
                   </div>
@@ -128,7 +128,7 @@ export const ForgotPassword = () => {
             {step === 3 && (
               <form onSubmit={handleResetPassword} className="space-y-6 animate-fade-in relative z-10">
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-gray-300 ml-1">{t('dashboard.newPassword')}</label>
+                  <label className="text-sm font-bold text-gray-300 ms-1">{t('dashboard.newPassword')}</label>
                   <div className="relative">
                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={20} />
                     <input 
@@ -136,12 +136,12 @@ export const ForgotPassword = () => {
                       required
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full bg-black/50 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition"
+                      className="w-full bg-black/50 border border-white/10 rounded-xl py-3 ps-12 pe-4 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition"
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-gray-300 ml-1">{t('dashboard.confirmPassword')}</label>
+                  <label className="text-sm font-bold text-gray-300 ms-1">{t('dashboard.confirmPassword')}</label>
                   <div className="relative">
                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={20} />
                     <input 
@@ -149,7 +149,7 @@ export const ForgotPassword = () => {
                       required
                       value={passwordConfirmation}
                       onChange={(e) => setPasswordConfirmation(e.target.value)}
-                      className="w-full bg-black/50 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition"
+                      className="w-full bg-black/50 border border-white/10 rounded-xl py-3 ps-12 pe-4 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition"
                     />
                   </div>
                 </div>

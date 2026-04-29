@@ -48,7 +48,7 @@ export const LoginForm: React.FC = () => {
               <FormItem>
                 <FormLabel className="normal-case">{t('auth.email')}</FormLabel>
                 <FormControl>
-                  <Input type="email" placeholder="name@example.com" {...field} />
+                  <Input type="email" placeholder={t('auth.emailPlaceholder')} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

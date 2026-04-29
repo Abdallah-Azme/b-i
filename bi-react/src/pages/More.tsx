@@ -45,7 +45,7 @@ export const More: React.FC = () => {
 
             <button onClick={toggleLanguage} className="w-full flex items-center gap-4 p-4 bg-brand-gray/20 rounded-xl hover:bg-brand-gray/40 transition">
               <Globe2 className="text-brand-gold" size={20} />
-              <div className="flex-1 text-left rtl:text-right flex justify-between items-center">
+              <div className="flex-1 text-start flex justify-between items-center">
                  <span className="font-medium">{t('moreMenu.language')}</span>
                  <span className="text-xs text-gray-400 bg-black/50 px-2 py-1 rounded">{t('common.currentLanguage')}</span>
               </div>
@@ -86,7 +86,7 @@ export const More: React.FC = () => {
         </div>
         
         <div className="p-4 border-t border-white/10 text-center mt-6">
-            <p className="text-xs text-gray-500">App Version 1.0.3</p>
+            <p className="text-xs text-gray-500">{t('common.appVersion', { version: '1.0.3' })}</p>
         </div>
     </div>
   );

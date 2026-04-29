@@ -55,7 +55,7 @@ export const Pricing: React.FC = () => {
                   <h3 className="text-xl font-bold mb-2 text-white">{plan.name}</h3>
                   <div className="mb-6 flex items-baseline gap-1">
                     <Money value={Number(plan.price_monthly)} className="text-4xl font-bold" />
-                    <span className="text-sm text-gray-400 ml-1">/ {t('pricing.month')}</span>
+                    <span className="text-sm text-gray-400 ms-1">/ {t('pricing.month')}</span>
                   </div>
 
                   {/* API returns HTML description */}

@@ -72,7 +72,7 @@ export const InvestorRegisterForm: React.FC = () => {
                   <FormItem>
                     <FormLabel>{t('auth.phone')}</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input placeholder={t('auth.phonePlaceholder')} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -202,7 +202,7 @@ export const InvestorRegisterForm: React.FC = () => {
                       checked={field.value}
                       onChange={(e) => field.onChange(e.target.checked)}
                       id="terms-inv"
-                      className="ml-3 mt-1"
+                      className="ms-3 mt-1"
                     />
                   </FormControl>
                   <div className="space-y-1 leading-none">

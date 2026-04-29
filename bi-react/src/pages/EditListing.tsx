@@ -217,7 +217,7 @@ export const EditListing: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <button 
                         onClick={() => { setPurpose('request_investment'); setPurposeError(false); }}
-                        className={`p-6 rounded-xl border text-left transition-all group ${purpose === 'request_investment' ? 'bg-brand-gold text-black border-brand-gold' : 'bg-black/40 border-white/10 hover:border-brand-gold/50'}`}
+                        className={`p-6 rounded-xl border text-start transition-all group ${purpose === 'request_investment' ? 'bg-brand-gold text-black border-brand-gold' : 'bg-black/40 border-white/10 hover:border-brand-gold/50'}`}
                     >
                         <TrendingUp size={32} className={`mb-4 ${purpose === 'request_investment' ? 'text-black' : 'text-brand-gold'}`} />
                         <h3 className="font-bold text-lg mb-1">{t('listing.investment')}</h3>
@@ -225,7 +225,7 @@ export const EditListing: React.FC = () => {
                     </button>
                     <button 
                         onClick={() => { setPurpose('sell_business'); setPurposeError(false); }}
-                        className={`p-6 rounded-xl border text-left transition-all group ${purpose === 'sell_business' ? 'bg-brand-gold text-black border-brand-gold' : 'bg-black/40 border-white/10 hover:border-brand-gold/50'}`}
+                        className={`p-6 rounded-xl border text-start transition-all group ${purpose === 'sell_business' ? 'bg-brand-gold text-black border-brand-gold' : 'bg-black/40 border-white/10 hover:border-brand-gold/50'}`}
                     >
                         <Store size={32} className={`mb-4 ${purpose === 'sell_business' ? 'text-black' : 'text-brand-gold'}`} />
                         <h3 className="font-bold text-lg mb-1">{t('listing.sale')}</h3>
@@ -377,24 +377,24 @@ export const EditListing: React.FC = () => {
                         {/* File Uploads */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-300">Project Image <span className="text-brand-gold">*</span></label>
-                                <input type="file" name="image" accept="image/*" onChange={handleFileChange} className={`w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-brand-gold file:text-black hover:file:bg-brand-gold/90 border ${errors.image ? 'border-red-500' : 'border-transparent'}`} />
+                                <label className="text-sm font-medium text-gray-300">{t('auth.projectImage')} <span className="text-brand-gold">*</span></label>
+                                <input type="file" name="image" accept="image/*" onChange={handleFileChange} className={`w-full text-sm text-gray-400 file:me-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-brand-gold file:text-black hover:file:bg-brand-gold/90 border ${errors.image ? 'border-red-500' : 'border-transparent'}`} />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-300">License File <span className="text-brand-gold">*</span></label>
-                                <input type="file" name="license_file" accept=".pdf,.png,.jpg" onChange={handleFileChange} className={`w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-brand-gold file:text-black hover:file:bg-brand-gold/90 border ${errors.license_file ? 'border-red-500' : 'border-transparent'}`} />
+                                <label className="text-sm font-medium text-gray-300">{t('auth.licenseFile')} <span className="text-brand-gold">*</span></label>
+                                <input type="file" name="license_file" accept=".pdf,.png,.jpg" onChange={handleFileChange} className={`w-full text-sm text-gray-400 file:me-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-brand-gold file:text-black hover:file:bg-brand-gold/90 border ${errors.license_file ? 'border-red-500' : 'border-transparent'}`} />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-300">Commercial Record <span className="text-brand-gold">*</span></label>
-                                <input type="file" name="commercial_record_file" accept=".pdf,.png,.jpg" onChange={handleFileChange} className={`w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-brand-gold file:text-black hover:file:bg-brand-gold/90 border ${errors.commercial_record_file ? 'border-red-500' : 'border-transparent'}`} />
+                                <label className="text-sm font-medium text-gray-300">{t('auth.commercialRecord')} <span className="text-brand-gold">*</span></label>
+                                <input type="file" name="commercial_record_file" accept=".pdf,.png,.jpg" onChange={handleFileChange} className={`w-full text-sm text-gray-400 file:me-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-brand-gold file:text-black hover:file:bg-brand-gold/90 border ${errors.commercial_record_file ? 'border-red-500' : 'border-transparent'}`} />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-300">Tax Certificate <span className="text-brand-gold">*</span></label>
-                                <input type="file" name="tax_certificate_file" accept=".pdf,.png,.jpg" onChange={handleFileChange} className={`w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-brand-gold file:text-black hover:file:bg-brand-gold/90 border ${errors.tax_certificate_file ? 'border-red-500' : 'border-transparent'}`} />
+                                <label className="text-sm font-medium text-gray-300">{t('auth.taxCertificate')} <span className="text-brand-gold">*</span></label>
+                                <input type="file" name="tax_certificate_file" accept=".pdf,.png,.jpg" onChange={handleFileChange} className={`w-full text-sm text-gray-400 file:me-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-brand-gold file:text-black hover:file:bg-brand-gold/90 border ${errors.tax_certificate_file ? 'border-red-500' : 'border-transparent'}`} />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-300">Financial Statements <span className="text-brand-gold">*</span></label>
-                                <input type="file" name="financial_statements_file" accept=".pdf,.png,.jpg" onChange={handleFileChange} className={`w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-brand-gold file:text-black hover:file:bg-brand-gold/90 border ${errors.financial_statements_file ? 'border-red-500' : 'border-transparent'}`} />
+                                <label className="text-sm font-medium text-gray-300">{t('auth.financialStatements')} <span className="text-brand-gold">*</span></label>
+                                <input type="file" name="financial_statements_file" accept=".pdf,.png,.jpg" onChange={handleFileChange} className={`w-full text-sm text-gray-400 file:me-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-brand-gold file:text-black hover:file:bg-brand-gold/90 border ${errors.financial_statements_file ? 'border-red-500' : 'border-transparent'}`} />
                             </div>
                         </div>
                     </div>

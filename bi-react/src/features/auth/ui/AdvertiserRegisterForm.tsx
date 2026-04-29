@@ -90,7 +90,7 @@ export const AdvertiserRegisterForm: React.FC = () => {
               <FormItem>
                 <FormLabel>{t('auth.phone')}</FormLabel>
                 <FormControl>
-                  <Input placeholder="e.g. 5xxxxxxx" {...field} />
+                  <Input placeholder={t('auth.phonePlaceholder')} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -220,7 +220,7 @@ export const AdvertiserRegisterForm: React.FC = () => {
                     checked={field.value}
                     onChange={(e) => field.onChange(e.target.checked)}
                     id="terms"
-                    className="ml-3 mt-1"
+                    className="ms-3 mt-1"
                   />
                 </FormControl>
                 <div className="space-y-1 leading-none">

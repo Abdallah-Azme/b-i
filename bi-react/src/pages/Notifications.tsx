@@ -52,7 +52,7 @@ export const Notifications: React.FC = () => {
   const deleteOne = useDeleteNotification();
 
   const notifications = notificationsData?.data?.notifications || [];
-  const unreadCount = unreadCountData?.data?.unread_count || 0;
+  const unreadCount = unreadCountData?.data?.unread_notifications_count || 0;
 
   const filteredList = useMemo(() => {
     if (activeFilter === 'all') return notifications;
@@ -176,7 +176,7 @@ export const Notifications: React.FC = () => {
                               <h3 className={`text-sm font-bold truncate ${n.seen ? 'text-gray-400' : 'text-white'}`}>
                                  {n.title}
                               </h3>
-                              <span className="text-[10px] text-gray-500 whitespace-nowrap ml-2 rtl:mr-2">
+                              <span className="text-[10px] text-gray-500 whitespace-nowrap ms-2">
                                  {getTimeAgo(n.created_at, lang)}
                               </span>
                            </div>

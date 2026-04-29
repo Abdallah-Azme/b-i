@@ -16,6 +16,7 @@ import { Link, useSearch } from "@tanstack/react-router";
 import { Money } from "../components/Money";
 import { useOpportunities } from "../features/general/hooks/useOpportunities";
 import { useCategories } from "../features/general/hooks/useCategories";
+import { FavoriteButton } from "@/components/FavoriteButton";
 
 export const Projects: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -168,7 +169,7 @@ export const Projects: React.FC = () => {
             </div>
           ) : opportunities.length === 0 ? (
             <div className="text-center py-20 text-gray-400">
-              <p>No opportunities found.</p>
+              <p>{t("common.noResults")}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-6">
@@ -192,6 +193,10 @@ export const Projects: React.FC = () => {
                           alt={project.company_name}
                           className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                         />
+
+                        <div className="absolute top-3 right-3 z-20">
+                          <FavoriteButton projectId={project.id} />
+                        </div>
 
                         {/* Mobile Badge Only */}
                         <div

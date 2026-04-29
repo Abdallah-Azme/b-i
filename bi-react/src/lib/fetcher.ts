@@ -1,3 +1,4 @@
+import i18n from '@/i18n';
 import { ofetch, FetchError } from 'ofetch';
 
 const BASE_URL = 'https://portal.businessandinvestments.net/api'; // Production Base URL
@@ -34,9 +35,10 @@ export const apiFetcher = ofetch.create({
   baseURL: BASE_URL,
   async onRequest({ options }) {
     const token = localStorage.getItem('auth_token');
-    // i18next may store 'en-US' or 'ar-SA' — normalize to bare code ('en' / 'ar')
-    const rawLang = localStorage.getItem('i18nextLng') || 'en';
-    const lang = rawLang.split('-')[0].toLowerCase();
+    
+    // Get language from i18n instance, falling back to localStorage or 'ar' (app default)
+    const currentLang = i18n.language || localStorage.getItem('i18nextLng') || 'ar';
+    const lang = currentLang.split('-')[0].toLowerCase();
 
     options.headers = new Headers(options.headers);
     options.headers.set('Accept', 'application/json');

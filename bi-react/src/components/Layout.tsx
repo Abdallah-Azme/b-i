@@ -4,15 +4,19 @@ import { useStore } from '../hooks/useStore';
 import { useTranslation } from 'react-i18next';
 import { useStatistics } from '../features/general/hooks/useStatistics';
 import { Logo } from './Logo';
-import { Globe, User as UserIcon, LogOut, Home, Briefcase, Users, Bell } from 'lucide-react';
+import { Globe, User as UserIcon, LogOut, Home, Briefcase, Users, Bell, Heart, MoreHorizontal } from 'lucide-react';
 import { Link, useLocation, useNavigate } from '@tanstack/react-router';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { NotificationDropdown } from '@/features/auth/ui/NotificationDropdown';
+import { useUnreadNotificationsCount } from '@/features/auth/hooks/useNotifications';
 
 export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { lang, toggleLanguage, unreadNotificationsCount } = useStore();
+  const { lang, toggleLanguage } = useStore();
   const { t } = useTranslation();
   const { isAuthenticated, logout: apiLogout } = useAuth();
+  
+  const { data: unreadCountData } = useUnreadNotificationsCount();
+  const unreadCount = unreadCountData?.data?.unread_notifications_count ?? 0;
   const navigate = useNavigate();
 
   const location = useLocation();
@@ -158,7 +162,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                   {totalStats}
                 </span>
               </Link>
-              {isAuthenticated && <NotificationDropdown />}
+              {/* Removed redundant NotificationDropdown from mobile header as it exists in bottom tab bar */}
             </div>
           </div>
 
@@ -166,6 +170,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
           <div className="hidden md:flex items-center justify-center h-12 border-t border-white/10 gap-8">
             <Link to="/" className={isActive('/')}>{t('nav.home')}</Link>
             <Link to="/projects" className={isActive('/projects')}>{t('nav.projects')}</Link>
+            <Link to="/favorites" className={isActive('/favorites')}>{t('tabs.favorites')}</Link>
             <Link to="/investors" className={isActive('/investors')}>{t('nav.investors')}</Link>
             {/* <Link to="/pricing" className={isActive('/pricing')}>{t('nav.pricing')}</Link> */}
             <Link to="/about" className={isActive('/about')}>{t('nav.about')}</Link>
@@ -190,17 +195,15 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                     <Logo className="w-8 h-8 relative z-10" />
                 </div>
                 <span className="text-lg font-bold relative z-10">
-                  {lang === 'en' ? 'Business & Investments' : 'الأعمال والاستثمارات'}
+                  {t('nav.appName')}
                 </span>
               </div>
               <p className="text-gray-400 text-sm max-w-md">
-                {lang === 'en' 
-                  ? 'Connecting visionaries with capital. A secure, anonymous platform for serious business deals.' 
-                  : 'ربط أصحاب الرؤى برأس المال. منصة آمنة ومجهولة لصفقات الأعمال الجادة.'}
+                {t('nav.footerDesc')}
               </p>
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-brand-gold tracking-wider uppercase mb-4">{lang === 'en' ? 'Platform' : 'المنصة'}</h3>
+              <h3 className="text-sm font-semibold text-brand-gold tracking-wider uppercase mb-4">{t('nav.platform')}</h3>
               <ul className="space-y-3">
                 <li><Link to="/projects" className="text-gray-400 hover:text-white text-sm">{t('nav.projects')}</Link></li>
                 <li><Link to="/investors" className="text-gray-400 hover:text-white text-sm">{t('nav.investors')}</Link></li>
@@ -209,15 +212,15 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
               </ul>
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-brand-gold tracking-wider uppercase mb-4">{lang === 'en' ? 'Legal' : 'قانوني'}</h3>
+              <h3 className="text-sm font-semibold text-brand-gold tracking-wider uppercase mb-4">{t('nav.legal')}</h3>
               <ul className="space-y-3">
-                <li><Link to="/terms-of-use" className="text-gray-400 hover:text-white text-sm">{lang === 'en' ? 'Terms of Use' : 'شروط الاستخدام'}</Link></li>
-                <li><Link to="/privacy-policy" className="text-gray-400 hover:text-white text-sm">{lang === 'en' ? 'Privacy Policy' : 'سياسة الخصوصية'}</Link></li>
+                <li><Link to="/terms-of-use" className="text-gray-400 hover:text-white text-sm">{t('nav.termsOfUse')}</Link></li>
+                <li><Link to="/privacy-policy" className="text-gray-400 hover:text-white text-sm">{t('nav.privacyPolicy')}</Link></li>
               </ul>
             </div>
           </div>
           <div className="mt-8 border-t border-white/10 pt-8 flex flex-col items-center gap-3">
-            <p className="text-gray-500 text-xs">&copy; 2024 Business & Investments. All rights reserved.</p>
+            <p className="text-gray-500 text-xs">&copy; 2024 {t('nav.appName')}. {t('common.allRightsReserved')}</p>
             <a 
               href="https://raiyansoft.com" 
               target="_blank" 
@@ -234,9 +237,9 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
       <div className="fixed bottom-0 left-0 right-0 h-20 bg-black/95 backdrop-blur-xl border-t border-white/10 z-50 md:hidden pb-safe flex justify-between items-center px-2 shadow-[0_-5px_20px_rgba(0,0,0,0.5)]">
          <TabItem to="/" icon={Home} label={t('tabs.home')} />
          <TabItem to="/projects" icon={Briefcase} label={t('tabs.projects')} />
-         <TabItem to="/investors" icon={Users} label={t('tabs.investors')} />
-         <TabItem to="/notifications" icon={Bell} label={t('tabs.notifications')} badge={unreadNotificationsCount} />
+         <TabItem to="/notifications" icon={Bell} label={t('tabs.notifications')} badge={unreadCount} />
          <TabItem to="/dashboard" icon={UserIcon} label={t('tabs.dashboard')} />
+         <TabItem to="/more" icon={MoreHorizontal} label={t('tabs.more')} />
       </div>
     </div>
   );
