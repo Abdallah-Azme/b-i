@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useStore } from "../hooks/useStore";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import {
   Settings,
   Megaphone,
@@ -494,13 +494,20 @@ export const Dashboard: React.FC = () => {
           { id: "settings", label: t("dashboard.settings"), icon: Settings },
         ];
 
-  const [activeTab, setActiveTab] = useState(tabs[0].id);
+  const search = useSearch({ strict: false });
+  const defaultTab = (search as any)?.tab || tabs[0].id;
+  const [activeTab, setActiveTab] = useState(
+    tabs.find(t => t.id === defaultTab) ? defaultTab : tabs[0].id
+  );
 
   React.useEffect(() => {
-    if (!tabs.find((t) => t.id === activeTab)) {
+    const searchTab = (search as any)?.tab;
+    if (searchTab && tabs.find((t) => t.id === searchTab)) {
+      setActiveTab(searchTab);
+    } else if (!tabs.find((t) => t.id === activeTab)) {
       setActiveTab(tabs[0].id);
     }
-  }, [user.role, tabs]);
+  }, [search, user.role, tabs]);
 
   const displayName = user.name || user.displayName || "";
 

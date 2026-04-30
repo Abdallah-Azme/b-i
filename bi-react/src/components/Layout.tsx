@@ -95,18 +95,24 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   if (!t) return null; // Should not happen with fallback
 
   return (
-    <div className="min-h-screen bg-brand-black flex flex-col text-white transition-all duration-300">
+    <div className="min-h-screen bg-brand-black flex flex-col text-white">
       {/* Top Navbar (Desktop + Mobile) */}
       <nav className="fixed w-full z-40 bg-black/80 backdrop-blur-md border-b border-white/10 top-0">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Top Row */}
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3">
-              <Link to="/" className="relative inline-flex items-center justify-center overflow-visible rounded-full">
+              {/* Desktop: logo navigates to home */}
+              <Link to="/" className="relative hidden md:inline-flex items-center justify-center overflow-visible rounded-full">
                  {/* Logo Glow Effect - Reduced Intensity (50%) */}
                  <div className="absolute -inset-[13px] rounded-full blur-[11px] z-0 pointer-events-none bg-[radial-gradient(circle,rgba(212,175,55,0.35)_0%,rgba(212,175,55,0.15)_40%,rgba(212,175,55,0.00)_70%)]"></div>
                  <Logo className="w-10 h-10 relative z-10" />
               </Link>
+              {/* Mobile: logo is non-clickable */}
+              <div className="relative inline-flex md:hidden items-center justify-center overflow-visible rounded-full">
+                 <div className="absolute -inset-[13px] rounded-full blur-[11px] z-0 pointer-events-none bg-[radial-gradient(circle,rgba(212,175,55,0.35)_0%,rgba(212,175,55,0.15)_40%,rgba(212,175,55,0.00)_70%)]"></div>
+                 <Logo className="w-10 h-10 relative z-10" />
+              </div>
               <span className="text-lg font-bold tracking-wide hidden md:block uppercase">
                  {lang === 'en' ? 'Business & Investments' : 'الأعمال والاستثمارات'}
               </span>
@@ -234,7 +240,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
       </footer>
 
       {/* Mobile Bottom Tab Bar */}
-      <div className="fixed bottom-0 left-0 right-0 h-20 bg-black/95 backdrop-blur-xl border-t border-white/10 z-50 md:hidden pb-safe flex justify-between items-center px-2 shadow-[0_-5px_20px_rgba(0,0,0,0.5)]">
+      <div className="sticky bottom-0 left-0 right-0 h-20 bg-black/95 backdrop-blur-xl border-t border-white/10 z-50 md:hidden pb-safe flex justify-between items-center px-2 shadow-[0_-5px_20px_rgba(0,0,0,0.5)]">
          <TabItem to="/" icon={Home} label={t('tabs.home')} />
          <TabItem to="/projects" icon={Briefcase} label={t('tabs.projects')} />
          <TabItem to="/notifications" icon={Bell} label={t('tabs.notifications')} badge={unreadCount} />

@@ -1,8 +1,10 @@
 import React, { useState, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { X, Camera, Lock, Loader2 } from 'lucide-react';
 import { useUpdateProfile } from '../features/auth/hooks/useAuth';
 import { useInvestorTypes, useInvestorExperiences, usePreferredSectors } from '../features/general/hooks/useGeneralLookups';
+import { useProfileDraftStore } from '../hooks/useProfileDraftStore';
 
 interface EditProfileModalProps {
   user: any;
@@ -19,7 +21,9 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClos
   const [profileImagePreview, setProfileImagePreview] = useState<string>(user?.image || '');
   const [phoneError, setPhoneError] = useState<string>('');
 
-  const [formData, setFormData] = useState({
+  const { draft, setDraft, clearDraft } = useProfileDraftStore();
+
+  const [formData, setFormDataState] = useState(draft || {
     first_name: user?.first_name || '',
     last_name: user?.last_name || '',
     country_code: user?.country_code || '',
@@ -33,6 +37,11 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClos
     experience_level: user?.experience_level || '',
     previous_investments_count: user?.previous_investments_count || '',
   });
+
+  const setFormData = (data: any) => {
+    setFormDataState(data);
+    setDraft(data);
+  };
 
   const { data: investorTypesData } = useInvestorTypes();
   const { data: experiencesData } = useInvestorExperiences();
@@ -72,19 +81,22 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClos
       if (formData.capital) data.append('capital', formData.capital.toString());
       if (formData.available_capital) data.append('available_capital', formData.available_capital.toString());
       if (formData.preferred_sector_id) data.append('preferred_sector_id', formData.preferred_sector_id.toString());
-      if (formData.experience_level) data.append('experience_level', formData.experience_level.toString());
+      // experience_level must be sent as a number; skip if empty/null
+      const expLevel = Number(formData.experience_level);
+      if (formData.experience_level !== '' && !isNaN(expLevel)) data.append('experience_level', expLevel.toString());
       if (formData.previous_investments_count) data.append('previous_investments_count', formData.previous_investments_count.toString());
     }
 
     updateProfile.mutate(data, {
       onSuccess: () => {
+        clearDraft();
         onClose();
       }
     });
   };
 
-  return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+  const modalContent = (
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
       <div className="bg-brand-gray border border-white/10 rounded-2xl w-full max-w-md p-6 animate-fade-in max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-bold text-white">{t('auth.editProfile')}</h2>
@@ -184,7 +196,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClos
                 <select value={formData.investor_type} onChange={(e) => setFormData({...formData, investor_type: e.target.value})} className="w-full bg-[#121212] border border-white/15 rounded-lg px-4 py-3 text-white focus:border-brand-gold outline-none">
                   <option value="">{t('common.select')}</option>
                   {investorTypesData?.data?.map((t: any) => (
-                    <option key={t.id} value={t.type}>{t.name}</option>
+                    <option key={t.value} value={t.value}>{t.name}</option>
                   ))}
                 </select>
               </div>
@@ -208,4 +220,6 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClos
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 };
