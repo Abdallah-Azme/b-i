@@ -4,9 +4,12 @@ import { User, UserRole, Project, Language, NotificationItem } from '../types';
 import i18n from '@/i18n';
 import { generalService } from '../features/general/services/generalService';
 import { StoreContext } from './StoreContext';
+import { queryClient } from '@/lib/query-client';
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [lang, setLang] = useState<Language>('ar');
+  const [lang, setLang] = useState<Language>(
+    () => (localStorage.getItem('bi_lang') as Language) || 'ar'
+  );
   const [user, setUser] = useState<User | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const [interestedInvestors, setInterestedInvestors] = useState<string[]>([]);
@@ -26,12 +29,12 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     localStorage.setItem('bi_interested_investors', JSON.stringify(interestedInvestors));
   }, [interestedInvestors]);
 
-  // Layout direction effect
+  // Initialize language on mount
   useEffect(() => {
     document.documentElement.lang = lang;
     document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
     i18n.changeLanguage(lang);
-  }, [lang]);
+  }, []);
 
   // Load Notifications on Mount
   useEffect(() => {
@@ -58,9 +61,18 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const toggleLanguage = () => {
     const newLang = lang === 'en' ? 'ar' : 'en';
-    setLang(newLang);
+    
+    // Update synchronously before refetching
     i18n.changeLanguage(newLang);
+    localStorage.setItem('bi_lang', newLang);
+    document.documentElement.lang = newLang;
+    document.documentElement.dir = newLang === 'ar' ? 'rtl' : 'ltr';
+    
+    setLang(newLang);
     generalService.changeLang(newLang).catch(console.error);
+    
+    // Invalidate all cached queries so they refetch with the new Accept-Language header
+    queryClient.invalidateQueries();
   };
 
   const login = (roleInput: UserRole | 'company', email: string = 'user@bi-platform.com') => {

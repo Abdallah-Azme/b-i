@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useStore } from '../hooks/useStore';
 import { useNavigate, Link } from '@tanstack/react-router';
@@ -15,10 +15,49 @@ export const ForgotPassword = () => {
   const [code, setCode] = useState('');
   const [password, setPassword] = useState('');
   const [passwordConfirmation, setPasswordConfirmation] = useState('');
+  const [resendCountdown, setResendCountdown] = useState(0);
+  const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const requestCode = useForgotPasswordRequestCode();
   const verifyCode = useForgotPasswordVerifyCode();
   const resetPassword = useForgotPasswordReset();
+
+  // Start 60-second resend countdown whenever we enter step 2
+  useEffect(() => {
+    if (step === 2) {
+      setResendCountdown(60);
+      countdownRef.current = setInterval(() => {
+        setResendCountdown((prev) => {
+          if (prev <= 1) {
+            clearInterval(countdownRef.current!);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => {
+      if (countdownRef.current) clearInterval(countdownRef.current);
+    };
+  }, [step]);
+
+  const handleResendCode = () => {
+    if (!email || resendCountdown > 0) return;
+    requestCode.mutate({ email }, {
+      onSuccess: () => {
+        setResendCountdown(60);
+        countdownRef.current = setInterval(() => {
+          setResendCountdown((prev) => {
+            if (prev <= 1) {
+              clearInterval(countdownRef.current!);
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+      }
+    });
+  };
 
   const handleRequestCode = (e: React.FormEvent) => {
     e.preventDefault();
@@ -122,6 +161,25 @@ export const ForgotPassword = () => {
                 >
                   {verifyCode.isPending ? <Loader2 className="animate-spin" /> : t('common.verify')}
                 </button>
+
+                {/* Resend Code */}
+                <div className="text-center pt-2">
+                  <span className="text-gray-500 text-sm">{t('auth.didntReceive')} </span>
+                  {resendCountdown > 0 ? (
+                    <span className="text-sm text-gray-400 font-medium">
+                      {t('auth.resendIn', { seconds: resendCountdown })}
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleResendCode}
+                      disabled={requestCode.isPending}
+                      className="text-sm font-bold text-brand-gold hover:text-yellow-400 transition disabled:opacity-50"
+                    >
+                      {requestCode.isPending ? <Loader2 className="animate-spin inline" size={14} /> : t('auth.resendCode')}
+                    </button>
+                  )}
+                </div>
               </form>
             )}
 

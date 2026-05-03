@@ -37,7 +37,7 @@ export const apiFetcher = ofetch.create({
     const token = localStorage.getItem('auth_token');
     
     // Get language from i18n instance, falling back to localStorage or 'ar' (app default)
-    const currentLang = i18n.language || localStorage.getItem('i18nextLng') || 'ar';
+    const currentLang = i18n.language || localStorage.getItem('bi_lang') || 'ar';
     const lang = currentLang.split('-')[0].toLowerCase();
 
     options.headers = new Headers(options.headers);

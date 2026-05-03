@@ -240,7 +240,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
       </footer>
 
       {/* Mobile Bottom Tab Bar */}
-      <div className="sticky bottom-0 left-0 right-0 h-20 bg-black/95 backdrop-blur-xl border-t border-white/10 z-50 md:hidden pb-safe flex justify-between items-center px-2 shadow-[0_-5px_20px_rgba(0,0,0,0.5)]">
+      <div className="fixed bottom-0 left-0 right-0 h-20 bg-black/95 backdrop-blur-xl border-t border-white/10 z-50 md:hidden pb-safe flex justify-between items-center px-2 shadow-[0_-5px_20px_rgba(0,0,0,0.5)]">
          <TabItem to="/" icon={Home} label={t('tabs.home')} />
          <TabItem to="/projects" icon={Briefcase} label={t('tabs.projects')} />
          <TabItem to="/notifications" icon={Bell} label={t('tabs.notifications')} badge={unreadCount} />

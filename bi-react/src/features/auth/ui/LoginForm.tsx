@@ -1,14 +1,17 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLoginForm } from '../hooks/useLoginForm';
-import { Link } from '@tanstack/react-router';
+import { Link, useSearch } from '@tanstack/react-router';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { UserRole } from '../types';
 
 export const LoginForm: React.FC = () => {
   const { t } = useTranslation();
-  const { form, handleSubmit, isLoading, watch, setValue } = useLoginForm();
+  const search = useSearch({ strict: false }) as { role?: string };
+  const defaultRole: UserRole = search.role === 'advertiser' ? 'advertiser' : 'investor';
+  const { form, handleSubmit, isLoading, watch, setValue } = useLoginForm(defaultRole);
   const currentRole = watch('role');
 
   return (

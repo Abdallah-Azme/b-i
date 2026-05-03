@@ -320,7 +320,7 @@ export const SettingsTab: React.FC = () => {
   return (
     <div className="space-y-8">
       {/* Security */}
-      <section className="bg-brand-gray/20 p-6 rounded-xl border border-white/5">
+      <section id="change-password" className="bg-brand-gray/20 p-6 rounded-xl border border-white/5">
         <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
           <Lock size={18} className="text-brand-gold" />{" "}
           {t("dashboard.security")}

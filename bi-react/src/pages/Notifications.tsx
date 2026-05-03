@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useStore } from '../hooks/useStore';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { 
@@ -53,6 +53,15 @@ export const Notifications: React.FC = () => {
 
   const notifications = notificationsData?.data?.notifications || [];
   const unreadCount = unreadCountData?.data?.unread_notifications_count || 0;
+
+  // Auto mark all as read when entering the page
+  useEffect(() => {
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      markAllRead.mutate();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const filteredList = useMemo(() => {
     if (activeFilter === 'all') return notifications;
@@ -176,7 +185,7 @@ export const Notifications: React.FC = () => {
                               <h3 className={`text-sm font-bold truncate ${n.seen ? 'text-gray-400' : 'text-white'}`}>
                                  {n.title}
                               </h3>
-                              <span className="text-[10px] text-gray-500 whitespace-nowrap ms-2">
+                              <span className="shrink-0 text-[10px] text-gray-500 whitespace-nowrap ms-2">
                                  {getTimeAgo(n.created_at, lang)}
                               </span>
                            </div>

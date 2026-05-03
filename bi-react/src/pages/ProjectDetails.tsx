@@ -158,12 +158,16 @@ export const ProjectDetails: React.FC = () => {
               </h1>
               <p className="text-gray-300 text-sm flex items-center gap-2 mt-2">
                 <span className="opacity-60 font-sans">
-                  {t('nav.idLabel')}: {project.opportunity_number}
+                  {t("nav.idLabel")}: {project.opportunity_number}
                 </span>
               </p>
             </div>
             <div className="mt-4 md:mt-0 flex gap-2 items-center">
-              <FavoriteButton projectId={id} size={24} className="backdrop-blur-md border border-white/10" />
+              <FavoriteButton
+                projectId={id}
+                size={24}
+                className="backdrop-blur-md border border-white/10"
+              />
               {/* Ad Status Badge */}
               <span
                 className={`flex items-center gap-2 text-white text-sm font-bold uppercase tracking-wider bg-black/60 px-4 py-2 rounded border border-white/10`}
@@ -354,8 +358,9 @@ export const ProjectDetails: React.FC = () => {
                 >
                   {submitInterest.isPending ? (
                     <Loader2 className="animate-spin" size={20} />
-                  ) : (submitInterest.isSuccess || project.has_submitted_interest) ? (
-                    t('nav.interestSubmitted') + " ✓"
+                  ) : submitInterest.isSuccess ||
+                    project.has_submitted_interest ? (
+                    t("nav.interestSubmitted") + " ✓"
                   ) : (
                     t("common.interested")
                   )}
@@ -387,7 +392,7 @@ export const ProjectDetails: React.FC = () => {
                 <button
                   onClick={handlePurchase}
                   disabled={buySeat.isPending || !project.can_buy_seat}
-                  className="bg-white text-black px-8 py-3 rounded-lg font-bold hover:bg-gray-200 transition shadow-lg shadow-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-white text-black px-4 py-3 rounded-lg text-sm hover:bg-gray-200 transition shadow-lg shadow-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {buySeat.isPending ? (
                     <Loader2 size={18} className="animate-spin mx-auto" />

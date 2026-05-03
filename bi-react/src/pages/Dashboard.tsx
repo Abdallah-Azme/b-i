@@ -509,6 +509,19 @@ export const Dashboard: React.FC = () => {
     }
   }, [search, user.role, tabs]);
 
+  // Scroll to change-password section when navigated from More page
+  React.useEffect(() => {
+    const section = (search as any)?.section;
+    if (section === 'password' && activeTab === 'settings') {
+      const el = document.getElementById('change-password');
+      if (el) {
+        setTimeout(() => {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 150);
+      }
+    }
+  }, [activeTab, search]);
+
   const displayName = user.name || user.displayName || "";
 
   return (

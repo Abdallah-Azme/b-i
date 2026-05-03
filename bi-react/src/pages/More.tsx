@@ -73,7 +73,7 @@ export const More: React.FC = () => {
             {isAuthenticated && (
               <>
                 <div className="h-px bg-white/10 my-4"></div>
-                <Link to="/dashboard" search={{ tab: 'settings' }} className="w-full flex items-center gap-4 p-4 hover:bg-brand-gray/20 rounded-xl transition">
+                <Link to="/dashboard" search={{ tab: 'settings', section: 'password' }} className="w-full flex items-center gap-4 p-4 hover:bg-brand-gray/20 rounded-xl transition">
                   <Lock className="text-gray-400" size={20} />
                   <span>{t('moreMenu.password')}</span>
                 </Link>
