@@ -1,10 +1,16 @@
 import React, { useState, useRef } from 'react';
-import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { X, Camera, Lock, Loader2 } from 'lucide-react';
+import { Camera, Lock, Loader2 } from 'lucide-react';
 import { useUpdateProfile } from '../features/auth/hooks/useAuth';
 import { useInvestorTypes, useInvestorExperiences, usePreferredSectors } from '../features/general/hooks/useGeneralLookups';
 import { useProfileDraftStore } from '../hooks/useProfileDraftStore';
+import { PhoneInputField } from '../features/auth/ui/PhoneInputField';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface EditProfileModalProps {
   user: any;
@@ -95,15 +101,14 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClos
     });
   };
 
-  const modalContent = (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
-      <div className="bg-brand-gray border border-white/10 rounded-2xl w-full max-w-md p-6 animate-fade-in max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold text-white">{t('auth.editProfile')}</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-white"><X size={20} /></button>
-        </div>
+  return (
+    <Dialog open={true} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-bold text-white">{t('auth.editProfile')}</DialogTitle>
+        </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 mt-4">
           <div className="flex justify-center mb-6">
             <div className="relative w-24 h-24 rounded-full border-2 border-brand-gold p-1 bg-black">
               <div 
@@ -144,16 +149,14 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClos
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <label className="text-sm text-gray-400">{t('auth.countryCode')}</label>
-              <input type="text" value={formData.country_code} onChange={(e) => setFormData({...formData, country_code: e.target.value})} className="w-full bg-[#121212] border border-white/15 rounded-lg px-4 py-3 text-white focus:border-brand-gold outline-none" placeholder="965" required />
-            </div>
-            <div className="space-y-2 col-span-2">
-              <label className="text-sm text-gray-400">{t('auth.phone')}</label>
-              <input type="text" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} className={`w-full bg-[#121212] border ${phoneError ? 'border-red-500' : 'border-white/15'} rounded-lg px-4 py-3 text-white focus:border-brand-gold outline-none`} required />
-              {phoneError && <p className="text-red-500 text-xs mt-1">{phoneError}</p>}
-            </div>
+          <div className="grid grid-cols-1 gap-4 mt-2">
+            <PhoneInputField
+              value={formData.phone}
+              onChange={(val) => setFormData({...formData, phone: val})}
+              countryCodeValue={formData.country_code}
+              onCountryCodeChange={(val) => setFormData({...formData, country_code: val})}
+              error={phoneError}
+            />
           </div>
 
           {user?.role === 'investor' && (
@@ -217,9 +220,8 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClos
             </button>
           </div>
         </form>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
-
-  return createPortal(modalContent, document.body);
 };
+

@@ -108,11 +108,11 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                  <div className="absolute -inset-[13px] rounded-full blur-[11px] z-0 pointer-events-none bg-[radial-gradient(circle,rgba(212,175,55,0.35)_0%,rgba(212,175,55,0.15)_40%,rgba(212,175,55,0.00)_70%)]"></div>
                  <Logo className="w-10 h-10 relative z-10" />
               </Link>
-              {/* Mobile: logo is non-clickable */}
-              <div className="relative inline-flex md:hidden items-center justify-center overflow-visible rounded-full">
+              {/* Mobile: logo navigates to home */}
+              <Link to="/" className="relative inline-flex md:hidden items-center justify-center overflow-visible rounded-full">
                  <div className="absolute -inset-[13px] rounded-full blur-[11px] z-0 pointer-events-none bg-[radial-gradient(circle,rgba(212,175,55,0.35)_0%,rgba(212,175,55,0.15)_40%,rgba(212,175,55,0.00)_70%)]"></div>
                  <Logo className="w-10 h-10 relative z-10" />
-              </div>
+              </Link>
               <span className="text-lg font-bold tracking-wide hidden md:block uppercase">
                  {lang === 'en' ? 'Business & Investments' : 'الأعمال والاستثمارات'}
               </span>

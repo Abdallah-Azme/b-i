@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useStore } from '../hooks/useStore';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { 
@@ -54,14 +54,7 @@ export const Notifications: React.FC = () => {
   const notifications = notificationsData?.data?.notifications || [];
   const unreadCount = unreadCountData?.data?.unread_notifications_count || 0;
 
-  // Auto mark all as read when entering the page
-  useEffect(() => {
-    const token = localStorage.getItem('auth_token');
-    if (token) {
-      markAllRead.mutate();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+
 
   const filteredList = useMemo(() => {
     if (activeFilter === 'all') return notifications;
@@ -196,7 +189,7 @@ export const Notifications: React.FC = () => {
                      </div>
 
                      {/* Actions Column */}
-                     <div className="w-12 border-l border-white/5 rtl:border-r rtl:border-l-0 flex flex-col items-center justify-center bg-black/20 gap-2">
+                     <div className="w-14 shrink-0 border-l border-white/5 rtl:border-r rtl:border-l-0 flex flex-col items-center justify-center bg-black/20 gap-2">
                         {!n.seen && (
                            <div className="p-1.5 rounded-full text-brand-gold" title={isAr ? 'غير مقروء' : 'Unread'}>
                               <div className="w-2 h-2 rounded-full bg-current"></div>

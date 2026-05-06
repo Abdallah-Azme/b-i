@@ -8,6 +8,7 @@ import { ListingPurpose, FinancialStatus } from '../types';
 import { useCategories } from '../features/general/hooks/useCategories';
 import { useMyOpportunityDetail, useUpdateOpportunity } from '../features/company/hooks/useOpportunities';
 import { useAuth } from '../features/auth/hooks/useAuth';
+import { PhoneInputField } from '../features/auth/ui/PhoneInputField';
 
 export const EditListing: React.FC = () => {
   const { id } = useParams({ from: '/advertiser/edit-listing/$id' });
@@ -33,6 +34,7 @@ export const EditListing: React.FC = () => {
   const [formData, setFormData] = useState({
     companyName: '',
     fullName: '',
+    country_code: '965',
     phone: '',
     email: '',
     adminCompanyName: '',
@@ -64,6 +66,7 @@ export const EditListing: React.FC = () => {
       setFormData({
         companyName: existingProject.company_name || '',
         fullName: existingProject.contact_name || '',
+        country_code: existingProject.country_code || '965',
         phone: existingProject.contact_phone || '',
         email: existingProject.contact_email || '',
         adminCompanyName: existingProject.admin_company_name || '',
@@ -114,8 +117,11 @@ export const EditListing: React.FC = () => {
     if (!formData.phone.trim()) {
       newErrors.phone = requiredStr;
     } else {
-      const digits = formData.phone.replace(/\D/g, '');
-      if (digits.length < 8 || digits.length > 16) {
+      const lengths: Record<string, number> = {
+        '965': 8, '966': 9, '971': 9, '974': 8, '973': 8, '968': 8, '20': 10, '962': 9
+      };
+      const expected = lengths[formData.country_code] || 8;
+      if (formData.phone.length !== expected) {
         newErrors.phone = t('errors.invalidPhone') || 'Invalid phone length';
       }
     }
@@ -164,6 +170,7 @@ export const EditListing: React.FC = () => {
       investment_reason: formData.investmentReason,
       full_description: formData.fullDetails,
       contact_name: formData.fullName,
+      country_code: formData.country_code,
       contact_phone: formData.phone,
       contact_email: formData.email,
       owner_name: formData.companyOwnerName,
@@ -274,9 +281,14 @@ export const EditListing: React.FC = () => {
                             <label className="text-sm font-medium text-gray-300">{t('auth.firstName')} <span className="text-brand-gold">*</span></label>
                             <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} className={`w-full bg-[#121212] border ${errors.fullName ? 'border-red-500' : 'border-white/15'} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`} />
                         </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-gray-300">{t('auth.phone')} <span className="text-brand-gold">*</span></label>
-                            <input type="tel" name="phone" value={formData.phone} onChange={handleChange} className={`w-full bg-[#121212] border ${errors.phone ? 'border-red-500' : 'border-white/15'} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`} />
+                        <div className="md:col-span-2">
+                            <PhoneInputField
+                              value={formData.phone}
+                              onChange={(val) => setFormData(prev => ({ ...prev, phone: val }))}
+                              countryCodeValue={formData.country_code}
+                              onCountryCodeChange={(val) => setFormData(prev => ({ ...prev, country_code: val }))}
+                              error={errors.phone}
+                            />
                         </div>
                     </div>
                     <div className="space-y-2">

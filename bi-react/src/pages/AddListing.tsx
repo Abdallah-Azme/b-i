@@ -32,6 +32,7 @@ import { useCategories } from "../features/general/hooks/useCategories";
 import { FinancialStatus } from "../types";
 import { useAuth } from "../features/auth/hooks/useAuth";
 import { FileUpload } from "../components/ui/FileUpload";
+import { PhoneInputField } from "../features/auth/ui/PhoneInputField";
 
 export const AddListing: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -49,6 +50,7 @@ export const AddListing: React.FC = () => {
 
   const [formData, setFormData] = React.useState({
     fullName: "",
+    country_code: "965",
     phone: "",
     email: "",
     adminCompanyName: "",
@@ -84,6 +86,7 @@ export const AddListing: React.FC = () => {
     setFormData({
       companyName: t("listing.placeholderCompany"),
       fullName: t("auth.firstName"),
+      country_code: "965",
       phone: "80808080",
       email: "test@demo.com",
       adminCompanyName: t("listing.placeholderElite"),
@@ -159,7 +162,17 @@ export const AddListing: React.FC = () => {
     const requiredStr = t("auth.required");
 
     if (!formData.fullName.trim()) newErrors.fullName = requiredStr;
-    if (!formData.phone.trim()) newErrors.phone = requiredStr;
+    if (!formData.phone.trim()) {
+      newErrors.phone = requiredStr;
+    } else {
+      const lengths: Record<string, number> = {
+        '965': 8, '966': 9, '971': 9, '974': 8, '973': 8, '968': 8, '20': 10, '962': 9
+      };
+      const expected = lengths[formData.country_code] || 8;
+      if (formData.phone.length !== expected) {
+        newErrors.phone = t('errors.invalidPhone');
+      }
+    }
     if (!formData.email.trim()) newErrors.email = requiredStr;
     if (!formData.adminCompanyName.trim())
       newErrors.adminCompanyName = requiredStr;
@@ -207,6 +220,7 @@ export const AddListing: React.FC = () => {
         {
           goal: purpose!,
           contact_name: formData.fullName,
+          country_code: formData.country_code,
           contact_phone: formData.phone,
           contact_email: formData.email,
           owner_name: formData.companyOwnerName,
@@ -382,20 +396,13 @@ export const AddListing: React.FC = () => {
                       className={`w-full bg-[#121212] border ${errors.fullName ? "border-red-500" : "border-white/15"} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`}
                     />
                   </div>
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 mb-2 text-sm font-medium text-gray-300">
-                      <Phone size={16} className="text-brand-gold" />
-                      <label>
-                        {t("auth.phone")}{" "}
-                        <span className="text-brand-gold">*</span>
-                      </label>
-                    </div>
-                    <input
-                      type="tel"
-                      name="phone"
+                  <div className="md:col-span-2">
+                    <PhoneInputField
                       value={formData.phone}
-                      onChange={handleChange}
-                      className={`w-full bg-[#121212] border ${errors.phone ? "border-red-500" : "border-white/15"} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`}
+                      onChange={(val) => setFormData(prev => ({ ...prev, phone: val }))}
+                      countryCodeValue={formData.country_code}
+                      onCountryCodeChange={(val) => setFormData(prev => ({ ...prev, country_code: val }))}
+                      error={errors.phone}
                     />
                   </div>
                 </div>

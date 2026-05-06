@@ -8,6 +8,13 @@ interface PaymentModalProps {
   onSuccess: () => void;
 }
 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+
 export const PaymentModal: React.FC<PaymentModalProps> = ({ sessionId, onClose, onSuccess }) => {
   const { t } = useTranslation();
 
@@ -33,15 +40,13 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ sessionId, onClose, 
   }, [sessionId]);
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
-      <div className="bg-white rounded-2xl w-full max-w-md p-6 relative">
-        <button onClick={onClose} className="absolute top-4 right-4 text-gray-500 hover:text-black">
-          <X size={20} />
-        </button>
+    <Dialog open={true} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="bg-white">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-bold text-black text-center">{t('common.completePayment')}</DialogTitle>
+        </DialogHeader>
 
-        <h2 className="text-xl font-bold text-black mb-6 text-center">{t('common.completePayment')}</h2>
-        
-        <div id="mf-payment" className="min-h-[300px]"></div>
+        <div id="mf-payment" className="min-h-[300px] mt-4"></div>
 
         <button 
           onClick={onSuccess} 
@@ -49,8 +54,8 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ sessionId, onClose, 
         >
           {t('common.done')}
         </button>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 

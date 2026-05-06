@@ -23,10 +23,19 @@ export const useInvestorRegisterForm = () => {
     first_name: z.string().min(2, t('errors.firstNameTooShort')),
     last_name: z.string().min(2, t('errors.lastNameTooShort')),
     email: z.string().email(t('errors.invalidEmail')),
-    phone: z.string().refine(val => {
+    country_code: z.string().default('965'),
+    phone: z.string().superRefine((val, ctx) => {
+      const parent = (ctx as any).parent || (ctx as any)._input; // Accessing sibling field
+      // Since superRefine doesn't easily provide siblings, we'll validate it in the object level if needed
+      // but for now we'll do a general check and a more specific one in the component
       const digits = val.replace(/\D/g, '');
-      return digits.length >= 8 && digits.length <= 16;
-    }, t('errors.invalidPhone')),
+      if (digits.length < 8) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: t('errors.invalidPhone'),
+        });
+      }
+    }),
     investor_type: z.enum(['angel', 'company', 'crowdfunding']),
     capital: z.coerce.number().min(1000, t('errors.minCapital')),
     available_capital: z.coerce.number().min(1000, t('errors.minCapital')),
@@ -37,6 +46,16 @@ export const useInvestorRegisterForm = () => {
     investor_experience: z.enum(['beginner', 'intermediate', 'expert']),
     agreed_to_terms: z.boolean().refine(val => val === true, t('auth.termsError')),
     password: z.string().min(8, t('errors.passwordTooShort8')),
+  }).refine((data) => {
+    // Dynamic validation based on country
+    const lengths: Record<string, number> = {
+      '965': 8, '966': 9, '971': 9, '974': 8, '973': 8, '968': 8, '20': 10, '962': 9
+    };
+    const expected = lengths[data.country_code] || 8;
+    return data.phone.length === expected;
+  }, {
+    message: t('errors.invalidPhone'),
+    path: ['phone']
   });
 
   type InvestorFormValues = z.infer<typeof investorSchema>;
@@ -47,6 +66,7 @@ export const useInvestorRegisterForm = () => {
       first_name: '',
       last_name: '',
       email: '',
+      country_code: '965',
       phone: '',
       investor_type: 'angel',
       capital: 0,

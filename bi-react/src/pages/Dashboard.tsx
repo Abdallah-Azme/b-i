@@ -88,7 +88,13 @@ const ProjectCard: React.FC<{ project: any; type: "ad" | "booklet" }> = ({
   const displayId = project.opportunity_number || project.id;
   const isLegacy = !project.opportunity_number; // Indicates if it's mock data
 
-  const stats = getDemoStats(project);
+  const stats = project.statistics 
+    ? { 
+        views: project.statistics.views_count || 0, 
+        purchases: project.statistics.purchased_seats_count || 0, 
+        interest: project.statistics.interest_requests_count || 0 
+      }
+    : getDemoStats(project);
 
   // Handling new schema (project.status.value) vs legacy string
   const rawStatus = project.status?.value || project.status;
@@ -402,7 +408,7 @@ export const Dashboard: React.FC = () => {
     { enabled: user.role !== "advertiser" },
   );
 
-  const myBooklets = investorSeatsData?.data?.seats ?? [];
+  const myBooklets = investorSeatsData?.data?.opportunities ?? [];
   const successfulDeals = companySeatsData?.data?.seats?.length || 0;
   const totalValue = myAds.reduce(
     (acc: number, curr: any) => acc + (curr.investment_required || 0),
@@ -740,10 +746,10 @@ export const Dashboard: React.FC = () => {
         {activeTab === "booklets" && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {myBooklets.length > 0 ? (
-              myBooklets.map((seat: any) => (
+              myBooklets.map((opp: any) => (
                 <ProjectCard
-                  key={seat.id}
-                  project={seat.opportunity}
+                  key={opp.id}
+                  project={opp}
                   type="booklet"
                 />
               ))

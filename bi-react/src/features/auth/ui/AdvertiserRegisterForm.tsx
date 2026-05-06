@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Upload, X, Image as ImageIcon } from 'lucide-react';
+import { PhoneInputField } from './PhoneInputField';
 
 export const AdvertiserRegisterForm: React.FC = () => {
   const { t } = useTranslation();
@@ -87,13 +88,13 @@ export const AdvertiserRegisterForm: React.FC = () => {
             control={form.control}
             name="phone"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t('auth.phone')}</FormLabel>
-                <FormControl>
-                  <Input placeholder={t('auth.phonePlaceholder')} {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
+              <PhoneInputField
+                value={field.value}
+                onChange={field.onChange}
+                countryCodeValue={form.watch('country_code')}
+                onCountryCodeChange={(val) => form.setValue('country_code', val, { shouldValidate: true })}
+                error={form.formState.errors.phone?.message}
+              />
             )}
           />
 

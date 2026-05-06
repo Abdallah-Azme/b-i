@@ -26,15 +26,31 @@ export const useAdvertiserRegisterForm = () => {
     last_name: z.string().min(2, t('errors.lastNameTooShort')),
     email: z.string().email(t('errors.invalidEmail')),
     password: z.string().min(8, t('errors.passwordTooShort8')),
-    phone: z.string().refine(val => {
+    country_code: z.string().default('965'),
+    phone: z.string().superRefine((val, ctx) => {
       const digits = val.replace(/\D/g, '');
-      return digits.length >= 8 && digits.length <= 16;
-    }, t('errors.invalidPhone')),
+      if (digits.length < 8) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: t('errors.invalidPhone'),
+        });
+      }
+    }),
     company_name: z.string().min(2, t('errors.companyNameRequired')),
     license_number: z.string().min(1, t('errors.licenseNumberRequired')),
     company_license: z.any().refine(val => val instanceof File || (typeof FileList !== 'undefined' && val instanceof FileList && val.length > 0), t('errors.licenseFileRequired')),
     image: z.any().optional(),
     agreed_to_terms: z.boolean().refine(val => val === true, t('auth.termsError')),
+  }).refine((data) => {
+    // Dynamic validation based on country
+    const lengths: Record<string, number> = {
+      '965': 8, '966': 9, '971': 9, '974': 8, '973': 8, '968': 8, '20': 10, '962': 9
+    };
+    const expected = lengths[data.country_code] || 8;
+    return data.phone.length === expected;
+  }, {
+    message: t('errors.invalidPhone'),
+    path: ['phone']
   });
 
   type AdvertiserFormValues = z.infer<typeof advertiserSchema>;
@@ -46,6 +62,7 @@ export const useAdvertiserRegisterForm = () => {
       last_name: '',
       email: '',
       password: '',
+      country_code: '965',
       phone: '',
       company_name: '',
       license_number: '',
@@ -61,6 +78,7 @@ export const useAdvertiserRegisterForm = () => {
     formData.append('last_name', data.last_name);
     formData.append('email', data.email);
     formData.append('password', data.password);
+    formData.append('country_code', data.country_code);
     formData.append('phone', data.phone);
     formData.append('company_name', data.company_name);
     formData.append('license_number', data.license_number);

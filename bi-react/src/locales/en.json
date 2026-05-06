@@ -399,7 +399,7 @@
     "forgotPasswordDesc": "Enter your email address to reset your password.",
     "enterCodeDesc": "Enter the 6-digit code sent to your email.",
     "newPasswordDesc": "Enter your new password.",
-    "emailOrPhone": "Email or Phone Number",
+    "emailOrPhone": "Email ",
     "enterOtp": "Enter the 6-digit code",
     "verifyOtpDesc": "We sent a 6-digit code to",
     "verifyAccount": "Verify Account",

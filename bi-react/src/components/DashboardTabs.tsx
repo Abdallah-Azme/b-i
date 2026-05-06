@@ -11,6 +11,13 @@ import { useLatestProfileUpdateRequest } from "../features/auth/hooks/useProfile
 import { ChangeEmailModal } from "../features/auth/ui/ChangeEmailModal";
 import { toast } from "sonner";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import {
   useCurrentRequests,
   useSentInterests,
   usePurchasedSeats,
@@ -115,7 +122,7 @@ export const SentInterestsTab: React.FC = () => {
   );
 
   const data = isAdvertiser ? companyQuery.data : investorQuery.data;
-  const interests = data?.data?.interests || [];
+  const interests = data?.data?.interests || data?.data?.opportunities || [];
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -124,29 +131,32 @@ export const SentInterestsTab: React.FC = () => {
           {t("common.noData")}
         </div>
       ) : (
-        interests.map((int: any) => (
-          <div
-            key={int.id}
-            className="bg-brand-gray/20 p-4 rounded-xl border border-white/5 flex gap-4"
-          >
-            <img
-              src={int.opportunity?.image || "/placeholder.png"}
-              alt=""
-              className="w-16 h-16 rounded-lg object-cover"
-            />
-            <div className="flex-1">
-              <h4 className="font-bold text-white">
-                {int.opportunity?.company_name}
-              </h4>
-              <p className="text-xs text-gray-400">
-                {new Date(int.created_at).toLocaleDateString()}
-              </p>
-              <span className="text-[10px] font-bold text-brand-gold">
-                {int.status?.toUpperCase() || "SENT"}
-              </span>
+        interests.map((int: any) => {
+          const opportunity = int.opportunity || int;
+          return (
+            <div
+              key={int.id}
+              className="bg-brand-gray/20 p-4 rounded-xl border border-white/5 flex gap-4"
+            >
+              <img
+                src={opportunity?.image || "/placeholder.png"}
+                alt=""
+                className="w-16 h-16 rounded-lg object-cover"
+              />
+              <div className="flex-1">
+                <h4 className="font-bold text-white">
+                  {opportunity?.company_name}
+                </h4>
+                <p className="text-xs text-gray-400">
+                  {int.created_at ? new Date(int.created_at).toLocaleDateString() : ""}
+                </p>
+                <span className="text-[10px] font-bold text-brand-gold">
+                  {int.status?.label?.toUpperCase() || int.status?.toUpperCase() || "SENT"}
+                </span>
+              </div>
             </div>
-          </div>
-        ))
+          );
+        })
       )}
     </div>
   );
@@ -166,7 +176,7 @@ export const OngoingRequestsTab: React.FC = () => {
   );
 
   const data = isAdvertiser ? companyQuery.data : investorQuery.data;
-  const deals = data?.data?.seats || [];
+  const deals = data?.data?.seats || data?.data?.opportunities || [];
 
   return (
     <div className="space-y-4">
@@ -175,30 +185,33 @@ export const OngoingRequestsTab: React.FC = () => {
           {t("common.noData")}
         </div>
       ) : (
-        deals.map((deal: any) => (
-          <div
-            key={deal.id}
-            className="bg-brand-gray/20 p-4 rounded-xl border border-white/5 flex items-center justify-between"
-          >
-            <div>
-              <h4 className="font-bold text-white">
-                {deal.opportunity?.company_name}
-              </h4>
-              <p className="text-xs text-gray-400">
-                {t("dashboard.counterparty")}
-                {deal.counterparty?.name || "N/A"}
-              </p>
+        deals.map((deal: any) => {
+          const opportunity = deal.opportunity || deal;
+          return (
+            <div
+              key={deal.id}
+              className="bg-brand-gray/20 p-4 rounded-xl border border-white/5 flex items-center justify-between"
+            >
+              <div>
+                <h4 className="font-bold text-white">
+                  {opportunity?.company_name}
+                </h4>
+                <p className="text-xs text-gray-400">
+                  {t("dashboard.counterparty")}
+                  {deal.counterparty?.name || "N/A"}
+                </p>
+              </div>
+              <div className="text-end">
+                <span className="block text-[10px] font-bold text-white">
+                  {deal.status?.toUpperCase() || (deal.status?.label ? deal.status.label.toUpperCase() : "ACTIVE")}
+                </span>
+                <span className="text-[10px] text-gray-500">
+                  {deal.created_at ? new Date(deal.created_at).toLocaleDateString() : ""}
+                </span>
+              </div>
             </div>
-            <div className="text-end">
-              <span className="block text-[10px] font-bold text-white">
-                {deal.status?.toUpperCase() || "ACTIVE"}
-              </span>
-              <span className="text-[10px] text-gray-500">
-                {new Date(deal.created_at).toLocaleDateString()}
-              </span>
-            </div>
-          </div>
-        ))
+          );
+        })
       )}
     </div>
   );
@@ -320,7 +333,7 @@ export const SettingsTab: React.FC = () => {
   return (
     <div className="space-y-8">
       {/* Security */}
-      <section id="change-password" className="bg-brand-gray/20 p-6 rounded-xl border border-white/5">
+      <section id="change-password" className="bg-brand-gray/20 p-6 rounded-xl border border-white/5 scroll-mt-24">
         <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
           <Lock size={18} className="text-brand-gold" />{" "}
           {t("dashboard.security")}
@@ -425,34 +438,34 @@ export const SettingsTab: React.FC = () => {
       </section>
 
       {/* Delete Confirmation Modal */}
-      {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <div className="bg-brand-gray p-6 rounded-xl border border-white/10 max-w-sm w-full text-center">
+      <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <DialogContent className="max-w-sm text-center">
+          <DialogHeader>
             <AlertCircle size={48} className="text-red-500 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-white mb-2">
+            <DialogTitle className="text-xl font-bold text-white mb-2">
               {t("dashboard.areYouSure")}
-            </h3>
-            <p className="text-sm text-gray-400 mb-6">
+            </DialogTitle>
+            <DialogDescription className="text-sm text-gray-400 mb-6">
               {t("dashboard.deleteDesc")}
-            </p>
-            <div className="flex gap-4">
-              <button
-                onClick={() => setShowDeleteConfirm(false)}
-                className="flex-1 bg-brand-gray border border-white/10 text-white py-2 rounded-lg font-bold"
-              >
-                {t("dashboard.cancel")}
-              </button>
-              <button
-                onClick={() => deleteAccount.mutate()}
-                disabled={deleteAccount.isPending}
-                className="flex-1 flex justify-center items-center bg-red-600 text-white py-2 rounded-lg font-bold disabled:opacity-50"
-              >
-                {deleteAccount.isPending ? "..." : t("dashboard.deleteAccount")}
-              </button>
-            </div>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex gap-4">
+            <button
+              onClick={() => setShowDeleteConfirm(false)}
+              className="flex-1 bg-brand-gray border border-white/10 text-white py-2 rounded-lg font-bold"
+            >
+              {t("dashboard.cancel")}
+            </button>
+            <button
+              onClick={() => deleteAccount.mutate()}
+              disabled={deleteAccount.isPending}
+              className="flex-1 flex justify-center items-center bg-red-600 text-white py-2 rounded-lg font-bold disabled:opacity-50"
+            >
+              {deleteAccount.isPending ? "..." : t("dashboard.deleteAccount")}
+            </button>
           </div>
-        </div>
-      )}
+        </DialogContent>
+      </Dialog>
 
       {showEmailChange && (
         <ChangeEmailModal onClose={() => setShowEmailChange(false)} />

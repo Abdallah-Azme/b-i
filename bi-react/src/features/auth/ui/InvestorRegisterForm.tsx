@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
+import { PhoneInputField } from './PhoneInputField';
 
 export const InvestorRegisterForm: React.FC = () => {
   const { t } = useTranslation();
@@ -69,13 +70,13 @@ export const InvestorRegisterForm: React.FC = () => {
                 control={form.control}
                 name="phone"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('auth.phone')}</FormLabel>
-                    <FormControl>
-                      <Input placeholder={t('auth.phonePlaceholder')} {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+                  <PhoneInputField
+                    value={field.value}
+                    onChange={field.onChange}
+                    countryCodeValue={form.watch('country_code')}
+                    onCountryCodeChange={(val) => form.setValue('country_code', val, { shouldValidate: true })}
+                    error={form.formState.errors.phone?.message}
+                  />
                 )}
               />
               <FormField
