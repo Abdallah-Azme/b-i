@@ -9,6 +9,7 @@ import {
 } from "../features/auth/hooks/useNotificationSettings";
 import { useLatestProfileUpdateRequest } from "../features/auth/hooks/useProfileUpdateRequest";
 import { ChangeEmailModal } from "../features/auth/ui/ChangeEmailModal";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -339,26 +340,23 @@ export const SettingsTab: React.FC = () => {
           {t("dashboard.security")}
         </h3>
         <div className="space-y-4">
-          <input
-            type="password"
+          <PasswordInput
             value={currentPassword}
             onChange={(e) => setCurrentPassword(e.target.value)}
             placeholder={t("dashboard.currentPassword")}
-            className="w-full bg-black/30 border border-white/10 rounded-lg p-3 text-white text-sm outline-none focus:border-brand-gold"
+            className="bg-black/30 border-white/10 p-3 text-sm"
           />
-          <input
-            type="password"
+          <PasswordInput
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
             placeholder={t("dashboard.newPassword")}
-            className="w-full bg-black/30 border border-white/10 rounded-lg p-3 text-white text-sm outline-none focus:border-brand-gold"
+            className="bg-black/30 border-white/10 p-3 text-sm"
           />
-          <input
-            type="password"
+          <PasswordInput
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             placeholder={t("dashboard.confirmPassword")}
-            className="w-full bg-black/30 border border-white/10 rounded-lg p-3 text-white text-sm outline-none focus:border-brand-gold"
+            className="bg-black/30 border-white/10 p-3 text-sm"
           />
           <button
             onClick={handleChangePassword}

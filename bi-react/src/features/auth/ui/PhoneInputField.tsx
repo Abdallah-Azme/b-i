@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { FormControl, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
@@ -47,8 +47,13 @@ export const PhoneInputField: React.FC<PhoneInputFieldProps> = ({
   };
 
   return (
-    <FormItem>
-      <FormLabel>{t('auth.phone')}</FormLabel>
+    <div className="space-y-2">
+      <Label className={cn(
+        "block text-xs font-medium text-gray-500 mb-1 uppercase",
+        error && "text-red-500"
+      )}>
+        {t('auth.phone')}
+      </Label>
       <div className={cn("flex gap-2", isAr ? "flex-row-reverse" : "flex-row")}>
         {/* Country Code Select */}
         <div className="relative w-32 shrink-0">
@@ -74,22 +79,20 @@ export const PhoneInputField: React.FC<PhoneInputFieldProps> = ({
         </div>
 
         {/* Phone Number Input */}
-        <FormControl>
-          <Input
-            type="text"
-            inputMode="numeric"
-            pattern="[0-9]*"
-            placeholder="5XXXXXXX"
-            value={value}
-            onChange={handlePhoneChange}
-            className={cn(
-              "flex-1",
-              error ? "border-red-500" : ""
-            )}
-          />
-        </FormControl>
+        <Input
+          type="text"
+          inputMode="numeric"
+          pattern="[0-9]*"
+          placeholder="5XXXXXXX"
+          value={value}
+          onChange={handlePhoneChange}
+          className={cn(
+            "flex-1",
+            error ? "border-red-500" : ""
+          )}
+        />
       </div>
-      <FormMessage />
-    </FormItem>
+      {error && <p className="text-[10px] font-medium text-red-500 mt-1">{error}</p>}
+    </div>
   );
 };

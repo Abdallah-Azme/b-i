@@ -26,6 +26,7 @@ export const useAdvertiserRegisterForm = () => {
     last_name: z.string().min(2, t('errors.lastNameTooShort')),
     email: z.string().email(t('errors.invalidEmail')),
     password: z.string().min(8, t('errors.passwordTooShort8')),
+    password_confirmation: z.string(),
     country_code: z.string().default('965'),
     phone: z.string().superRefine((val, ctx) => {
       const digits = val.replace(/\D/g, '');
@@ -51,6 +52,9 @@ export const useAdvertiserRegisterForm = () => {
   }, {
     message: t('errors.invalidPhone'),
     path: ['phone']
+  }).refine((data) => data.password === data.password_confirmation, {
+    message: t('auth.passwordsDoNotMatch'),
+    path: ['password_confirmation']
   });
 
   type AdvertiserFormValues = z.infer<typeof advertiserSchema>;
@@ -62,6 +66,7 @@ export const useAdvertiserRegisterForm = () => {
       last_name: '',
       email: '',
       password: '',
+      password_confirmation: '',
       country_code: '965',
       phone: '',
       company_name: '',

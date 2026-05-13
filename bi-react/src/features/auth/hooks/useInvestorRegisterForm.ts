@@ -46,6 +46,7 @@ export const useInvestorRegisterForm = () => {
     investor_experience: z.enum(['beginner', 'intermediate', 'expert']),
     agreed_to_terms: z.boolean().refine(val => val === true, t('auth.termsError')),
     password: z.string().min(8, t('errors.passwordTooShort8')),
+    password_confirmation: z.string(),
   }).refine((data) => {
     // Dynamic validation based on country
     const lengths: Record<string, number> = {
@@ -56,6 +57,9 @@ export const useInvestorRegisterForm = () => {
   }, {
     message: t('errors.invalidPhone'),
     path: ['phone']
+  }).refine((data) => data.password === data.password_confirmation, {
+    message: t('auth.passwordsDoNotMatch'),
+    path: ['password_confirmation']
   });
 
   type InvestorFormValues = z.infer<typeof investorSchema>;
@@ -78,6 +82,7 @@ export const useInvestorRegisterForm = () => {
       investor_experience: 'beginner',
       agreed_to_terms: false,
       password: '',
+      password_confirmation: '',
     },
   });
 

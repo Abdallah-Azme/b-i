@@ -2,8 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useStore } from '../hooks/useStore';
 import { useNavigate, Link } from '@tanstack/react-router';
-import { Mail, Key, Lock, ArrowRight, ArrowLeft, Loader2, CheckCircle } from 'lucide-react';
+import { Mail, Key, Lock, ArrowRight, ArrowLeft, Loader2, CheckCircle, Eye, EyeOff } from 'lucide-react';
 import { useForgotPasswordRequestCode, useForgotPasswordVerifyCode, useForgotPasswordReset } from '../features/auth/hooks/useForgotPassword';
+import { PasswordInput } from '@/components/ui/PasswordInput';
 
 export const ForgotPassword = () => {
   const { t, i18n } = useTranslation();
@@ -187,29 +188,23 @@ export const ForgotPassword = () => {
               <form onSubmit={handleResetPassword} className="space-y-6 animate-fade-in relative z-10">
                 <div className="space-y-2">
                   <label className="text-sm font-bold text-gray-300 ms-1">{t('dashboard.newPassword')}</label>
-                  <div className="relative">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={20} />
-                    <input 
-                      type="password" 
-                      required
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="w-full bg-black/50 border border-white/10 rounded-xl py-3 ps-12 pe-4 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition"
-                    />
-                  </div>
+                  <PasswordInput 
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    leftIcon={<Lock size={20} />}
+                    className="rounded-xl py-3"
+                  />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-bold text-gray-300 ms-1">{t('dashboard.confirmPassword')}</label>
-                  <div className="relative">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={20} />
-                    <input 
-                      type="password" 
-                      required
-                      value={passwordConfirmation}
-                      onChange={(e) => setPasswordConfirmation(e.target.value)}
-                      className="w-full bg-black/50 border border-white/10 rounded-xl py-3 ps-12 pe-4 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition"
-                    />
-                  </div>
+                  <PasswordInput 
+                    required
+                    value={passwordConfirmation}
+                    onChange={(e) => setPasswordConfirmation(e.target.value)}
+                    leftIcon={<Lock size={20} />}
+                    className="rounded-xl py-3"
+                  />
                 </div>
 
                 <button 

@@ -1,8 +1,10 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from '@tanstack/react-router';
 import { useInvestorRegisterForm } from '../hooks/useInvestorRegisterForm';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { PasswordInput } from '@/components/ui/PasswordInput';
 import { Select } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
@@ -86,7 +88,20 @@ export const InvestorRegisterForm: React.FC = () => {
                   <FormItem>
                     <FormLabel>{t('auth.password')}</FormLabel>
                     <FormControl>
-                      <Input type="password" {...field} />
+                      <PasswordInput placeholder="••••••••" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="password_confirmation"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('auth.confirmPassword')}</FormLabel>
+                    <FormControl>
+                      <PasswordInput placeholder="••••••••" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -224,6 +239,13 @@ export const InvestorRegisterForm: React.FC = () => {
             >
               {isLoading ? t('auth.processing') : t('auth.completeRegistration')}
             </Button>
+
+            <p className="text-gray-400 text-sm">
+              {t('auth.alreadyHaveAccount')}{' '}
+              <Link to="/login" search={{ role: 'investor' }} className="text-brand-gold font-bold hover:underline">
+                {t('auth.loginBtn')}
+              </Link>
+            </p>
           </div>
         </form>
       </Form>

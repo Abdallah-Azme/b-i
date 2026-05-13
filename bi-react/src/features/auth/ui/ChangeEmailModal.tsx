@@ -15,6 +15,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 
 export const ChangeEmailModal = ({ onClose }: { onClose: () => void }) => {
   const { t } = useTranslation();
@@ -96,20 +97,14 @@ export const ChangeEmailModal = ({ onClose }: { onClose: () => void }) => {
         <div className="mt-4">
           {step === 1 && (
             <form onSubmit={handleStep1} className="space-y-4">
-              <div className="relative">
-                <Lock
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
-                  size={20}
-                />
-                <input
-                  type="password"
+                <PasswordInput 
                   required
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
                   placeholder={t("dashboard.currentPassword")}
-                  className="w-full bg-[#121212] border border-white/15 rounded-xl py-3 ps-12 pe-4 text-white focus:border-brand-gold outline-none"
+                  leftIcon={<Lock size={20} />}
+                  className="bg-[#121212] border-white/15 rounded-xl py-3"
                 />
-              </div>
               <button
                 type="submit"
                 disabled={requestCurrent.isPending}

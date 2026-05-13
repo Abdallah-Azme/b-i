@@ -4,6 +4,7 @@ import { useLoginForm } from '../hooks/useLoginForm';
 import { Link, useSearch } from '@tanstack/react-router';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { PasswordInput } from '@/components/ui/PasswordInput';
 import { Button } from '@/components/ui/button';
 import { UserRole } from '../types';
 
@@ -65,7 +66,7 @@ export const LoginForm: React.FC = () => {
               <FormItem>
                 <FormLabel className="normal-case">{t('auth.password')}</FormLabel>
                 <FormControl>
-                  <Input type="password" placeholder="••••••••" {...field} />
+                  <PasswordInput placeholder="••••••••" {...field} />
                 </FormControl>
                 <FormMessage />
                 <div className="flex justify-end mt-2">

@@ -56,10 +56,7 @@ export const VerifyEmail: React.FC = () => {
       setVerified(true);
       setTimeout(() => navigate({ to: '/dashboard' }), 2500);
     },
-    onError: (err: any) => {
-      const msg = err?.serverData?.msg ?? err?.message ?? t('common.error');
-      toast.error(msg);
-    },
+    onError: () => {},
   });
 
   const resendMutation = useMutation({
@@ -69,10 +66,7 @@ export const VerifyEmail: React.FC = () => {
       toast.success(t('auth.codeSent'));
       setCooldown(RESEND_COOLDOWN);
     },
-    onError: (err: any) => {
-      const msg = err?.serverData?.msg ?? err?.message ?? t('common.error');
-      toast.error(msg);
-    },
+    onError: () => {},
   });
 
   // --- OTP input handlers ---
@@ -215,6 +209,7 @@ export const VerifyEmail: React.FC = () => {
                   ))}
                 </div>
               </div>
+
 
               {/* Submit */}
               <button

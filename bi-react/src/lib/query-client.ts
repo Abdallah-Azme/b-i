@@ -50,13 +50,11 @@ export const queryClient = new QueryClient({
           : null;
 
         toast.error(apiError.serverData.msg || i18n.t('common.error'), {
-          // Only attach description when there are actual field errors
           ...(description ? { description, duration: 8000 } : {}),
         });
         return;
       }
 
-      // Fallback for non-API errors
       const message =
         error instanceof Error ? error.message : i18n.t('common.error');
       toast.error(message);
