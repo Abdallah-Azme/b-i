@@ -103,7 +103,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClos
 
   return (
     <Dialog open={true} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-h-[85dvh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-white">{t('auth.editProfile')}</DialogTitle>
         </DialogHeader>
@@ -138,7 +138,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClos
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-sm text-gray-400">{t('auth.firstName')}</label>
               <input type="text" value={formData.first_name} onChange={(e) => setFormData({...formData, first_name: e.target.value})} className="w-full bg-[#121212] border border-white/15 rounded-lg px-4 py-3 text-white focus:border-brand-gold outline-none" required />
@@ -163,7 +163,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClos
             <div className="space-y-4 pt-4 border-t border-white/10">
               <h3 className="text-lg font-semibold text-white">{t('auth.investmentInfo')}</h3>
               
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-sm text-gray-400">{t('auth.investorCapital')}</label>
                   <input type="number" value={formData.capital} onChange={(e) => setFormData({...formData, capital: e.target.value})} className="w-full bg-[#121212] border border-white/15 rounded-lg px-4 py-3 text-white focus:border-brand-gold outline-none" />

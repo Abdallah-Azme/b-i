@@ -145,7 +145,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                     <span>{t('nav.dashboard')}</span>
                   </Link>
                   <button onClick={handleLogout} className="text-gray-400 hover:text-red-500 transition">
-                    <LogOut size={20} />
+                    <LogOut size={20} className="rtl:rotate-180" />
                   </button>
                 </div>
               ) : (
