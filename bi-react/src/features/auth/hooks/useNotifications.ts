@@ -3,11 +3,13 @@ import { authService } from '../services/auth.service';
 
 const isAuthed = () => !!localStorage.getItem('auth_token');
 
-export const useNotifications = (params?: { page?: number; per_page?: number }) => {
+export const useNotifications = (params?: { page?: number; per_page?: number; refetchInterval?: number | false }) => {
+  const { refetchInterval, ...queryParams } = params ?? {};
   return useQuery({
-    queryKey: ['notifications', params],
-    queryFn: () => authService.getNotifications(params),
+    queryKey: ['notifications', queryParams],
+    queryFn: () => authService.getNotifications(queryParams),
     enabled: isAuthed(),
+    refetchInterval: isAuthed() ? (refetchInterval ?? false) : false,
   });
 };
 

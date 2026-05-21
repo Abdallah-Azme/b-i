@@ -48,7 +48,7 @@ export const Notifications: React.FC = () => {
   const [showConfirmClear, setShowConfirmClear] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState<ApiNotification | null>(null);
 
-  const { data: notificationsData, isLoading } = useNotifications({ per_page: 50 });
+  const { data: notificationsData, isLoading } = useNotifications({ per_page: 50, refetchInterval: 15000 });
   const { data: unreadCountData } = useUnreadNotificationsCount();
   const markAllRead = useMarkAllNotificationsRead();
   const markOneRead = useMarkNotificationRead();

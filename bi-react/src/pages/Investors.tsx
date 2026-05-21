@@ -340,7 +340,7 @@ export const Investors: React.FC = () => {
                 onClick={() => {
                   sendInterest.mutate({ investor_id: selectedInvestorId }, {
                     onSuccess: () => {
-                      toast.success(t('investorsPage.interestSentSuccess'));
+                      toast.success(t('investorsPage.interestSentSuccess'), { duration: 16000 });
                       toggleInterestInvestor(selectedInvestorId.toString());
                       setSelectedInvestorId(null);
                     },

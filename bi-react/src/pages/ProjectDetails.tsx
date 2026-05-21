@@ -90,7 +90,7 @@ export const ProjectDetails: React.FC = () => {
           if (sid) {
             setPaymentSessionId(sid);
           } else {
-            toast.success(t("common.purchaseSuccess"));
+            toast.success(t("common.purchaseSuccess"), { duration: 16000 });
             queryClient.invalidateQueries({
               queryKey: ["opportunity", id],
             });
@@ -344,6 +344,7 @@ export const ProjectDetails: React.FC = () => {
                         onSuccess: (res: any) => {
                           toast.success(
                             res.msg || t("common.interestSubmitted"),
+                            { duration: 16000 }
                           );
                         },
                       },
@@ -443,7 +444,7 @@ export const ProjectDetails: React.FC = () => {
           onClose={() => setPaymentSessionId(null)}
           onSuccess={() => {
             setPaymentSessionId(null);
-            toast.success(t("common.purchaseSuccess"));
+            toast.success(t("common.purchaseSuccess"), { duration: 16000 });
             queryClient.invalidateQueries({
               queryKey: ["opportunity", id],
             });
