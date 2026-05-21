@@ -11,7 +11,7 @@ export const useInvestorRegisterForm = () => {
   const { mutate: register, isPending } = useMutation({
     mutationFn: (payload: any) => authService.registerInvestor(payload),
     onSuccess: (_data, variables) => {
-      toast.success(t('auth.successInvestor'));
+      toast.success(t('auth.successInvestor'), { duration: 16000 });
       sessionStorage.setItem('verify_email', variables.email);
       sessionStorage.setItem('verify_password', variables.password);
       sessionStorage.setItem('verify_role', 'investor');
@@ -48,15 +48,20 @@ export const useInvestorRegisterForm = () => {
     password: z.string().min(8, t('errors.passwordTooShort8')),
     password_confirmation: z.string(),
   }).refine((data) => {
-    // Dynamic validation based on country
     const lengths: Record<string, number> = {
-      '965': 8, '966': 9, '971': 9, '974': 8, '973': 8, '968': 8, '20': 10, '962': 9
+      '965': 8, '966': 8, '971': 8, '974': 8, '973': 8, '968': 8, '20': 8, '962': 8
     };
     const expected = lengths[data.country_code] || 8;
     return data.phone.length === expected;
-  }, {
-    message: t('errors.invalidPhone'),
-    path: ['phone']
+  }, (data) => {
+    const lengths: Record<string, number> = {
+      '965': 8, '966': 8, '971': 8, '974': 8, '973': 8, '968': 8, '20': 8, '962': 8
+    };
+    const expected = lengths[data.country_code] || 8;
+    return {
+      message: t('errors.invalidPhoneLength', { length: expected }),
+      path: ['phone']
+    };
   }).refine((data) => data.password === data.password_confirmation, {
     message: t('auth.passwordsDoNotMatch'),
     path: ['password_confirmation']

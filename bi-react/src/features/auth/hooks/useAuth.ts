@@ -14,7 +14,7 @@ export const useLogin = () => {
         // role is { key: "investor"|"advertiser", label: "..." }
         const roleKey = (response.data.role as any)?.key ?? response.data.role;
         if (roleKey) localStorage.setItem('auth_role', roleKey);
-        toast.success(t('auth.loginSuccess'));
+        toast.success(t('auth.loginSuccess'), { duration: 16000 });
         window.location.href = '/dashboard';
       }
     },
@@ -28,7 +28,7 @@ export const useUpdateProfile = () => {
     mutationFn: (payload: FormData) => authService.updateProfile(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['profile'] });
-      toast.success(t('auth.profileUpdateSuccess'));
+      toast.success(t('auth.profileUpdateSuccess'), { duration: 16000 });
     },
   });
 };

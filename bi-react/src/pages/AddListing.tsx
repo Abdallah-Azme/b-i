@@ -166,11 +166,11 @@ export const AddListing: React.FC = () => {
       newErrors.phone = requiredStr;
     } else {
       const lengths: Record<string, number> = {
-        '965': 8, '966': 9, '971': 9, '974': 8, '973': 8, '968': 8, '20': 10, '962': 9
+        '965': 8, '966': 8, '971': 8, '974': 8, '973': 8, '968': 8, '20': 8, '962': 8
       };
       const expected = lengths[formData.country_code] || 8;
       if (formData.phone.length !== expected) {
-        newErrors.phone = t('errors.invalidPhone');
+        newErrors.phone = t('errors.invalidPhoneLength', { length: expected });
       }
     }
     if (!formData.email.trim()) newErrors.email = requiredStr;

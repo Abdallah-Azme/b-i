@@ -469,6 +469,7 @@
     "lastNameTooShort": "اسم العائلة قصير جداً",
     "minCapital": "الحد الأدنى لرأس المال هو ١٠٠٠ د.ك",
     "invalidPhone": "يجب أن يكون بين 8 و 16 رقمًا",
+    "invalidPhoneLength": "يجب أن يتكون رقم الهاتف من {{length}} أرقام (بدون رمز الدولة)، ولا يبدأ برمز الدولة.",
     "companyNameRequired": "اسم الشركة مطلوب",
     "licenseNumberRequired": "رقم الترخيص مطلوب",
     "licenseFileRequired": "ملف رخصة الشركة مطلوب"

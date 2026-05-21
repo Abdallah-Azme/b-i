@@ -6,13 +6,13 @@ import { cn } from '@/lib/utils';
 
 export const COUNTRIES = [
   { code: '965', flag: '🇰🇼', name: 'Kuwait', length: 8 },
-  { code: '966', flag: '🇸🇦', name: 'Saudi Arabia', length: 9 },
-  { code: '971', flag: '🇦🇪', name: 'UAE', length: 9 },
+  { code: '966', flag: '🇸🇦', name: 'Saudi Arabia', length: 8 },
+  { code: '971', flag: '🇦🇪', name: 'UAE', length: 8 },
   { code: '974', flag: '🇶🇦', name: 'Qatar', length: 8 },
   { code: '973', flag: '🇧🇭', name: 'Bahrain', length: 8 },
   { code: '968', flag: '🇴🇲', name: 'Oman', length: 8 },
-  { code: '20', flag: '🇪🇬', name: 'Egypt', length: 10 },
-  { code: '962', flag: '🇯🇴', name: 'Jordan', length: 9 },
+  { code: '20', flag: '🇪🇬', name: 'Egypt', length: 8 },
+  { code: '962', flag: '🇯🇴', name: 'Jordan', length: 8 },
 ];
 
 interface PhoneInputFieldProps {

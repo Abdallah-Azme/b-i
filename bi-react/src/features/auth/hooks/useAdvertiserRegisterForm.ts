@@ -11,7 +11,7 @@ export const useAdvertiserRegisterForm = () => {
   const { mutate: register, isPending } = useMutation({
     mutationFn: (payload: any) => authService.registerAdvertiser(payload),
     onSuccess: (_data, variables) => {
-      toast.success(t('auth.successAdvertiser'));
+      toast.success(t('auth.successAdvertiser'), { duration: 16000 });
       const email = variables instanceof FormData ? variables.get('email') as string : variables.email;
       const password = variables instanceof FormData ? variables.get('password') as string : variables.password;
       sessionStorage.setItem('verify_email', email);
@@ -43,15 +43,20 @@ export const useAdvertiserRegisterForm = () => {
     image: z.any().optional(),
     agreed_to_terms: z.boolean().refine(val => val === true, t('auth.termsError')),
   }).refine((data) => {
-    // Dynamic validation based on country
     const lengths: Record<string, number> = {
-      '965': 8, '966': 9, '971': 9, '974': 8, '973': 8, '968': 8, '20': 10, '962': 9
+      '965': 8, '966': 8, '971': 8, '974': 8, '973': 8, '968': 8, '20': 8, '962': 8
     };
     const expected = lengths[data.country_code] || 8;
     return data.phone.length === expected;
-  }, {
-    message: t('errors.invalidPhone'),
-    path: ['phone']
+  }, (data) => {
+    const lengths: Record<string, number> = {
+      '965': 8, '966': 8, '971': 8, '974': 8, '973': 8, '968': 8, '20': 8, '962': 8
+    };
+    const expected = lengths[data.country_code] || 8;
+    return {
+      message: t('errors.invalidPhoneLength', { length: expected }),
+      path: ['phone']
+    };
   }).refine((data) => data.password === data.password_confirmation, {
     message: t('auth.passwordsDoNotMatch'),
     path: ['password_confirmation']

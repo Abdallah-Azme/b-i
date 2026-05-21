@@ -29,11 +29,24 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClos
 
   const { draft, setDraft, clearDraft } = useProfileDraftStore();
 
+  // Clean phone and country code
+  const cleanPhone = (phoneStr: string, codeStr: string) => {
+    let phone = (phoneStr || '').replace(/\D/g, '');
+    const code = (codeStr || '').replace(/\D/g, '');
+    if (code && phone.startsWith(code)) {
+      phone = phone.slice(code.length);
+    }
+    return phone;
+  };
+
+  const initialCountryCode = (user?.country_code || '').replace(/\D/g, '') || '965';
+  const initialPhone = cleanPhone(user?.phone || '', initialCountryCode);
+
   const [formData, setFormDataState] = useState(draft || {
     first_name: user?.first_name || '',
     last_name: user?.last_name || '',
-    country_code: user?.country_code || '',
-    phone: user?.phone || '',
+    country_code: initialCountryCode,
+    phone: initialPhone,
     
     // Investor specific
     investor_type: user?.investor_type || '',
@@ -65,8 +78,12 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClos
     e.preventDefault();
     
     const digits = formData.phone.replace(/\D/g, '');
-    if (digits.length < 8 || digits.length > 16) {
-      setPhoneError(t('errors.invalidPhone') || 'Invalid phone length');
+    const lengths: Record<string, number> = {
+      '965': 8, '966': 8, '971': 8, '974': 8, '973': 8, '968': 8, '20': 8, '962': 8
+    };
+    const expected = lengths[formData.country_code] || 8;
+    if (digits.length !== expected) {
+      setPhoneError(t('errors.invalidPhoneLength', { length: expected }) || `Must be ${expected} digits`);
       return;
     }
     setPhoneError('');

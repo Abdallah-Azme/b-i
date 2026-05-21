@@ -60,14 +60,24 @@ export const EditListing: React.FC = () => {
     financial_statements_file?: File;
   }>({});
 
+  const cleanPhone = (phoneStr: string, codeStr: string) => {
+    let phone = (phoneStr || '').replace(/\D/g, '');
+    const code = (codeStr || '').replace(/\D/g, '');
+    if (code && phone.startsWith(code)) {
+      phone = phone.slice(code.length);
+    }
+    return phone;
+  };
+
   React.useEffect(() => {
     if (existingProject) {
       setPurpose(existingProject.goal as any);
+      const code = existingProject.country_code || '965';
       setFormData({
         companyName: existingProject.company_name || '',
         fullName: existingProject.contact_name || '',
-        country_code: existingProject.country_code || '965',
-        phone: existingProject.contact_phone || '',
+        country_code: code,
+        phone: cleanPhone(existingProject.contact_phone || '', code),
         email: existingProject.contact_email || '',
         adminCompanyName: existingProject.admin_company_name || '',
         companyOwnerName: existingProject.owner_name || '',
@@ -118,11 +128,11 @@ export const EditListing: React.FC = () => {
       newErrors.phone = requiredStr;
     } else {
       const lengths: Record<string, number> = {
-        '965': 8, '966': 9, '971': 9, '974': 8, '973': 8, '968': 8, '20': 10, '962': 9
+        '965': 8, '966': 8, '971': 8, '974': 8, '973': 8, '968': 8, '20': 8, '962': 8
       };
       const expected = lengths[formData.country_code] || 8;
       if (formData.phone.length !== expected) {
-        newErrors.phone = t('errors.invalidPhone') || 'Invalid phone length';
+        newErrors.phone = t('errors.invalidPhoneLength', { length: expected }) || 'Invalid phone length';
       }
     }
     if (!formData.email.trim()) newErrors.email = requiredStr;

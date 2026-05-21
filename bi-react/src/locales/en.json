@@ -454,6 +454,7 @@
     "lastNameTooShort": "Last name is too short",
     "minCapital": "Minimum capital is 1000 KWD",
     "invalidPhone": "Must be between 8 and 16 digits",
+    "invalidPhoneLength": "Phone number must be {{length}} digits (without country code) and cannot start with the country code.",
     "companyNameRequired": "Company name is required",
     "licenseNumberRequired": "License number is required",
     "licenseFileRequired": "Company license file is required"

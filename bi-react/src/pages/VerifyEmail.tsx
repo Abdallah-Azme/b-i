@@ -56,17 +56,17 @@ export const VerifyEmail: React.FC = () => {
       setVerified(true);
       setTimeout(() => navigate({ to: '/dashboard' }), 2500);
     },
-    onError: () => {},
+    onError: () => { },
   });
 
   const resendMutation = useMutation({
     mutationFn: () =>
       authService.resendCode({ email, password, role }),
     onSuccess: () => {
-      toast.success(t('auth.codeSent'));
+      toast.success(t('auth.codeSent'), { duration: 16000 });
       setCooldown(RESEND_COOLDOWN);
     },
-    onError: () => {},
+    onError: () => { },
   });
 
   // --- OTP input handlers ---
@@ -148,7 +148,7 @@ export const VerifyEmail: React.FC = () => {
   return (
     <div className="min-h-screen bg-brand-black flex flex-col md:flex-row">
       {/* Form Side */}
-      <div className="flex-1 flex flex-col justify-center px-4 sm:px-6 lg:px-20 xl:px-24 py-12">
+      <div className="flex-1 flex flex-col justify-center px-4 sm:px-6 lg:px-20 xl:px-24 py-4">
         <div className="mx-auto w-full max-w-md animate-fade-in">
           {/* Back link */}
           <Link
@@ -167,7 +167,7 @@ export const VerifyEmail: React.FC = () => {
                 <Mail size={10} className="text-black" />
               </div>
             </div>
-            <h1 className="text-3xl font-bold text-white mb-2">{t('auth.verifyTitle')}</h1>
+            <h1 className="md:text-3xl font-bold text-white mb-4">{t('auth.verifyTitle')}</h1>
             <p className="text-gray-400 text-sm leading-relaxed">
               {t('auth.verifyOtpDesc')}{' '}
               <span className="text-brand-gold font-semibold break-all">{email}</span>
@@ -183,7 +183,7 @@ export const VerifyEmail: React.FC = () => {
                   {t('auth.enterOtp')}
                 </label>
                 <div
-                  className="flex gap-3 justify-center"
+                  className="flex gap-1 justify-center"
                   onPaste={handlePaste}
                   dir="ltr"
                 >
