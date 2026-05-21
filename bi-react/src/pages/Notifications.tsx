@@ -12,8 +12,10 @@ import {
   useUnreadNotificationsCount, 
   useMarkAllNotificationsRead, 
   useDeleteAllNotifications, 
-  useDeleteNotification 
+  useDeleteNotification,
+  useMarkNotificationRead
 } from '../features/auth/hooks/useNotifications';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../components/ui/dialog';
 
 const getIcon = (category: string) => {
   switch (category) {
@@ -44,10 +46,12 @@ export const Notifications: React.FC = () => {
   
   const [activeFilter, setActiveFilter] = useState<string>('all');
   const [showConfirmClear, setShowConfirmClear] = useState(false);
+  const [selectedNotification, setSelectedNotification] = useState<ApiNotification | null>(null);
 
   const { data: notificationsData, isLoading } = useNotifications({ per_page: 50 });
   const { data: unreadCountData } = useUnreadNotificationsCount();
   const markAllRead = useMarkAllNotificationsRead();
+  const markOneRead = useMarkNotificationRead();
   const deleteAll = useDeleteAllNotifications();
   const deleteOne = useDeleteNotification();
 
@@ -63,11 +67,10 @@ export const Notifications: React.FC = () => {
   }, [notifications, activeFilter]);
 
   const handleItemClick = (n: ApiNotification) => {
-    // We could mark it as read when clicking, but we don't have a specific mark-read endpoint,
-    // only read-all. Let's ignore individual read unless we add it later.
-    if (n.target_url) {
-      navigate({ to: n.target_url as any });
+    if (!n.seen) {
+      markOneRead.mutate(n.id);
     }
+    setSelectedNotification(n);
   };
 
   const confirmClearAll = () => {
@@ -84,6 +87,8 @@ export const Notifications: React.FC = () => {
     { id: 'interest', label: { ar: 'اهتمامات', en: 'Interests' } },
     { id: 'system', label: { ar: 'النظام', en: 'System' } },
   ];
+
+  
 
   return (
     <div className="min-h-screen pb-24">
@@ -165,7 +170,7 @@ export const Notifications: React.FC = () => {
                      {/* Clickable Content Area */}
                      <div 
                         onClick={() => handleItemClick(n)}
-                        className="flex-1 p-4 cursor-pointer flex gap-4"
+                        className="flex-1 min-w-0 p-4 cursor-pointer flex gap-4"
                      >
                         {/* Icon */}
                         <div className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${n.seen ? 'bg-white/5 grayscale' : 'bg-black/40'}`}>
@@ -174,15 +179,15 @@ export const Notifications: React.FC = () => {
 
                         {/* Content */}
                         <div className="flex-1 min-w-0">
-                           <div className="flex justify-between items-start mb-1">
-                              <h3 className={`text-sm font-bold truncate ${n.seen ? 'text-gray-400' : 'text-white'}`}>
+                           <div className="flex justify-between items-start mb-1 gap-2">
+                              <div className={`flex-1 min-w-0 text-sm font-bold truncate ${n.seen ? 'text-gray-400' : 'text-white'}`}>
                                  {n.title}
-                              </h3>
-                              <span className="shrink-0 text-[10px] text-gray-500 whitespace-nowrap ms-2">
+                              </div>
+                              <span className="shrink-0 text-[10px] text-gray-500 whitespace-nowrap">
                                  {getTimeAgo(n.created_at, lang)}
                               </span>
                            </div>
-                           <p className={`text-xs md:text-sm line-clamp-2 ${n.seen ? 'text-gray-500' : 'text-gray-300'}`}>
+                           <p className={`text-xs md:text-sm line-clamp-2 break-all ${n.seen ? 'text-gray-500' : 'text-gray-300'}`}>
                               {n.body}
                            </p>
                         </div>
@@ -254,6 +259,37 @@ export const Notifications: React.FC = () => {
            </div>
         </div>
       )}
+
+      {/* View Notification Modal */}
+      <Dialog open={!!selectedNotification} onOpenChange={(open) => !open && setSelectedNotification(null)}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader className="min-w-0">
+            <DialogTitle className="text-white font-bold break-all pr-6">
+              {selectedNotification?.title}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="mt-4 max-h-[60vh] overflow-y-auto custom-scrollbar pr-2 min-w-0">
+            <p className="text-sm text-gray-300 whitespace-pre-wrap break-all leading-relaxed">
+              {selectedNotification?.body}
+            </p>
+          </div>
+          {selectedNotification?.target_url && (
+            <div className="mt-6 flex justify-end">
+              <button 
+                onClick={() => {
+                  if (selectedNotification.target_url) {
+                    navigate({ to: selectedNotification.target_url as any });
+                  }
+                  setSelectedNotification(null);
+                }}
+                className="bg-brand-gold text-black px-6 py-2.5 rounded-lg font-bold text-sm hover:bg-brand-gold/90 transition-colors"
+              >
+                {isAr ? 'عرض التفاصيل' : 'View Details'}
+              </button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -74,8 +74,8 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClos
     const data = new FormData();
     data.append('first_name', formData.first_name);
     data.append('last_name', formData.last_name);
-    data.append('country_code', formData.country_code);
-    data.append('phone', formData.phone);
+    data.append('country_code', formData.country_code.replace(/\D/g, ''));
+    data.append('phone', digits);
     data.append('_method', 'PATCH'); // Laravel method spoofing
 
     if (profileImageFile) {

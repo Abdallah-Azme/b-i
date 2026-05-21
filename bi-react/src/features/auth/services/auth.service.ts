@@ -102,6 +102,9 @@ export const authService = {
   deleteAllNotifications: () =>
     api.delete<ApiSimpleResponse>('/v1/auth/notifications/delete-all'),
 
+  markNotificationRead: (id: string | number) =>
+    api.patch<ApiSimpleResponse>(`/v1/auth/notifications/${id}`, { seen: true }),
+
   deleteNotification: (id: string | number) =>
     api.delete<ApiSimpleResponse>(`/v1/auth/notifications/${id}`),
 };

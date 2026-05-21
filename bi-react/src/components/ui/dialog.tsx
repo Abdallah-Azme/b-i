@@ -43,11 +43,13 @@ const DialogContent = React.forwardRef<
         )}
         {...props}
       >
+        <div className="sticky top-4 z-[110] col-span-full h-0 w-full -mt-4 pointer-events-none">
+          <DialogPrimitive.Close className="absolute -top-2 -end-2 pointer-events-auto rounded-full bg-black/50 p-2 opacity-70 shadow-lg backdrop-blur-sm ring-offset-background transition-all hover:bg-black/70 hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
+            <X className="h-5 w-5 text-white" />
+            <span className="sr-only">Close</span>
+          </DialogPrimitive.Close>
+        </div>
         {children}
-        <DialogPrimitive.Close className="absolute end-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
-          <X className="h-4 w-4 text-gray-400" />
-          <span className="sr-only">Close</span>
-        </DialogPrimitive.Close>
       </DialogPrimitive.Content>
     </DialogOverlay>
   </DialogPortal>

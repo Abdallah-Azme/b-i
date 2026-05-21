@@ -152,11 +152,21 @@ export const InvestorRegisterForm: React.FC = () => {
                 <FormField
                   control={form.control}
                   name="capital"
-                  render={({ field }) => (
+                  render={({ field: { value, onChange, ...fieldProps } }) => (
                     <FormItem>
                       <FormLabel>{t('auth.totalCapital')}</FormLabel>
                       <FormControl>
-                        <Input type="number" {...field} />
+                        <Input 
+                          type="text" 
+                          {...fieldProps}
+                          value={value ? Number(value).toLocaleString('en-US') : ''}
+                          onChange={(e) => {
+                             const rawValue = e.target.value.replace(/,/g, '');
+                             if (/^\d*$/.test(rawValue) && Number(rawValue) <= 1000000000) {
+                               onChange(rawValue ? Number(rawValue) : 0);
+                             }
+                          }}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -165,11 +175,21 @@ export const InvestorRegisterForm: React.FC = () => {
                 <FormField
                   control={form.control}
                   name="available_capital"
-                  render={({ field }) => (
+                  render={({ field: { value, onChange, ...fieldProps } }) => (
                     <FormItem>
                       <FormLabel>{t('auth.availableCapital')}</FormLabel>
                       <FormControl>
-                        <Input type="number" {...field} />
+                        <Input 
+                          type="text" 
+                          {...fieldProps}
+                          value={value ? Number(value).toLocaleString('en-US') : ''}
+                          onChange={(e) => {
+                             const rawValue = e.target.value.replace(/,/g, '');
+                             if (/^\d*$/.test(rawValue) && Number(rawValue) <= 1000000000) {
+                               onChange(rawValue ? Number(rawValue) : 0);
+                             }
+                          }}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -180,11 +200,21 @@ export const InvestorRegisterForm: React.FC = () => {
                 <FormField
                   control={form.control}
                   name="previous_investments_count"
-                  render={({ field }) => (
+                  render={({ field: { value, onChange, ...fieldProps } }) => (
                     <FormItem>
                       <FormLabel>{t('auth.prevInvestments')}</FormLabel>
                       <FormControl>
-                        <Input type="number" {...field} />
+                        <Input 
+                          type="number" 
+                          {...fieldProps}
+                          value={value === 0 ? '' : value}
+                          onChange={(e) => {
+                             const rawValue = e.target.value;
+                             if (/^\d*$/.test(rawValue) && Number(rawValue) <= 10000) {
+                               onChange(rawValue ? Number(rawValue) : 0);
+                             }
+                          }}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -193,11 +223,21 @@ export const InvestorRegisterForm: React.FC = () => {
                 <FormField
                   control={form.control}
                   name="experience_level"
-                  render={({ field }) => (
+                  render={({ field: { value, onChange, ...fieldProps } }) => (
                     <FormItem>
                       <FormLabel>{t('auth.expLevel')}</FormLabel>
                       <FormControl>
-                        <Input type="number" {...field} />
+                        <Input 
+                          type="number" 
+                          {...fieldProps}
+                          value={value === 0 ? '' : value}
+                          onChange={(e) => {
+                             const rawValue = e.target.value;
+                             if (/^\d*$/.test(rawValue) && Number(rawValue) <= 100) {
+                               onChange(rawValue ? Number(rawValue) : 0);
+                             }
+                          }}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
