@@ -16,7 +16,14 @@ root.render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <App />
-      <Toaster position="top-center" expand={true} richColors theme="dark" />
+      <Toaster
+        position="top-center"
+        expand={true}
+        richColors
+        theme="dark"
+        closeButton
+        toastOptions={{ duration: Infinity }}
+      />
     </QueryClientProvider>
   </React.StrictMode>
 );

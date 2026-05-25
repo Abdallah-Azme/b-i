@@ -11,7 +11,7 @@ export const useAdvertiserRegisterForm = () => {
   const { mutate: register, isPending } = useMutation({
     mutationFn: (payload: any) => authService.registerAdvertiser(payload),
     onSuccess: (_data, variables) => {
-      toast.success(t('auth.successAdvertiser'), { duration: 16000 });
+      toast.success(t('auth.successAdvertiser'));
       const email = variables instanceof FormData ? variables.get('email') as string : variables.email;
       const password = variables instanceof FormData ? variables.get('password') as string : variables.password;
       sessionStorage.setItem('verify_email', email);

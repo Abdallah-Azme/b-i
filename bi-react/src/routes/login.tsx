@@ -4,6 +4,7 @@ import { z } from 'zod';
 
 const loginSearchSchema = z.object({
   role: z.string().optional(),
+  reason: z.string().optional(),
 });
 
 export const Route = createFileRoute('/login')({

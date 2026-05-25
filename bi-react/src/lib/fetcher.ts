@@ -50,10 +50,37 @@ export const apiFetcher = ofetch.create({
     }
   },
   async onResponseError({ response }) {
-    if (response.status === 401) {
+    if (response.status === 401 || response.status === 403) {
       // Handle logout/redirect
       localStorage.removeItem('auth_token');
-      window.location.href = '/login';
+      localStorage.removeItem('auth_role');
+
+      const body: ApiErrorData = (response as any)._data ?? {};
+      const msg = (body.msg || '').toLowerCase();
+
+      let reason = 'session_expired';
+      if (
+        msg.includes('ban') ||
+        msg.includes('block') ||
+        msg.includes('suspend') ||
+        msg.includes('deactivate') ||
+        msg.includes('حظر') ||
+        msg.includes('تجميد') ||
+        msg.includes('موقوف') ||
+        response.status === 403
+      ) {
+        reason = 'banned';
+      } else if (
+        msg.includes('delet') ||
+        msg.includes('حذف') ||
+        msg.includes('أزل')
+      ) {
+        reason = 'deleted';
+      }
+
+      if (!window.location.pathname.startsWith('/login')) {
+        window.location.href = `/login?reason=${reason}`;
+      }
     }
 
     // ofetch parses the response body BEFORE calling error hooks and stores

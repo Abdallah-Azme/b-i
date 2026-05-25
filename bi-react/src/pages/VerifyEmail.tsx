@@ -63,7 +63,7 @@ export const VerifyEmail: React.FC = () => {
     mutationFn: () =>
       authService.resendCode({ email, password, role }),
     onSuccess: () => {
-      toast.success(t('auth.codeSent'), { duration: 16000 });
+      toast.success(t('auth.codeSent'));
       setCooldown(RESEND_COOLDOWN);
     },
     onError: () => { },
@@ -276,4 +276,3 @@ export const VerifyEmail: React.FC = () => {
     </div>
   );
 };
-

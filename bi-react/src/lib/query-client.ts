@@ -50,7 +50,7 @@ export const queryClient = new QueryClient({
           : null;
 
         toast.error(apiError.serverData.msg || i18n.t('common.error'), {
-          ...(description ? { description, duration: 8000 } : {}),
+          ...(description ? { description } : {}),
         });
         return;
       }

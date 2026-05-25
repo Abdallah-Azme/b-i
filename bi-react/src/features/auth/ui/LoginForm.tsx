@@ -1,19 +1,41 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLoginForm } from '../hooks/useLoginForm';
-import { Link, useSearch } from '@tanstack/react-router';
+import { Link, useSearch, useNavigate } from '@tanstack/react-router';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { PasswordInput } from '@/components/ui/PasswordInput';
 import { Button } from '@/components/ui/button';
 import { UserRole } from '../types';
+import { toast } from 'sonner';
 
 export const LoginForm: React.FC = () => {
   const { t } = useTranslation();
-  const search = useSearch({ strict: false }) as { role?: string };
+  const navigate = useNavigate();
+  const search = useSearch({ strict: false }) as { role?: string; reason?: string };
   const defaultRole: UserRole = search.role === 'advertiser' ? 'advertiser' : 'investor';
   const { form, handleSubmit, isLoading, watch, setValue } = useLoginForm(defaultRole);
   const currentRole = watch('role');
+
+  const reason = search.reason;
+  React.useEffect(() => {
+    if (reason) {
+      if (reason === 'banned') {
+        toast.error(t('auth.bannedError'));
+      } else if (reason === 'deleted') {
+        toast.error(t('auth.deletedError'));
+      } else if (reason === 'session_expired') {
+        toast.error(t('auth.sessionExpired'));
+      }
+
+      // Clear the reason search parameter from the URL
+      navigate({
+        to: '/login',
+        search: { ...search, reason: undefined },
+        replace: true,
+      });
+    }
+  }, [reason, t, navigate, search]);
 
   return (
     <div className="w-full max-w-md mx-auto p-8 glass-card animate-fade-in">

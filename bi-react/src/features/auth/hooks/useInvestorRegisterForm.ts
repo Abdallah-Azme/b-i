@@ -11,7 +11,7 @@ export const useInvestorRegisterForm = () => {
   const { mutate: register, isPending } = useMutation({
     mutationFn: (payload: any) => authService.registerInvestor(payload),
     onSuccess: (_data, variables) => {
-      toast.success(t('auth.successInvestor'), { duration: 16000 });
+      toast.success(t('auth.successInvestor'));
       sessionStorage.setItem('verify_email', variables.email);
       sessionStorage.setItem('verify_password', variables.password);
       sessionStorage.setItem('verify_role', 'investor');

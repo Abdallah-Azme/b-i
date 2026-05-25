@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { Camera, Lock, Loader2 } from 'lucide-react';
 import { useUpdateProfile } from '../features/auth/hooks/useAuth';
 import { useInvestorTypes, useInvestorExperiences, usePreferredSectors } from '../features/general/hooks/useGeneralLookups';
-import { useProfileDraftStore } from '../hooks/useProfileDraftStore';
 import { PhoneInputField } from '../features/auth/ui/PhoneInputField';
 import {
   Dialog,
@@ -27,8 +26,6 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClos
   const [profileImagePreview, setProfileImagePreview] = useState<string>(user?.image || '');
   const [phoneError, setPhoneError] = useState<string>('');
 
-  const { draft, setDraft, clearDraft } = useProfileDraftStore();
-
   // Clean phone and country code
   const cleanPhone = (phoneStr: string, codeStr: string) => {
     let phone = (phoneStr || '').replace(/\D/g, '');
@@ -42,7 +39,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClos
   const initialCountryCode = (user?.country_code || '').replace(/\D/g, '') || '965';
   const initialPhone = cleanPhone(user?.phone || '', initialCountryCode);
 
-  const [formData, setFormDataState] = useState(draft || {
+  const initialFormData = {
     first_name: user?.first_name || '',
     last_name: user?.last_name || '',
     country_code: initialCountryCode,
@@ -55,12 +52,9 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClos
     preferred_sector_id: user?.preferred_sector_id || '',
     experience_level: user?.experience_level || '',
     previous_investments_count: user?.previous_investments_count || '',
-  });
-
-  const setFormData = (data: any) => {
-    setFormDataState(data);
-    setDraft(data);
   };
+
+  const [formData, setFormData] = useState(initialFormData);
 
   const { data: investorTypesData } = useInvestorTypes();
   const { data: experiencesData } = useInvestorExperiences();
@@ -112,8 +106,13 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClos
 
     updateProfile.mutate(data, {
       onSuccess: () => {
-        clearDraft();
         onClose();
+      },
+      onError: () => {
+        setFormData(initialFormData);
+        setProfileImageFile(null);
+        setProfileImagePreview(user?.image || '');
+        setPhoneError('');
       }
     });
   };
@@ -241,4 +240,3 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClos
     </Dialog>
   );
 };
-
