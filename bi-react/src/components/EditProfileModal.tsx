@@ -4,6 +4,7 @@ import { Camera, Lock, Loader2 } from 'lucide-react';
 import { useUpdateProfile } from '../features/auth/hooks/useAuth';
 import { useInvestorTypes, useInvestorExperiences, usePreferredSectors } from '../features/general/hooks/useGeneralLookups';
 import { PhoneInputField } from '../features/auth/ui/PhoneInputField';
+import { MAX_MONEY_AMOUNT, formatNumberWithCommas, parseLimitedIntegerInput } from '@/lib/number-format';
 import {
   Dialog,
   DialogContent,
@@ -182,11 +183,23 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClos
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-sm text-gray-400">{t('auth.investorCapital')}</label>
-                  <input type="number" value={formData.capital} onChange={(e) => setFormData({...formData, capital: e.target.value})} className="w-full bg-[#121212] border border-white/15 rounded-lg px-4 py-3 text-white focus:border-brand-gold outline-none" />
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={formatNumberWithCommas(formData.capital)}
+                    onChange={(e) => setFormData({...formData, capital: parseLimitedIntegerInput(e.target.value, MAX_MONEY_AMOUNT)})}
+                    className="w-full bg-[#121212] border border-white/15 rounded-lg px-4 py-3 text-white focus:border-brand-gold outline-none"
+                  />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm text-gray-400">{t('auth.availableCapital')}</label>
-                  <input type="number" value={formData.available_capital} onChange={(e) => setFormData({...formData, available_capital: e.target.value})} className="w-full bg-[#121212] border border-white/15 rounded-lg px-4 py-3 text-white focus:border-brand-gold outline-none" />
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={formatNumberWithCommas(formData.available_capital)}
+                    onChange={(e) => setFormData({...formData, available_capital: parseLimitedIntegerInput(e.target.value, MAX_MONEY_AMOUNT)})}
+                    className="w-full bg-[#121212] border border-white/15 rounded-lg px-4 py-3 text-white focus:border-brand-gold outline-none"
+                  />
                 </div>
               </div>
 

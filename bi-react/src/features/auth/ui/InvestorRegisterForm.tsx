@@ -9,6 +9,7 @@ import { Select } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { PhoneInputField } from './PhoneInputField';
+import { MAX_MONEY_AMOUNT, formatNumberWithCommas, parseLimitedIntegerInput } from '@/lib/number-format';
 
 export const InvestorRegisterForm: React.FC = () => {
   const { t } = useTranslation();
@@ -158,13 +159,12 @@ export const InvestorRegisterForm: React.FC = () => {
                       <FormControl>
                         <Input 
                           type="text" 
+                          inputMode="numeric"
                           {...fieldProps}
-                          value={value ? Number(value).toLocaleString('en-US') : ''}
+                          value={formatNumberWithCommas(value)}
                           onChange={(e) => {
-                             const rawValue = e.target.value.replace(/,/g, '');
-                             if (/^\d*$/.test(rawValue) && Number(rawValue) <= 1000000000) {
-                               onChange(rawValue ? Number(rawValue) : 0);
-                             }
+                             const rawValue = parseLimitedIntegerInput(e.target.value, MAX_MONEY_AMOUNT);
+                             onChange(rawValue ? Number(rawValue) : 0);
                           }}
                         />
                       </FormControl>
@@ -181,13 +181,12 @@ export const InvestorRegisterForm: React.FC = () => {
                       <FormControl>
                         <Input 
                           type="text" 
+                          inputMode="numeric"
                           {...fieldProps}
-                          value={value ? Number(value).toLocaleString('en-US') : ''}
+                          value={formatNumberWithCommas(value)}
                           onChange={(e) => {
-                             const rawValue = e.target.value.replace(/,/g, '');
-                             if (/^\d*$/.test(rawValue) && Number(rawValue) <= 1000000000) {
-                               onChange(rawValue ? Number(rawValue) : 0);
-                             }
+                             const rawValue = parseLimitedIntegerInput(e.target.value, MAX_MONEY_AMOUNT);
+                             onChange(rawValue ? Number(rawValue) : 0);
                           }}
                         />
                       </FormControl>
@@ -292,4 +291,3 @@ export const InvestorRegisterForm: React.FC = () => {
     </div>
   );
 };
-

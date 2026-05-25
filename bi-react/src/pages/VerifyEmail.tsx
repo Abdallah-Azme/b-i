@@ -146,28 +146,28 @@ export const VerifyEmail: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-brand-black flex flex-col md:flex-row">
+    <div className="min-h-[calc(100dvh-10rem)] bg-brand-black flex flex-col md:min-h-screen md:flex-row">
       {/* Form Side */}
-      <div className="flex-1 flex flex-col justify-center px-4 sm:px-6 lg:px-20 xl:px-24 py-4">
+      <div className="flex-1 flex flex-col justify-start px-4 pt-2 pb-4 sm:px-6 md:justify-center md:py-4 lg:px-20 xl:px-24">
         <div className="mx-auto w-full max-w-md animate-fade-in">
           {/* Back link */}
           <Link
             to="/login"
-            className="mb-8 inline-flex items-center gap-2 text-sm font-bold text-gray-400 hover:text-white transition"
+            className="mb-4 inline-flex items-center gap-2 text-sm font-bold text-gray-400 hover:text-white transition md:mb-8"
           >
             <ArrowLeft size={16} className={isRtl ? 'rotate-180' : ''} />
             {t('auth.backToLogin')}
           </Link>
 
           {/* Header */}
-          <div className="text-center mb-10">
-            <div className="w-20 h-20 bg-brand-gold/10 rounded-full flex items-center justify-center mx-auto mb-5 border border-brand-gold/30 relative">
-              <ShieldCheck size={36} className="text-brand-gold" />
+          <div className="text-center mb-5 md:mb-10">
+            <div className="w-16 h-16 bg-brand-gold/10 rounded-full flex items-center justify-center mx-auto mb-3 border border-brand-gold/30 relative md:w-20 md:h-20 md:mb-5">
+              <ShieldCheck className="h-8 w-8 text-brand-gold md:h-9 md:w-9" />
               <div className="absolute -top-1 -right-1 w-5 h-5 bg-brand-gold rounded-full border-2 border-black flex items-center justify-center">
                 <Mail size={10} className="text-black" />
               </div>
             </div>
-            <h1 className="md:text-3xl font-bold text-white mb-4">{t('auth.verifyTitle')}</h1>
+            <h1 className="text-2xl font-bold text-white mb-2 md:mb-4 md:text-3xl">{t('auth.verifyTitle')}</h1>
             <p className="text-gray-400 text-sm leading-relaxed">
               {t('auth.verifyOtpDesc')}{' '}
               <span className="text-brand-gold font-semibold break-all">{email}</span>
@@ -175,8 +175,8 @@ export const VerifyEmail: React.FC = () => {
           </div>
 
           {/* Card */}
-          <div className="bg-[#121212] p-8 rounded-2xl border border-white/10 shadow-xl shadow-brand-gold/5">
-            <form onSubmit={handleSubmit} className="space-y-8">
+          <div className="bg-[#121212] p-5 rounded-2xl border border-white/10 shadow-xl shadow-brand-gold/5 md:p-8">
+            <form onSubmit={handleSubmit} className="space-y-6 md:space-y-8">
               {/* OTP inputs */}
               <div className="space-y-3">
                 <label className="block text-sm font-bold text-gray-300 text-center">

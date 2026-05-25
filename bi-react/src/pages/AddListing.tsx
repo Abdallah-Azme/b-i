@@ -33,6 +33,7 @@ import { FinancialStatus } from "../types";
 import { useAuth } from "../features/auth/hooks/useAuth";
 import { FileUpload } from "../components/ui/FileUpload";
 import { PhoneInputField } from "../features/auth/ui/PhoneInputField";
+import { MAX_MONEY_AMOUNT, formatNumberWithCommas, parseLimitedIntegerInput } from "../lib/number-format";
 
 export const AddListing: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -125,7 +126,17 @@ export const AddListing: React.FC = () => {
     >,
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const numericLimits: Record<string, number> = {
+      companyAge: 100,
+      requestedInvestment: MAX_MONEY_AMOUNT,
+      shareToSell: 100,
+    };
+    const nextValue =
+      name in numericLimits
+        ? parseLimitedIntegerInput(value, numericLimits[name])
+        : value;
+
+    setFormData((prev) => ({ ...prev, [name]: nextValue }));
     if (errors[name]) {
       setErrors((prev) => {
         const newErrors = { ...prev };
@@ -537,7 +548,8 @@ export const AddListing: React.FC = () => {
                         </label>
                       </div>
                       <input
-                        type="number"
+                        type="text"
+                        inputMode="numeric"
                         name="companyAge"
                         value={formData.companyAge}
                         onChange={handleChange}
@@ -578,9 +590,10 @@ export const AddListing: React.FC = () => {
                         </label>
                       </div>
                       <input
-                        type="number"
+                        type="text"
+                        inputMode="numeric"
                         name="requestedInvestment"
-                        value={formData.requestedInvestment}
+                        value={formatNumberWithCommas(formData.requestedInvestment)}
                         onChange={handleChange}
                         className={`w-full bg-[#121212] border ${errors.requestedInvestment ? "border-red-500" : "border-white/15"} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`}
                       />
@@ -596,9 +609,9 @@ export const AddListing: React.FC = () => {
                         </label>
                       </div>
                       <input
-                        type="number"
+                        type="text"
+                        inputMode="numeric"
                         name="shareToSell"
-                        max="100"
                         value={formData.shareToSell}
                         onChange={handleChange}
                         className={`w-full bg-[#121212] border ${errors.shareToSell ? "border-red-500" : "border-white/15"} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`}

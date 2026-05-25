@@ -22,7 +22,20 @@ root.render(
         richColors
         theme="dark"
         closeButton
-        toastOptions={{ duration: Infinity }}
+        dir="auto"
+        mobileOffset={{ top: 76, left: 12, right: 12 }}
+        toastOptions={{
+          duration: Infinity,
+          classNames: {
+            toast:
+              "relative !min-h-0 !w-[calc(100vw-1.5rem)] !max-w-[360px] !items-start !gap-3 !rounded-xl !p-4 !ps-4 !pe-12",
+            content: "!min-w-0 !gap-1",
+            title: "!whitespace-normal !break-normal !text-base !font-bold !leading-6",
+            description: "!whitespace-normal !break-normal !text-sm !leading-5",
+            closeButton:
+              "!absolute !left-3 !right-auto !top-3 !h-7 !w-7 !translate-x-0 !translate-y-0",
+          },
+        }}
       />
     </QueryClientProvider>
   </React.StrictMode>

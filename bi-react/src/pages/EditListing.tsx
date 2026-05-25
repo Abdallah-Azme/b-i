@@ -9,6 +9,7 @@ import { useCategories } from '../features/general/hooks/useCategories';
 import { useMyOpportunityDetail, useUpdateOpportunity } from '../features/company/hooks/useOpportunities';
 import { useAuth } from '../features/auth/hooks/useAuth';
 import { PhoneInputField } from '../features/auth/ui/PhoneInputField';
+import { MAX_MONEY_AMOUNT, formatNumberWithCommas, parseLimitedIntegerInput } from '../lib/number-format';
 
 export const EditListing: React.FC = () => {
   const { id } = useParams({ from: '/advertiser/edit-listing/$id' });
@@ -108,7 +109,17 @@ export const EditListing: React.FC = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    const numericLimits: Record<string, number> = {
+      companyAge: 100,
+      requestedInvestment: MAX_MONEY_AMOUNT,
+      shareToSell: 100,
+    };
+    const nextValue =
+      name in numericLimits
+        ? parseLimitedIntegerInput(value, numericLimits[name])
+        : value;
+
+    setFormData(prev => ({ ...prev, [name]: nextValue }));
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
@@ -345,7 +356,7 @@ export const EditListing: React.FC = () => {
                             </div>
                             <div className="space-y-2">
                                 <label className="text-sm font-medium text-gray-300">{t('auth.companyAge')} <span className="text-brand-gold">*</span></label>
-                                <input type="number" name="companyAge" value={formData.companyAge} onChange={handleChange} className={`w-full bg-[#121212] border ${errors.companyAge ? 'border-red-500' : 'border-white/15'} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`} />
+                                <input type="text" inputMode="numeric" name="companyAge" value={formData.companyAge} onChange={handleChange} className={`w-full bg-[#121212] border ${errors.companyAge ? 'border-red-500' : 'border-white/15'} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`} />
                             </div>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -355,13 +366,13 @@ export const EditListing: React.FC = () => {
                             </div>
                             <div className="space-y-2">
                                 <label className="text-sm font-medium text-gray-300">{purpose === 'sell_business' ? t('auth.salePrice') : t('auth.requestedInvestment')} <span className="text-brand-gold">*</span></label>
-                                <input type="number" name="requestedInvestment" value={formData.requestedInvestment} onChange={handleChange} className={`w-full bg-[#121212] border ${errors.requestedInvestment ? 'border-red-500' : 'border-white/15'} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`} />
+                                <input type="text" inputMode="numeric" name="requestedInvestment" value={formatNumberWithCommas(formData.requestedInvestment)} onChange={handleChange} className={`w-full bg-[#121212] border ${errors.requestedInvestment ? 'border-red-500' : 'border-white/15'} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`} />
                             </div>
                         </div>
                         {purpose === 'request_investment' && (
                             <div className="space-y-2">
                                 <label className="text-sm font-medium text-gray-300">{t('auth.shareToSell')} <span className="text-brand-gold">*</span></label>
-                                <input type="number" name="shareToSell" max="100" value={formData.shareToSell} onChange={handleChange} className={`w-full bg-[#121212] border ${errors.shareToSell ? 'border-red-500' : 'border-white/15'} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`} />
+                                <input type="text" inputMode="numeric" name="shareToSell" value={formData.shareToSell} onChange={handleChange} className={`w-full bg-[#121212] border ${errors.shareToSell ? 'border-red-500' : 'border-white/15'} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`} />
                             </div>
                         )}
                     </div>

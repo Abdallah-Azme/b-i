@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { authService } from '../services/auth.service';
 
 const isAuthed = () => !!localStorage.getItem('auth_token');
+const NOTIFICATIONS_REFETCH_INTERVAL = 20000;
 
 export const useNotifications = (params?: { page?: number; per_page?: number; refetchInterval?: number | false }) => {
   const { refetchInterval, ...queryParams } = params ?? {};
@@ -9,7 +10,8 @@ export const useNotifications = (params?: { page?: number; per_page?: number; re
     queryKey: ['notifications', queryParams],
     queryFn: () => authService.getNotifications(queryParams),
     enabled: isAuthed(),
-    refetchInterval: isAuthed() ? (refetchInterval ?? false) : false,
+    refetchInterval: isAuthed() ? (refetchInterval ?? NOTIFICATIONS_REFETCH_INTERVAL) : false,
+    refetchIntervalInBackground: true,
   });
 };
 
@@ -17,7 +19,8 @@ export const useUnreadNotificationsCount = () => {
   return useQuery({
     queryKey: ['notifications', 'unread-count'],
     queryFn: () => authService.getUnreadNotificationsCount(),
-    refetchInterval: isAuthed() ? 30000 : false,
+    refetchInterval: isAuthed() ? NOTIFICATIONS_REFETCH_INTERVAL : false,
+    refetchIntervalInBackground: true,
     enabled: isAuthed(),
   });
 };
