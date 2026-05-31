@@ -4,19 +4,18 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useMutation } from '@tanstack/react-query';
 import { authService } from '../services/auth.service';
-import { toast } from 'sonner';
 
 export const useAdvertiserRegisterForm = () => {
   const { t } = useTranslation();
   const { mutate: register, isPending } = useMutation({
     mutationFn: (payload: any) => authService.registerAdvertiser(payload),
     onSuccess: (_data, variables) => {
-      toast.success(t('auth.successAdvertiser'));
       const email = variables instanceof FormData ? variables.get('email') as string : variables.email;
       const password = variables instanceof FormData ? variables.get('password') as string : variables.password;
       sessionStorage.setItem('verify_email', email);
       sessionStorage.setItem('verify_password', password);
       sessionStorage.setItem('verify_role', 'advertiser');
+      sessionStorage.setItem('registration_success_toast', t('auth.successAdvertiser'));
       window.location.href = '/verify-email';
     },
   });

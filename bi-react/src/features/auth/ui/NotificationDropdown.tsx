@@ -3,6 +3,7 @@ import { Bell, X, CheckCheck, Trash2, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link } from '@tanstack/react-router';
 import {
+  NOTIFICATIONS_REFETCH_INTERVAL,
   useUnreadNotificationsCount,
   useNotifications,
   useMarkAllNotificationsRead,
@@ -37,8 +38,13 @@ export const NotificationDropdown: React.FC = () => {
   const btnRef = useRef<HTMLButtonElement>(null);
 
   // Queries & mutations
-  const { data: countData } = useUnreadNotificationsCount();
-  const { data: notifData, isLoading: isLoadingList } = useNotifications({ per_page: 15 });
+  const { data: countData } = useUnreadNotificationsCount({
+    refetchInterval: NOTIFICATIONS_REFETCH_INTERVAL,
+  });
+  const { data: notifData, isLoading: isLoadingList } = useNotifications({
+    per_page: 15,
+    refetchInterval: NOTIFICATIONS_REFETCH_INTERVAL,
+  });
   const markAllRead = useMarkAllNotificationsRead();
   const deleteAll = useDeleteAllNotifications();
   const deleteOne = useDeleteNotification();

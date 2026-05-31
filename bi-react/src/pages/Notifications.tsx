@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { ApiNotification } from '../features/auth/types';
 import { 
+  NOTIFICATIONS_REFETCH_INTERVAL,
   useNotifications, 
   useUnreadNotificationsCount, 
   useMarkAllNotificationsRead, 
@@ -48,8 +49,13 @@ export const Notifications: React.FC = () => {
   const [showConfirmClear, setShowConfirmClear] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState<ApiNotification | null>(null);
 
-  const { data: notificationsData, isLoading } = useNotifications({ per_page: 50 });
-  const { data: unreadCountData } = useUnreadNotificationsCount();
+  const { data: notificationsData, isLoading } = useNotifications({
+    per_page: 50,
+    refetchInterval: NOTIFICATIONS_REFETCH_INTERVAL,
+  });
+  const { data: unreadCountData } = useUnreadNotificationsCount({
+    refetchInterval: NOTIFICATIONS_REFETCH_INTERVAL,
+  });
   const markAllRead = useMarkAllNotificationsRead();
   const markOneRead = useMarkNotificationRead();
   const deleteAll = useDeleteAllNotifications();

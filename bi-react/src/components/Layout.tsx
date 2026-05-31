@@ -8,14 +8,16 @@ import { Globe, User as UserIcon, LogOut, Home, Briefcase, Users, Bell, Heart, M
 import { Link, useLocation, useNavigate } from '@tanstack/react-router';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { NotificationDropdown } from '@/features/auth/ui/NotificationDropdown';
-import { useUnreadNotificationsCount } from '@/features/auth/hooks/useNotifications';
+import { NOTIFICATIONS_REFETCH_INTERVAL, useUnreadNotificationsCount } from '@/features/auth/hooks/useNotifications';
 
 export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { lang, toggleLanguage } = useStore();
   const { t } = useTranslation();
   const { isAuthenticated, logout: apiLogout } = useAuth();
   
-  const { data: unreadCountData } = useUnreadNotificationsCount();
+  const { data: unreadCountData } = useUnreadNotificationsCount({
+    refetchInterval: NOTIFICATIONS_REFETCH_INTERVAL,
+  });
   const unreadCount = unreadCountData?.data?.unread_notifications_count ?? 0;
   const navigate = useNavigate();
 

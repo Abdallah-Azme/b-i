@@ -26,6 +26,14 @@ export const VerifyEmail: React.FC = () => {
   const [verified, setVerified] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
+  useEffect(() => {
+    const registrationToast = sessionStorage.getItem('registration_success_toast');
+    if (!registrationToast) return;
+
+    toast.success(registrationToast, { duration: Infinity });
+    sessionStorage.removeItem('registration_success_toast');
+  }, []);
+
   // Countdown timer
   useEffect(() => {
     if (cooldown <= 0) return;

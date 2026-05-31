@@ -4,17 +4,16 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useMutation } from '@tanstack/react-query';
 import { authService } from '../services/auth.service';
-import { toast } from 'sonner'; // only used for onSuccess
 
 export const useInvestorRegisterForm = () => {
   const { t } = useTranslation();
   const { mutate: register, isPending } = useMutation({
     mutationFn: (payload: any) => authService.registerInvestor(payload),
     onSuccess: (_data, variables) => {
-      toast.success(t('auth.successInvestor'));
       sessionStorage.setItem('verify_email', variables.email);
       sessionStorage.setItem('verify_password', variables.password);
       sessionStorage.setItem('verify_role', 'investor');
+      sessionStorage.setItem('registration_success_toast', t('auth.successInvestor'));
       window.location.href = '/verify-email';
     },
   });
