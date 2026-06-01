@@ -125,11 +125,11 @@ export const Home: React.FC = () => {
               {t("nav.register")}
             </Link>
           </div>
-        </div>
 
-        {/* Scroll Indicator */}
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce opacity-50">
-          <div className="w-1 h-12 rounded-full bg-gradient-to-b from-brand-gold to-transparent"></div>
+          {/* Scroll Indicator */}
+          <div className="flex justify-center pt-4 animate-bounce opacity-50">
+            <div className="w-1 h-12 rounded-full bg-gradient-to-b from-brand-gold to-transparent"></div>
+          </div>
         </div>
       </section>
 
