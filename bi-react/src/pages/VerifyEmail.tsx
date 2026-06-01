@@ -4,7 +4,7 @@ import { Link, useNavigate } from '@tanstack/react-router';
 import { Mail, ArrowLeft, ArrowRight, Loader2, CheckCircle, RefreshCw, ShieldCheck } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
 import { authService } from '@/features/auth/services/auth.service';
-import { toast } from 'sonner';
+import { TOAST_MAX_DURATION_MS, toast } from '@/lib/toast';
 import type { UserRole } from '@/features/auth/types';
 
 const OTP_LENGTH = 6;
@@ -30,7 +30,7 @@ export const VerifyEmail: React.FC = () => {
     const registrationToast = sessionStorage.getItem('registration_success_toast');
     if (!registrationToast) return;
 
-    toast.success(registrationToast, { duration: Infinity });
+    toast.success(registrationToast, { duration: TOAST_MAX_DURATION_MS });
     sessionStorage.removeItem('registration_success_toast');
   }, []);
 

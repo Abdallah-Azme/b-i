@@ -10,7 +10,7 @@ import {
 import { useLatestProfileUpdateRequest } from "../features/auth/hooks/useProfileUpdateRequest";
 import { ChangeEmailModal } from "../features/auth/ui/ChangeEmailModal";
 import { PasswordInput } from "@/components/ui/PasswordInput";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import {
   Dialog,
   DialogContent,

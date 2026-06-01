@@ -1,8 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { Toaster } from 'sonner';
 import { queryClient } from '@/lib/query-client';
+import { Toaster, TOAST_MAX_DURATION_MS } from '@/lib/toast';
 import '@/i18n';
 import App from './App';
 
@@ -25,7 +25,7 @@ root.render(
         dir="auto"
         mobileOffset={{ top: 76, left: 12, right: 12 }}
         toastOptions={{
-          duration: Infinity,
+          duration: TOAST_MAX_DURATION_MS,
           classNames: {
             toast:
               "relative !min-h-0 !w-[calc(100vw-1.5rem)] !max-w-[360px] !items-start !gap-3 !rounded-xl !p-4 !ps-4 !pe-12",

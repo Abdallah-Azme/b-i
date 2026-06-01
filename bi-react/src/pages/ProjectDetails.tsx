@@ -23,7 +23,7 @@ import {
 } from "../features/general/hooks/useActions";
 import { useWhoWeAre } from "../features/general/hooks/useGeneralLookups";
 import { PaymentModal } from "../components/PaymentModal";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { FavoriteButton } from "@/components/FavoriteButton";
 
 export const ProjectDetails: React.FC = () => {

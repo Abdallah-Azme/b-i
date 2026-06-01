@@ -7,7 +7,7 @@ import { useInvestors } from '../features/general/hooks/useInvestors';
 import { useInvestorTypes, useInvestorExperiences, usePreferredSectors } from '../features/general/hooks/useGeneralLookups';
 import { InvestorsQueryParams } from '../features/general/types';
 import { useSendInvestorInterestRequest } from '../features/company/hooks/useCompanyInteractions';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 
 export const Investors: React.FC = () => {
   const { t, i18n } = useTranslation();

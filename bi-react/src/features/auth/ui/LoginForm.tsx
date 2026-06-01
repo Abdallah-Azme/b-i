@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { PasswordInput } from '@/components/ui/PasswordInput';
 import { Button } from '@/components/ui/button';
 import { UserRole } from '../types';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 
 export const LoginForm: React.FC = () => {
   const { t } = useTranslation();
