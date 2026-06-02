@@ -10,6 +10,7 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://portal.businessan
  *   response_status: { error: true, validation_errors: { phone: ["..."] } } }
  */
 export interface ApiErrorData {
+  
   key?: string;
   msg?: string;
   code?: number;
