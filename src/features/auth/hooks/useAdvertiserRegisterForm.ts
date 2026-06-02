@@ -7,7 +7,6 @@ import { authService } from '../services/auth.service';
 
 export const useAdvertiserRegisterForm = () => {
   const { t } = useTranslation();
-
   const { mutate: register, isPending } = useMutation({
     mutationFn: (payload: any) => authService.registerAdvertiser(payload),
     onSuccess: (_data, variables) => {
