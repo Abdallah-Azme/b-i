@@ -105,6 +105,9 @@ export const authService = {
   markNotificationRead: (id: string | number) =>
     api.patch<ApiSimpleResponse>(`/v1/auth/notifications/${id}`, { seen: true }),
 
+  readNotification: (id: string | number) =>
+    api.post<ApiSimpleResponse>(`/v1/auth/notifications/${id}/read`),
+
   deleteNotification: (id: string | number) =>
     api.delete<ApiSimpleResponse>(`/v1/auth/notifications/${id}`),
 };

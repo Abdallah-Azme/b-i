@@ -1,7 +1,7 @@
 import i18n from '@/i18n';
 import { ofetch, FetchError } from 'ofetch';
 
-const BASE_URL = 'https://portal.businessandinvestments.net/api'; // Production Base URL
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://portal.businessandinvestments.net/api'; // Production Base URL
 
 /**
  * Typed shape of every error response from the backend.

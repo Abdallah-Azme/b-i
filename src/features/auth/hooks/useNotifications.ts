@@ -38,7 +38,7 @@ export const useMarkAllNotificationsRead = () => {
 export const useMarkNotificationRead = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string | number) => authService.markNotificationRead(id),
+    mutationFn: (id: string | number) => authService.readNotification(id),
     onMutate: async (id) => {
       await queryClient.cancelQueries({ queryKey: ['notifications'] });
       

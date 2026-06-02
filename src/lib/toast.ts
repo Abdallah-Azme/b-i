@@ -4,7 +4,7 @@ import type { ExternalToast, ToastClassnames, ToastT, ToastToDismiss, ToasterPro
 export { Toaster, useSonner };
 export type { ExternalToast, ToastClassnames, ToastT, ToastToDismiss, ToasterProps };
 
-export const TOAST_MAX_DURATION_MS = 10_000;
+export const TOAST_MAX_DURATION_MS = 5_000;
 
 type ToastOptionsWithDuration = {
   duration?: number;
