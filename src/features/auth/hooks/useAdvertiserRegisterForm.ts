@@ -7,6 +7,7 @@ import { authService } from '../services/auth.service';
 
 export const useAdvertiserRegisterForm = () => {
   const { t } = useTranslation();
+
   const { mutate: register, isPending } = useMutation({
     mutationFn: (payload: any) => authService.registerAdvertiser(payload),
     onSuccess: (_data, variables) => {
@@ -92,14 +93,14 @@ export const useAdvertiserRegisterForm = () => {
     formData.append('company_name', data.company_name);
     formData.append('license_number', data.license_number);
     formData.append('agreed_to_terms', data.agreed_to_terms ? '1' : '0');
-    
+
     // Handle files
     if (data.company_license instanceof FileList && data.company_license.length > 0) {
       formData.append('company_license', data.company_license[0]);
     } else if (data.company_license instanceof File) {
       formData.append('company_license', data.company_license);
     }
-    
+
     if (data.image instanceof FileList && data.image.length > 0) {
       formData.append('image', data.image[0]);
     } else if (data.image instanceof File) {
