@@ -10,6 +10,7 @@ const BASE_URL = 'https://portal.businessandinvestments.net/api'; // Production 
  *   response_status: { error: true, validation_errors: { phone: ["..."] } } }
  */
 export interface ApiErrorData {
+  
   key?: string;
   msg?: string;
   code?: number;
