@@ -3,6 +3,10 @@ import { ofetch, FetchError } from 'ofetch';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://portal.businessandinvestments.net/api'; // Production Base URL
 
+let authRedirectInProgress = false;
+
+export const isAuthErrorStatus = (status?: number) => status === 401 || status === 403;
+
 /**
  * Typed shape of every error response from the backend.
  * Example:
@@ -51,8 +55,7 @@ export const apiFetcher = ofetch.create({
     }
   },
   async onResponseError({ response }) {
-    if (response.status === 401 || response.status === 403) {
-      // Handle logout/redirect
+    if (isAuthErrorStatus(response.status)) {
       localStorage.removeItem('auth_token');
       localStorage.removeItem('auth_role');
 
@@ -79,8 +82,12 @@ export const apiFetcher = ofetch.create({
         reason = 'deleted';
       }
 
-      if (!window.location.pathname.startsWith('/login')) {
-        window.location.href = `/login?reason=${reason}`;
+      if (
+        !authRedirectInProgress &&
+        !window.location.pathname.startsWith('/login')
+      ) {
+        authRedirectInProgress = true;
+        window.location.replace(`/login?reason=${reason}`);
       }
     }
 

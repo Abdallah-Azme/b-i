@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { generalService } from '../services/generalService';
+import { invalidateNotificationsQueries } from '@/features/auth/hooks/useNotifications';
 
 export const useBuySeat = () => {
   const queryClient = useQueryClient();
@@ -18,6 +19,7 @@ export const useSubmitInterestRequest = () => {
     mutationFn: ({ id, payload }: { id: string | number; payload?: any }) => generalService.submitInterestRequest(id, payload),
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: ['opportunity', id] });
+      invalidateNotificationsQueries(queryClient);
     },
   });
 };

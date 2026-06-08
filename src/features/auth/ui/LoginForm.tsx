@@ -19,22 +19,27 @@ export const LoginForm: React.FC = () => {
 
   const reason = search.reason;
   React.useEffect(() => {
-    if (reason) {
+    if (!reason) return;
+
+    const toastKey = `login_reason_toast_${reason}`;
+    if (!sessionStorage.getItem(toastKey)) {
       if (reason === 'banned') {
         toast.error(t('auth.bannedError'));
       } else if (reason === 'deleted') {
         toast.error(t('auth.deletedError'));
+      } else if (reason === 'account_deleted') {
+        toast.success(t('auth.accountDeleted'));
       } else if (reason === 'session_expired') {
         toast.error(t('auth.sessionExpired'));
       }
-
-      // Clear the reason search parameter from the URL
-      navigate({
-        to: '/login',
-        search: { ...search, reason: undefined },
-        replace: true,
-      });
+      sessionStorage.setItem(toastKey, '1');
     }
+
+    navigate({
+      to: '/login',
+      search: { ...search, reason: undefined },
+      replace: true,
+    });
   }, [reason, t, navigate, search]);
 
   return (

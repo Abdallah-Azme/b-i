@@ -1,5 +1,6 @@
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { companyService } from '../services/company.service';
+import { invalidateNotificationsQueries } from '@/features/auth/hooks/useNotifications';
 
 export const usePurchasedSeats = (params?: any, options?: { enabled?: boolean }) => {
   return useQuery({
@@ -26,7 +27,9 @@ export const useCurrentRequests = (params?: any, options?: { enabled?: boolean }
 };
 
 export const useSendInvestorInterestRequest = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload: any) => companyService.sendInvestorInterestRequest(payload),
+    onSuccess: () => invalidateNotificationsQueries(queryClient),
   });
 };

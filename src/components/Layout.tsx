@@ -186,8 +186,8 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
         </div>
       </nav>
 
-      {/* Main Content - Added padding bottom for mobile tab bar */}
-      <main className="flex-grow pt-24 pb-24 md:pb-0 animate-fade-in">
+      {/* Main Content - bottom padding for mobile tab bar (hidden on auth pages) */}
+      <main className={`flex-grow pt-24 animate-fade-in ${isOnAuthRoute ? 'pb-6 md:pb-0' : 'pb-24 md:pb-0'}`}>
         {children}
       </main>
 
@@ -241,14 +241,16 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
         </div>
       </footer>
 
-      {/* Mobile Bottom Tab Bar */}
-      <div className="fixed bottom-0 left-0 right-0 h-20 bg-black/95 backdrop-blur-xl border-t border-white/10 z-50 md:hidden pb-safe flex justify-between items-center px-2 shadow-[0_-5px_20px_rgba(0,0,0,0.5)]">
-         <TabItem to="/" icon={Home} label={t('tabs.home')} />
-         <TabItem to="/projects" icon={Briefcase} label={t('tabs.projects')} />
-         <TabItem to="/notifications" icon={Bell} label={t('tabs.notifications')} badge={unreadCount} />
-         <TabItem to="/dashboard" icon={UserIcon} label={t('tabs.dashboard')} />
-         <TabItem to="/more" icon={MoreHorizontal} label={t('tabs.more')} />
-      </div>
+      {/* Mobile Bottom Tab Bar — hidden on auth pages */}
+      {!isOnAuthRoute && (
+        <div className="fixed bottom-0 left-0 right-0 h-20 bg-black/95 backdrop-blur-xl border-t border-white/10 z-50 md:hidden pb-safe flex justify-between items-center px-2 shadow-[0_-5px_20px_rgba(0,0,0,0.5)]">
+          <TabItem to="/" icon={Home} label={t('tabs.home')} />
+          <TabItem to="/projects" icon={Briefcase} label={t('tabs.projects')} />
+          <TabItem to="/notifications" icon={Bell} label={t('tabs.notifications')} badge={unreadCount} />
+          <TabItem to="/dashboard" icon={UserIcon} label={t('tabs.dashboard')} />
+          <TabItem to="/more" icon={MoreHorizontal} label={t('tabs.more')} />
+        </div>
+      )}
     </div>
   );
 };

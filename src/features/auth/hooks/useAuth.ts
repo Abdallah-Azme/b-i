@@ -10,6 +10,9 @@ export const useLogin = () => {
     mutationFn: (payload: LoginPayload) => authService.login(payload),
     onSuccess: (response) => {
       if (response.data?.token) {
+        Object.keys(sessionStorage)
+          .filter((key) => key.startsWith('login_reason_toast_'))
+          .forEach((key) => sessionStorage.removeItem(key));
         localStorage.setItem('auth_token', response.data.token);
         // role is { key: "investor"|"advertiser", label: "..." }
         const roleKey = (response.data.role as any)?.key ?? response.data.role;
@@ -34,11 +37,15 @@ export const useUpdateProfile = () => {
 };
 
 export const useDeleteAccount = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload?: any) => authService.deleteAccount(payload),
     onSuccess: () => {
+      queryClient.cancelQueries();
+      queryClient.clear();
       localStorage.removeItem('auth_token');
-      window.location.href = '/login';
+      localStorage.removeItem('auth_role');
+      window.location.replace('/login?reason=account_deleted');
     },
   });
 };

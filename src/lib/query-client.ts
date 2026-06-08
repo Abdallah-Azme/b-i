@@ -1,7 +1,15 @@
 import { QueryClient, QueryCache, MutationCache } from '@tanstack/react-query';
+import { FetchError } from 'ofetch';
 import { toast } from '@/lib/toast';
-import { extractApiError } from './fetcher';
+import { extractApiError, isAuthErrorStatus } from './fetcher';
 import i18n from '../i18n';
+
+const shouldSkipErrorToast = (error: unknown) => {
+  if (error instanceof FetchError && isAuthErrorStatus(error.status)) return true;
+
+  const apiError = extractApiError(error);
+  return isAuthErrorStatus(apiError?.serverData?.code);
+};
 
 /**
  * Flatten { field: ["msg1", "msg2"], ... } into a single string with
@@ -30,6 +38,8 @@ function formatValidationErrors(
 export const queryClient = new QueryClient({
   queryCache: new QueryCache({
     onError: (error: unknown) => {
+      if (shouldSkipErrorToast(error)) return;
+
       const apiError = extractApiError(error);
       const message =
         apiError?.serverData?.msg ||
@@ -40,6 +50,8 @@ export const queryClient = new QueryClient({
   }),
   mutationCache: new MutationCache({
     onError: (error: unknown) => {
+      if (shouldSkipErrorToast(error)) return;
+
       const apiError = extractApiError(error);
 
       if (apiError) {

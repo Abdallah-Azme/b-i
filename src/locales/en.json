@@ -292,6 +292,7 @@
     "profileUpdateSuccess": "Profile updated successfully",
     "bannedError": "Your account has been banned or deactivated by the administrator.",
     "deletedError": "Your account has been deleted by the administrator.",
+    "accountDeleted": "Your account has been deleted successfully.",
     "sessionExpired": "Your session has expired. Please login again.",
     "createAccount": "Create Account",
     "firstName": "First Name",

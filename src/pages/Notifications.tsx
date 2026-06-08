@@ -8,8 +8,9 @@ import {
 } from 'lucide-react';
 import { ApiNotification } from '../features/auth/types';
 import { 
-  NOTIFICATIONS_REFETCH_INTERVAL,
-  useNotifications, 
+  NOTIFICATIONS_PAGE_REFETCH_INTERVAL,
+  useNotifications,
+  useNotificationsLiveSync,
   useUnreadNotificationsCount, 
   useMarkAllNotificationsRead, 
   useDeleteAllNotifications, 
@@ -49,12 +50,14 @@ export const Notifications: React.FC = () => {
   const [showConfirmClear, setShowConfirmClear] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState<ApiNotification | null>(null);
 
+  useNotificationsLiveSync();
+
   const { data: notificationsData, isLoading } = useNotifications({
     per_page: 50,
-    refetchInterval: NOTIFICATIONS_REFETCH_INTERVAL,
+    refetchInterval: NOTIFICATIONS_PAGE_REFETCH_INTERVAL,
   });
   const { data: unreadCountData } = useUnreadNotificationsCount({
-    refetchInterval: NOTIFICATIONS_REFETCH_INTERVAL,
+    refetchInterval: NOTIFICATIONS_PAGE_REFETCH_INTERVAL,
   });
   const markAllRead = useMarkAllNotificationsRead();
   const markOneRead = useMarkNotificationRead();
@@ -269,19 +272,27 @@ export const Notifications: React.FC = () => {
       {/* View Notification Modal */}
       <Dialog open={!!selectedNotification} onOpenChange={(open) => !open && setSelectedNotification(null)}>
         <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader className="min-w-0">
-            <DialogTitle className="text-white font-bold break-all pr-6">
+          <DialogHeader>
+            <DialogTitle className="pe-14 text-base sm:text-lg text-white font-bold break-words">
               {selectedNotification?.title}
             </DialogTitle>
           </DialogHeader>
-          <div className="mt-4 max-h-[60vh] overflow-y-auto custom-scrollbar pr-2 min-w-0">
-            <p className="text-sm text-gray-300 whitespace-pre-wrap break-all leading-relaxed">
+          <div className="mt-1 min-w-0">
+            <p className="text-sm sm:text-base text-gray-300 whitespace-pre-wrap break-words leading-relaxed">
               {selectedNotification?.body}
             </p>
           </div>
-          {selectedNotification?.target_url && (
-            <div className="mt-6 flex justify-end">
-              <button 
+          <div className="mt-5 flex justify-end gap-3">
+            <button
+              type="button"
+              onClick={() => setSelectedNotification(null)}
+              className="px-5 py-2.5 rounded-lg font-bold text-sm border border-white/15 text-gray-300 hover:bg-white/10 transition-colors"
+            >
+              {isAr ? 'إغلاق' : 'Close'}
+            </button>
+            {selectedNotification?.target_url && (
+              <button
+                type="button"
                 onClick={() => {
                   if (selectedNotification.target_url) {
                     navigate({ to: selectedNotification.target_url as any });
@@ -292,8 +303,8 @@ export const Notifications: React.FC = () => {
               >
                 {isAr ? 'عرض التفاصيل' : 'View Details'}
               </button>
-            </div>
-          )}
+            )}
+          </div>
         </DialogContent>
       </Dialog>
     </div>

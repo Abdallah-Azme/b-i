@@ -1,8 +1,36 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient, type QueryClient } from '@tanstack/react-query';
 import { authService } from '../services/auth.service';
 
 const isAuthed = () => !!localStorage.getItem('auth_token');
 export const NOTIFICATIONS_REFETCH_INTERVAL = 20_000;
+export const NOTIFICATIONS_PAGE_REFETCH_INTERVAL = 5_000;
+
+export const invalidateNotificationsQueries = (queryClient: QueryClient) =>
+  queryClient.invalidateQueries({ queryKey: ['notifications'] });
+
+const notificationQueryDefaults = {
+  staleTime: 0,
+  refetchOnWindowFocus: true,
+  refetchOnReconnect: true,
+} as const;
+
+export const useNotificationsLiveSync = () => {
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    invalidateNotificationsQueries(queryClient);
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        invalidateNotificationsQueries(queryClient);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [queryClient]);
+};
 
 export const useNotifications = (params?: { page?: number; per_page?: number; refetchInterval?: number | false }) => {
   const { refetchInterval, ...queryParams } = params ?? {};
@@ -10,6 +38,8 @@ export const useNotifications = (params?: { page?: number; per_page?: number; re
     queryKey: ['notifications', queryParams],
     queryFn: () => authService.getNotifications(queryParams),
     enabled: isAuthed(),
+    ...notificationQueryDefaults,
+    refetchOnMount: 'always',
     refetchInterval: isAuthed() ? (refetchInterval ?? NOTIFICATIONS_REFETCH_INTERVAL) : false,
     refetchIntervalInBackground: true,
   });
@@ -19,9 +49,11 @@ export const useUnreadNotificationsCount = (options?: { refetchInterval?: number
   return useQuery({
     queryKey: ['notifications', 'unread-count'],
     queryFn: () => authService.getUnreadNotificationsCount(),
+    enabled: isAuthed(),
+    ...notificationQueryDefaults,
+    refetchOnMount: 'always',
     refetchInterval: isAuthed() ? (options?.refetchInterval ?? NOTIFICATIONS_REFETCH_INTERVAL) : false,
     refetchIntervalInBackground: true,
-    enabled: isAuthed(),
   });
 };
 

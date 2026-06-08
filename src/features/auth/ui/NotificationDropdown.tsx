@@ -2,8 +2,10 @@ import React, { useRef, useState, useEffect } from 'react';
 import { Bell, X, CheckCheck, Trash2, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link } from '@tanstack/react-router';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   NOTIFICATIONS_REFETCH_INTERVAL,
+  invalidateNotificationsQueries,
   useUnreadNotificationsCount,
   useNotifications,
   useMarkAllNotificationsRead,
@@ -36,6 +38,13 @@ export const NotificationDropdown: React.FC = () => {
   const [open, setOpen] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const btnRef = useRef<HTMLButtonElement>(null);
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (open) {
+      invalidateNotificationsQueries(queryClient);
+    }
+  }, [open, queryClient]);
 
   // Queries & mutations
   const { data: countData } = useUnreadNotificationsCount({

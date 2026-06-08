@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { useStore } from "../hooks/useStore";
 import { Link, useNavigate, useSearch } from "@tanstack/react-router";
@@ -51,6 +52,7 @@ import { useInvestorPurchasedSeats } from "../features/investor/hooks/useInvesto
 import { OpportunitySummary } from "../features/general/types";
 import { Briefcase } from "lucide-react";
 import { useAuth } from "../features/auth/hooks/useAuth";
+import { MoreMenuDrawer } from "../components/MoreMenuDrawer";
 
 // Helper for compact stats (K/M)
 const formatCompact = (num: number) => {
@@ -245,6 +247,7 @@ export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const isAr = lang === "ar";
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
+  const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
   const [adsPage, setAdsPage] = useState(1);
 
   // Build a unified user object: prefer API data, fall back to localStorage role
@@ -532,14 +535,19 @@ export const Dashboard: React.FC = () => {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 md:py-12 min-h-screen relative">
-      {/* Mobile Menu Icon */}
-      <Link
-        to="/more"
-        className="md:hidden absolute top-6 right-4 text-gray-300 hover:text-brand-gold transition-colors z-10 p-2"
-        aria-label={t("common.openMenu")}
-      >
-        <Menu size={28} strokeWidth={2} />
-      </Link>
+      {/* Portal avoids main's transform animation breaking position:fixed */}
+      {createPortal(
+        <button
+          type="button"
+          onClick={() => setIsMoreMenuOpen(true)}
+          className="md:hidden fixed top-[4.75rem] right-4 z-50 rounded-full border border-white/10 bg-black/60 p-2 text-gray-300 shadow-lg backdrop-blur-sm transition-colors hover:bg-black/80 hover:text-brand-gold"
+          aria-label={t("common.openMenu")}
+        >
+          <Menu size={28} strokeWidth={2} />
+        </button>,
+        document.body,
+      )}
+      <MoreMenuDrawer open={isMoreMenuOpen} onClose={() => setIsMoreMenuOpen(false)} />
 
       {/* Profile Header */}
       <div className="flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-10 mb-10">
