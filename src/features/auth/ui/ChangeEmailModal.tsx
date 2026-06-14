@@ -16,6 +16,8 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { PasswordInput } from "@/components/ui/PasswordInput";
+import { toast } from "@/lib/toast";
+import { cn } from "@/lib/utils";
 
 export const ChangeEmailModal = ({ onClose }: { onClose: () => void }) => {
   const { t } = useTranslation();
@@ -26,15 +28,25 @@ export const ChangeEmailModal = ({ onClose }: { onClose: () => void }) => {
   const [currentOtp, setCurrentOtp] = useState("");
   const [newEmail, setNewEmail] = useState("");
   const [newOtp, setNewOtp] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [currentOtpError, setCurrentOtpError] = useState("");
+  const [newEmailError, setNewEmailError] = useState("");
+  const [newOtpError, setNewOtpError] = useState("");
 
   const requestCurrent = useEmailChangeRequestCurrent();
   const verifyCurrent = useEmailChangeVerifyCurrent();
   const requestNew = useEmailChangeRequestNew();
   const verifyNew = useEmailChangeVerifyNew();
 
+  const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+
   const handleStep1 = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!currentPassword) return;
+    if (!currentPassword) {
+      setPasswordError(t("errors.passwordRequired"));
+      return;
+    }
+    setPasswordError("");
     requestCurrent.mutate(
       { current_password: currentPassword },
       {
@@ -45,7 +57,11 @@ export const ChangeEmailModal = ({ onClose }: { onClose: () => void }) => {
 
   const handleStep2 = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!currentOtp) return;
+    if (!currentOtp.trim()) {
+      setCurrentOtpError(t("errors.verificationCodeRequired"));
+      return;
+    }
+    setCurrentOtpError("");
     verifyCurrent.mutate(
       { otp: currentOtp },
       {
@@ -56,7 +72,15 @@ export const ChangeEmailModal = ({ onClose }: { onClose: () => void }) => {
 
   const handleStep3 = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newEmail) return;
+    if (!newEmail.trim()) {
+      setNewEmailError(t("errors.emailRequired"));
+      return;
+    }
+    if (!isValidEmail(newEmail.trim())) {
+      setNewEmailError(t("errors.invalidEmail"));
+      return;
+    }
+    setNewEmailError("");
     requestNew.mutate(
       { email: newEmail },
       {
@@ -67,13 +91,25 @@ export const ChangeEmailModal = ({ onClose }: { onClose: () => void }) => {
 
   const handleStep4 = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newOtp) return;
+    if (!newOtp.trim()) {
+      setNewOtpError(t("errors.verificationCodeRequired"));
+      return;
+    }
+    setNewOtpError("");
     verifyNew.mutate(
-      { email: newEmail, code: newOtp },
+      { email: newEmail, otp: newOtp },
       {
         onSuccess: () => {
+          toast.success(t("auth.emailChangedSuccess", {
+            defaultValue: "Email changed successfully",
+          }), {
+            id: "email-change-success",
+          });
           onClose();
-          logout(); // Session revoked server side
+          window.setTimeout(() => {
+            logout();
+            window.location.replace("/login?reason=email_changed");
+          }, 900);
         },
       },
     );
@@ -96,15 +132,23 @@ export const ChangeEmailModal = ({ onClose }: { onClose: () => void }) => {
 
         <div className="mt-4">
           {step === 1 && (
-            <form onSubmit={handleStep1} className="space-y-4">
-                <PasswordInput 
-                  required
+            <form onSubmit={handleStep1} noValidate className="space-y-4">
+              <div className="space-y-2">
+                <PasswordInput
                   value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  onChange={(e) => {
+                    setCurrentPassword(e.target.value);
+                    if (passwordError) setPasswordError("");
+                  }}
                   placeholder={t("dashboard.currentPassword")}
                   leftIcon={<Lock size={20} />}
-                  className="bg-[#121212] border-white/15 rounded-xl py-3"
+                  className={cn(
+                    "bg-[#121212] border-white/15 rounded-xl py-3",
+                    passwordError && "border-red-500 focus:border-red-500",
+                  )}
                 />
+                {passwordError && <p className="text-sm text-red-500">{passwordError}</p>}
+              </div>
               <button
                 type="submit"
                 disabled={requestCurrent.isPending}
@@ -120,21 +164,30 @@ export const ChangeEmailModal = ({ onClose }: { onClose: () => void }) => {
           )}
 
           {step === 2 && (
-            <form onSubmit={handleStep2} className="space-y-4">
-              <div className="relative">
-                <Key
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
-                  size={20}
-                />
-                <input
-                  type="text"
-                  required
-                  value={currentOtp}
-                  onChange={(e) => setCurrentOtp(e.target.value)}
-                  placeholder={t("auth.verificationCode")}
-                  className="w-full bg-[#121212] border border-white/15 rounded-xl py-3 ps-12 pe-4 text-white focus:border-brand-gold outline-none tracking-widest text-center"
-                  maxLength={6}
-                />
+            <form onSubmit={handleStep2} noValidate className="space-y-4">
+              <div className="space-y-2">
+                <div className="relative">
+                  <Key
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
+                    size={20}
+                  />
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={currentOtp}
+                    onChange={(e) => {
+                      setCurrentOtp(e.target.value.replace(/\D/g, "").slice(0, 6));
+                      if (currentOtpError) setCurrentOtpError("");
+                    }}
+                    placeholder={t("auth.verificationCode")}
+                    className={cn(
+                      "w-full bg-[#121212] border rounded-xl py-3 ps-12 pe-4 text-white focus:border-brand-gold outline-none tracking-widest text-center",
+                      currentOtpError ? "border-red-500" : "border-white/15",
+                    )}
+                    maxLength={6}
+                  />
+                </div>
+                {currentOtpError && <p className="text-sm text-red-500">{currentOtpError}</p>}
               </div>
               <button
                 type="submit"
@@ -151,20 +204,30 @@ export const ChangeEmailModal = ({ onClose }: { onClose: () => void }) => {
           )}
 
           {step === 3 && (
-            <form onSubmit={handleStep3} className="space-y-4">
-              <div className="relative">
-                <Mail
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
-                  size={20}
-                />
-                <input
-                  type="email"
-                  required
-                  value={newEmail}
-                  onChange={(e) => setNewEmail(e.target.value)}
-                  placeholder={t("dashboard.newEmailPlaceholder")}
-                  className="w-full bg-[#121212] border border-white/15 rounded-xl py-3 ps-12 pe-4 text-white focus:border-brand-gold outline-none"
-                />
+            <form onSubmit={handleStep3} noValidate className="space-y-4">
+              <div className="space-y-2">
+                <div className="relative">
+                  <Mail
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
+                    size={20}
+                  />
+                  <input
+                    type="text"
+                    inputMode="email"
+                    autoComplete="email"
+                    value={newEmail}
+                    onChange={(e) => {
+                      setNewEmail(e.target.value);
+                      if (newEmailError) setNewEmailError("");
+                    }}
+                    placeholder={t("dashboard.newEmailPlaceholder")}
+                    className={cn(
+                      "w-full bg-[#121212] border rounded-xl py-3 ps-12 pe-4 text-white focus:border-brand-gold outline-none",
+                      newEmailError ? "border-red-500" : "border-white/15",
+                    )}
+                  />
+                </div>
+                {newEmailError && <p className="text-sm text-red-500">{newEmailError}</p>}
               </div>
               <button
                 type="submit"
@@ -181,21 +244,30 @@ export const ChangeEmailModal = ({ onClose }: { onClose: () => void }) => {
           )}
 
           {step === 4 && (
-            <form onSubmit={handleStep4} className="space-y-4">
-              <div className="relative">
-                <Key
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
-                  size={20}
-                />
-                <input
-                  type="text"
-                  required
-                  value={newOtp}
-                  onChange={(e) => setNewOtp(e.target.value)}
-                  placeholder={t("auth.verificationCode")}
-                  className="w-full bg-[#121212] border border-white/15 rounded-xl py-3 ps-12 pe-4 text-white focus:border-brand-gold outline-none tracking-widest text-center"
-                  maxLength={6}
-                />
+            <form onSubmit={handleStep4} noValidate className="space-y-4">
+              <div className="space-y-2">
+                <div className="relative">
+                  <Key
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
+                    size={20}
+                  />
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={newOtp}
+                    onChange={(e) => {
+                      setNewOtp(e.target.value.replace(/\D/g, "").slice(0, 6));
+                      if (newOtpError) setNewOtpError("");
+                    }}
+                    placeholder={t("auth.verificationCode")}
+                    className={cn(
+                      "w-full bg-[#121212] border rounded-xl py-3 ps-12 pe-4 text-white focus:border-brand-gold outline-none tracking-widest text-center",
+                      newOtpError ? "border-red-500" : "border-white/15",
+                    )}
+                    maxLength={6}
+                  />
+                </div>
+                {newOtpError && <p className="text-sm text-red-500">{newOtpError}</p>}
               </div>
               <button
                 type="submit"
@@ -215,4 +287,3 @@ export const ChangeEmailModal = ({ onClose }: { onClose: () => void }) => {
     </Dialog>
   );
 };
-

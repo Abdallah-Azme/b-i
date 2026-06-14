@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+import i18n from '@/i18n';
+import { toast } from '@/lib/toast';
 
 interface FavoritesState {
   favorites: (number | string)[]; // Array of project IDs
@@ -18,8 +20,14 @@ export const useFavoritesStore = create<FavoritesState>()(
         const index = normalizedFavorites.indexOf(idStr);
         if (index === -1) {
           set({ favorites: [...favorites, idStr] });
+          toast.success(i18n.t('favorites.addedToast'), {
+            id: `favorite-added-${idStr}`,
+          });
         } else {
           set({ favorites: normalizedFavorites.filter((id) => id !== idStr) });
+          toast.success(i18n.t('favorites.removedToast'), {
+            id: `favorite-removed-${idStr}`,
+          });
         }
       },
       isFavorite: (projectId) => {

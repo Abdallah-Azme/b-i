@@ -18,6 +18,7 @@ import {
   useMarkNotificationRead
 } from '../features/auth/hooks/useNotifications';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../components/ui/dialog';
+import { resolveNotificationRoute } from '../features/auth/utils/notification-route';
 
 const getIcon = (category: string) => {
   switch (category) {
@@ -78,6 +79,11 @@ export const Notifications: React.FC = () => {
   const handleItemClick = (n: ApiNotification) => {
     if (!n.seen) {
       markOneRead.mutate(n.id);
+    }
+    const route = resolveNotificationRoute(n);
+    if (route) {
+      navigate(route as any);
+      return;
     }
     setSelectedNotification(n);
   };
@@ -293,9 +299,10 @@ export const Notifications: React.FC = () => {
             {selectedNotification?.target_url && (
               <button
                 type="button"
-                onClick={() => {
-                  if (selectedNotification.target_url) {
-                    navigate({ to: selectedNotification.target_url as any });
+                    onClick={() => {
+                  const route = resolveNotificationRoute(selectedNotification);
+                  if (route) {
+                    navigate(route as any);
                   }
                   setSelectedNotification(null);
                 }}

@@ -7,7 +7,8 @@ import { Input } from '@/components/ui/input';
 import { PasswordInput } from '@/components/ui/PasswordInput';
 import { Button } from '@/components/ui/button';
 import { UserRole } from '../types';
-import { toast } from '@/lib/toast';
+import { toast, showToastOnce } from '@/lib/toast';
+import i18n from '@/i18n';
 
 export const LoginForm: React.FC = () => {
   const { t } = useTranslation();
@@ -18,29 +19,40 @@ export const LoginForm: React.FC = () => {
   const currentRole = watch('role');
 
   const reason = search.reason;
+  const roleParam = search.role;
+
   React.useEffect(() => {
     if (!reason) return;
 
-    const toastKey = `login_reason_toast_${reason}`;
-    if (!sessionStorage.getItem(toastKey)) {
+    const toastId = `login-reason-${reason}`;
+    const storageKey = `login_reason_toast_${reason}`;
+
+    showToastOnce(toastId, () => {
       if (reason === 'banned') {
-        toast.error(t('auth.bannedError'));
+        toast.error(i18n.t('auth.bannedError'), { id: toastId });
       } else if (reason === 'deleted') {
-        toast.error(t('auth.deletedError'));
+        toast.error(i18n.t('auth.deletedError'), { id: toastId });
       } else if (reason === 'account_deleted') {
-        toast.success(t('auth.accountDeleted'));
+        toast.success(i18n.t('auth.accountDeleted'), { id: toastId });
+      } else if (reason === 'password_changed') {
+        toast.success(i18n.t('auth.passwordResetSuccess'), { id: toastId });
+      } else if (reason === 'email_changed') {
+        toast.success(i18n.t('auth.emailChangedSuccess', { defaultValue: 'Email changed successfully' }), {
+          id: toastId,
+        });
       } else if (reason === 'session_expired') {
-        toast.error(t('auth.sessionExpired'));
+        toast.error(i18n.t('auth.sessionExpired'), { id: toastId });
       }
-      sessionStorage.setItem(toastKey, '1');
-    }
+    }, { sessionKey: storageKey });
+
+    sessionStorage.removeItem('bi-auth-redirect-reason');
 
     navigate({
       to: '/login',
-      search: { ...search, reason: undefined },
+      search: roleParam ? { role: roleParam } : {},
       replace: true,
     });
-  }, [reason, t, navigate, search]);
+  }, [reason, roleParam, navigate]);
 
   return (
     <div className="w-full max-w-md mx-auto p-8 glass-card animate-fade-in">
@@ -71,7 +83,7 @@ export const LoginForm: React.FC = () => {
       </div>
 
       <Form {...form}>
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} noValidate className="space-y-6">
           <FormField
             control={form.control}
             name="email"
@@ -79,7 +91,7 @@ export const LoginForm: React.FC = () => {
               <FormItem>
                 <FormLabel className="normal-case">{t('auth.email')}</FormLabel>
                 <FormControl>
-                  <Input type="email" placeholder={t('auth.emailPlaceholder')} {...field} />
+                  <Input type="text" inputMode="email" autoComplete="email" placeholder={t('auth.emailPlaceholder')} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

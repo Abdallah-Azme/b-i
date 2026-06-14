@@ -49,7 +49,7 @@ const DialogContent = React.forwardRef<
       >
         <X className="h-5 w-5" strokeWidth={2.5} />
       </DialogPrimitive.Close>
-      <div className="max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain px-5 pb-5 pt-14">
+      <div className="max-h-[calc(100dvh-2rem)] overflow-hidden px-5 pb-5 pt-14">
         {children}
       </div>
     </DialogPrimitive.Content>

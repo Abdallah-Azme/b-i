@@ -366,7 +366,13 @@ export const ProjectDetails: React.FC = () => {
                   )}
                 </button>
                 <a
-                  href={`mailto:${contactEmail}?subject=Interest in ${project.id}`}
+                  href={`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(contactEmail)}&su=${encodeURIComponent(
+                    lang === "ar"
+                      ? `اهتمام بـ ${project.company_name} (${project.opportunity_number})`
+                      : `Interest in ${project.company_name} (${project.opportunity_number})`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="flex-1 flex justify-center items-center bg-white/10 text-white font-bold py-3 rounded-lg hover:bg-white/20 transition text-center"
                 >
                   {t("common.contactAdmin")}

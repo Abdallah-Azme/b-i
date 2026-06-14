@@ -372,6 +372,7 @@ export const AddListing: React.FC = () => {
         ) : (
           <form
             onSubmit={handleSubmit}
+            noValidate
             className="bg-brand-gray/20 border border-white/10 rounded-2xl p-8 backdrop-blur-sm animate-fade-in space-y-8"
           >
             <div className="space-y-6">
@@ -426,7 +427,9 @@ export const AddListing: React.FC = () => {
                     </label>
                   </div>
                   <input
-                    type="email"
+                    type="text"
+                    inputMode="email"
+                    autoComplete="email"
                     name="email"
                     value={formData.email}
                     onChange={handleChange}

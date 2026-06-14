@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Camera, Lock, Loader2 } from 'lucide-react';
 import { useUpdateProfile } from '../features/auth/hooks/useAuth';
@@ -24,8 +24,40 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClos
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
-  const [profileImagePreview, setProfileImagePreview] = useState<string>(user?.image || '');
+  const resolveImageUrl = (value: any) => {
+    if (!value) return '';
+    if (typeof value === 'string') return value;
+    return value?.url || value?.src || value?.path || '';
+  };
+
+  const resolveLookupValue = (value: any) => {
+    if (!value) return '';
+    if (typeof value === 'string' || typeof value === 'number') return String(value);
+    return String(value?.value ?? value?.id ?? value?.key ?? value?.code ?? '');
+  };
+
+  const resolveExperienceId = (value: any) => {
+    if (!value) return '';
+    if (typeof value === 'number' && Number.isFinite(value)) return String(value);
+    if (typeof value === 'string' && /^\d+$/.test(value)) return value;
+    if (typeof value === 'object') {
+      return String(value?.id ?? value?.value ?? value?.key ?? '');
+    }
+    return '';
+  };
+
+  const resolveLookupLabel = (value: any) => {
+    if (!value) return '';
+    if (typeof value === 'string') return value;
+    return value?.label ?? value?.name ?? value?.ar ?? value?.en ?? '';
+  };
+
+  const [profileImagePreview, setProfileImagePreview] = useState<string>(
+    resolveImageUrl(user?.image || user?.photo || user?.avatar || user?.profile_image),
+  );
   const [phoneError, setPhoneError] = useState<string>('');
+  const [firstNameError, setFirstNameError] = useState('');
+  const [lastNameError, setLastNameError] = useState('');
 
   // Clean phone and country code
   const cleanPhone = (phoneStr: string, codeStr: string) => {
@@ -45,21 +77,72 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClos
     last_name: user?.last_name || '',
     country_code: initialCountryCode,
     phone: initialPhone,
+    image: user?.image || user?.photo || user?.avatar || user?.profile_image || '',
     
     // Investor specific
-    investor_type: user?.investor_type || '',
+    investor_type: resolveLookupValue(user?.investor_type),
     capital: user?.capital || '',
     available_capital: user?.available_capital || '',
-    preferred_sector_id: user?.preferred_sector_id || '',
-    experience_level: user?.experience_level || '',
+    preferred_sector_id: String(user?.preferred_sector_id || user?.focus_sector?.id || ''),
+    experience_level: resolveExperienceId(user?.experience_level),
+    investment_experience: resolveLookupValue(
+      user?.investment_experience ||
+      user?.investor_experience ||
+      '',
+    ),
     previous_investments_count: user?.previous_investments_count || '',
   };
 
   const [formData, setFormData] = useState(initialFormData);
 
+  useEffect(() => {
+    setProfileImagePreview(resolveImageUrl(user?.image || user?.photo || user?.avatar || user?.profile_image));
+    setFormData(initialFormData);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
   const { data: investorTypesData } = useInvestorTypes();
   const { data: experiencesData } = useInvestorExperiences();
   const { data: sectorsData } = usePreferredSectors();
+
+  useEffect(() => {
+    setFormData((prev) => {
+      const sectorOptions = sectorsData?.data ?? [];
+      const experienceOptions = experiencesData?.data ?? [];
+      const investorTypeOptions = investorTypesData?.data ?? [];
+
+      const normalizedSector =
+        String(prev.preferred_sector_id || '') ||
+        String(user?.preferred_sector_id || user?.focus_sector?.id || '');
+
+      const currentExperience = String(prev.experience_level || '');
+      const matchedExperience =
+        experienceOptions.find((exp: any) => String(exp.value) === currentExperience || String(exp.id) === currentExperience) ||
+        experienceOptions.find((exp: any) =>
+          [exp.name, exp.label].filter(Boolean).map(String).includes(currentExperience),
+        );
+
+      const matchedInvestorType =
+        investorTypeOptions.find((item: any) => String(item.value) === String(prev.investor_type)) ||
+        investorTypeOptions.find((item: any) =>
+          [item.name, item.label].filter(Boolean).map(String).includes(String(prev.investor_type)),
+        );
+
+      return {
+        ...prev,
+        preferred_sector_id: normalizedSector,
+        experience_level: matchedExperience
+          ? String(matchedExperience.id ?? matchedExperience.value ?? prev.experience_level)
+          : String(prev.experience_level || ''),
+        investment_experience: matchedInvestorType
+          ? String(prev.investment_experience || user?.investment_experience || '')
+          : String(prev.investment_experience || user?.investment_experience || ''),
+        investor_type: matchedInvestorType
+          ? String(matchedInvestorType.value ?? prev.investor_type)
+          : String(prev.investor_type || ''),
+      };
+    });
+  }, [investorTypesData, experiencesData, sectorsData, user]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -71,6 +154,21 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClos
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    let hasError = false;
+    if (!formData.first_name.trim()) {
+      setFirstNameError(t('errors.firstNameRequired'));
+      hasError = true;
+    } else {
+      setFirstNameError('');
+    }
+    if (!formData.last_name.trim()) {
+      setLastNameError(t('errors.lastNameRequired'));
+      hasError = true;
+    } else {
+      setLastNameError('');
+    }
+    if (hasError) return;
     
     const digits = formData.phone.replace(/\D/g, '');
     const lengths: Record<string, number> = {
@@ -99,9 +197,10 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClos
       if (formData.capital) data.append('capital', formData.capital.toString());
       if (formData.available_capital) data.append('available_capital', formData.available_capital.toString());
       if (formData.preferred_sector_id) data.append('preferred_sector_id', formData.preferred_sector_id.toString());
-      // experience_level must be sent as a number; skip if empty/null
-      const expLevel = Number(formData.experience_level);
-      if (formData.experience_level !== '' && !isNaN(expLevel)) data.append('experience_level', expLevel.toString());
+      if (formData.experience_level !== '') {
+        const experienceId = Number(formData.experience_level);
+        if (Number.isFinite(experienceId)) data.append('experience_level', String(experienceId));
+      }
       if (formData.previous_investments_count) data.append('previous_investments_count', formData.previous_investments_count.toString());
     }
 
@@ -120,12 +219,13 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClos
 
   return (
     <Dialog open={true} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-md max-h-[85dvh] overflow-y-auto">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-white">{t('auth.editProfile')}</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+        <div className="mt-4 max-h-[calc(85dvh-5rem)] overflow-y-auto overscroll-contain pr-1">
+        <form onSubmit={handleSubmit} noValidate className="space-y-4">
           <div className="flex justify-center mb-6">
             <div className="relative w-24 h-24 rounded-full border-2 border-brand-gold p-1 bg-black">
               <div 
@@ -157,12 +257,14 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClos
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-sm text-gray-400">{t('auth.firstName')}</label>
-              <input type="text" value={formData.first_name} onChange={(e) => setFormData({...formData, first_name: e.target.value})} className="w-full bg-[#121212] border border-white/15 rounded-lg px-4 py-3 text-white focus:border-brand-gold outline-none" required />
+              <label className={`text-sm ${firstNameError ? 'text-red-500' : 'text-gray-400'}`}>{t('auth.firstName')}</label>
+              <input type="text" value={formData.first_name} onChange={(e) => { setFormData({...formData, first_name: e.target.value}); if (firstNameError) setFirstNameError(''); }} className={`w-full bg-[#121212] border rounded-lg px-4 py-3 text-white focus:border-brand-gold outline-none ${firstNameError ? 'border-red-500' : 'border-white/15'}`} />
+              {firstNameError && <p className="text-sm text-red-500">{firstNameError}</p>}
             </div>
             <div className="space-y-2">
-              <label className="text-sm text-gray-400">{t('auth.lastName')}</label>
-              <input type="text" value={formData.last_name} onChange={(e) => setFormData({...formData, last_name: e.target.value})} className="w-full bg-[#121212] border border-white/15 rounded-lg px-4 py-3 text-white focus:border-brand-gold outline-none" required />
+              <label className={`text-sm ${lastNameError ? 'text-red-500' : 'text-gray-400'}`}>{t('auth.lastName')}</label>
+              <input type="text" value={formData.last_name} onChange={(e) => { setFormData({...formData, last_name: e.target.value}); if (lastNameError) setLastNameError(''); }} className={`w-full bg-[#121212] border rounded-lg px-4 py-3 text-white focus:border-brand-gold outline-none ${lastNameError ? 'border-red-500' : 'border-white/15'}`} />
+              {lastNameError && <p className="text-sm text-red-500">{lastNameError}</p>}
             </div>
           </div>
 
@@ -203,32 +305,32 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClos
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-sm text-gray-400">{t('auth.investorSector')}</label>
-                <select value={formData.preferred_sector_id} onChange={(e) => setFormData({...formData, preferred_sector_id: e.target.value})} className="w-full bg-[#121212] border border-white/15 rounded-lg px-4 py-3 text-white focus:border-brand-gold outline-none">
+            <div className="space-y-2">
+              <label className="text-sm text-gray-400">{t('auth.investorSector')}</label>
+                <select value={String(formData.preferred_sector_id || '')} onChange={(e) => setFormData({...formData, preferred_sector_id: e.target.value})} className="w-full bg-[#121212] border border-white/15 rounded-lg px-4 py-3 text-white focus:border-brand-gold outline-none">
                   <option value="">{t('common.select')}</option>
                   {sectorsData?.data?.map((s: any) => (
                     <option key={s.id} value={s.id}>{s.name}</option>
                   ))}
                 </select>
-              </div>
+            </div>
 
               <div className="space-y-2">
                 <label className="text-sm text-gray-400">{t('auth.investorExperience')}</label>
-                <select value={formData.experience_level} onChange={(e) => setFormData({...formData, experience_level: e.target.value})} className="w-full bg-[#121212] border border-white/15 rounded-lg px-4 py-3 text-white focus:border-brand-gold outline-none">
+                <select value={String(formData.investment_experience || '')} onChange={(e) => setFormData({...formData, investment_experience: e.target.value})} className="w-full bg-[#121212] border border-white/15 rounded-lg px-4 py-3 text-white focus:border-brand-gold outline-none">
                   <option value="">{t('common.select')}</option>
                   {experiencesData?.data?.map((exp: any) => (
-                    <option key={exp.id} value={exp.id}>{exp.name}</option>
+                    <option key={exp.value ?? exp.id} value={exp.value ?? exp.id}>{resolveLookupLabel(exp)}</option>
                   ))}
                 </select>
               </div>
 
               <div className="space-y-2">
                 <label className="text-sm text-gray-400">{t('auth.investorType')}</label>
-                <select value={formData.investor_type} onChange={(e) => setFormData({...formData, investor_type: e.target.value})} className="w-full bg-[#121212] border border-white/15 rounded-lg px-4 py-3 text-white focus:border-brand-gold outline-none">
+                <select value={String(formData.investor_type || '')} onChange={(e) => setFormData({...formData, investor_type: e.target.value})} className="w-full bg-[#121212] border border-white/15 rounded-lg px-4 py-3 text-white focus:border-brand-gold outline-none">
                   <option value="">{t('common.select')}</option>
                   {investorTypesData?.data?.map((t: any) => (
-                    <option key={t.value} value={t.value}>{t.name}</option>
+                    <option key={t.value} value={t.value}>{resolveLookupLabel(t)}</option>
                   ))}
                 </select>
               </div>
@@ -249,6 +351,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClos
             </button>
           </div>
         </form>
+        </div>
       </DialogContent>
     </Dialog>
   );

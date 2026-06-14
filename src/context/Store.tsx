@@ -5,6 +5,7 @@ import i18n from '@/i18n';
 import { generalService } from '../features/general/services/generalService';
 import { StoreContext } from './StoreContext';
 import { queryClient } from '@/lib/query-client';
+import { toast } from '@/lib/toast';
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [lang, setLang] = useState<Language>(
@@ -141,6 +142,18 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       ? user.favorites.filter(id => id !== projectId)
       : [...user.favorites, projectId];
     setUser({ ...user, favorites: newFavorites });
+    toast.success(
+      isFav
+        ? lang === 'en'
+          ? 'Project removed from favorites'
+          : 'تم حذف المشروع من المفضلة'
+        : lang === 'en'
+          ? 'Project added to favorites'
+          : 'تمت إضافة المشروع إلى المفضلة',
+      {
+        id: `favorite-toggle-${projectId}-${isFav ? 'removed' : 'added'}`,
+      },
+    );
   };
 
   const isFavorite = (projectId: string) => {

@@ -4,14 +4,16 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useLogin } from './useAuth';
 import { UserRole } from '../types';
+import { passwordSchema } from '@/lib/password-validation';
+import { emailSchema } from '@/lib/field-validation';
 
 export const useLoginForm = (defaultRole: UserRole = 'investor') => {
   const { t } = useTranslation();
   const { mutate: login, isPending } = useLogin();
 
   const loginSchema = z.object({
-    email: z.string().email(t('errors.invalidEmail')),
-    password: z.string().min(6, t('errors.passwordTooShort')),
+    email: emailSchema(t),
+    password: passwordSchema(t),
     role: z.enum(['investor', 'advertiser'] as const),
   });
 

@@ -149,7 +149,7 @@ export interface EmailChangeRequestNewPayload {
 
 export interface EmailChangeVerifyNewPayload {
   email: string;
-  code: string;
+  otp: string;
 }
 
 // ─── Notifications ─────────────────────────────────────────────────────────

@@ -1,12 +1,15 @@
 import { useTranslation } from 'react-i18next';
+import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useMutation } from '@tanstack/react-query';
 import { authService } from '../services/auth.service';
+import { passwordSchema, passwordConfirmationSchema, passwordMatchRefinement } from '@/lib/password-validation';
+import { emailSchema } from '@/lib/field-validation';
 
 export const useInvestorRegisterForm = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { mutate: register, isPending } = useMutation({
     mutationFn: (payload: any) => authService.registerInvestor(payload),
     onSuccess: (_data, variables) => {
@@ -14,27 +17,24 @@ export const useInvestorRegisterForm = () => {
       sessionStorage.setItem('verify_password', variables.password);
       sessionStorage.setItem('verify_role', 'investor');
       sessionStorage.setItem('registration_success_toast', t('auth.successInvestor'));
+      sessionStorage.setItem('verify_resend_cooldown_until', String(Date.now() + 60_000));
       window.location.href = '/verify-email';
     },
   });
 
-  const investorSchema = z.object({
+  const phoneLengths: Record<string, number> = {
+    '965': 8, '966': 8, '971': 8, '974': 8, '973': 8, '968': 8, '20': 8, '962': 8,
+  };
+
+  const investorSchema = useMemo(() => {
+    const passwordMatch = passwordMatchRefinement(t);
+
+    return z.object({
     first_name: z.string().min(2, t('errors.firstNameTooShort')),
     last_name: z.string().min(2, t('errors.lastNameTooShort')),
-    email: z.string().email(t('errors.invalidEmail')),
+    email: emailSchema(t),
     country_code: z.string().default('965'),
-    phone: z.string().superRefine((val, ctx) => {
-      const parent = (ctx as any).parent || (ctx as any)._input; // Accessing sibling field
-      // Since superRefine doesn't easily provide siblings, we'll validate it in the object level if needed
-      // but for now we'll do a general check and a more specific one in the component
-      const digits = val.replace(/\D/g, '');
-      if (digits.length < 8) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: t('errors.invalidPhone'),
-        });
-      }
-    }),
+    phone: z.string().min(1, t('errors.phoneRequired')),
     investor_type: z.enum(['angel', 'company', 'crowdfunding']),
     capital: z.coerce.number().min(1000, t('errors.minCapital')).max(1000000000, t('errors.maxAmount', { defaultValue: 'Amount is too large' })),
     available_capital: z.coerce.number().min(1000, t('errors.minCapital')).max(1000000000, t('errors.maxAmount', { defaultValue: 'Amount is too large' })),
@@ -44,27 +44,25 @@ export const useInvestorRegisterForm = () => {
     previous_investments_count: z.coerce.number().min(0).max(10000),
     investor_experience: z.enum(['beginner', 'intermediate', 'expert']),
     agreed_to_terms: z.boolean().refine(val => val === true, t('auth.termsError')),
-    password: z.string().min(8, t('errors.passwordTooShort8')),
-    password_confirmation: z.string(),
+    password: passwordSchema(t),
+    password_confirmation: passwordConfirmationSchema(),
   }).refine((data) => {
-    const lengths: Record<string, number> = {
-      '965': 8, '966': 8, '971': 8, '974': 8, '973': 8, '968': 8, '20': 8, '962': 8
-    };
-    const expected = lengths[data.country_code] || 8;
+    const expected = phoneLengths[data.country_code] || 8;
     return data.phone.length === expected;
   }, (data) => {
-    const lengths: Record<string, number> = {
-      '965': 8, '966': 8, '971': 8, '974': 8, '973': 8, '968': 8, '20': 8, '962': 8
-    };
-    const expected = lengths[data.country_code] || 8;
+    const expected = phoneLengths[data.country_code] || 8;
     return {
       message: t('errors.invalidPhoneLength', { length: expected }),
-      path: ['phone']
+      path: ['phone'],
     };
-  }).refine((data) => data.password === data.password_confirmation, {
-    message: t('auth.passwordsDoNotMatch'),
-    path: ['password_confirmation']
+  }).refine(passwordMatch.check, {
+    message: passwordMatch.message,
+    path: ['password_confirmation'],
+  }).refine((data) => data.available_capital <= data.capital, {
+    message: t('errors.availableCapitalExceedsTotal'),
+    path: ['available_capital'],
   });
+  }, [t, i18n.language]);
 
   type InvestorFormValues = z.infer<typeof investorSchema>;
 

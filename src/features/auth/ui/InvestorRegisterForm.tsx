@@ -23,7 +23,7 @@ export const InvestorRegisterForm: React.FC = () => {
       </div>
 
       <Form {...form}>
-        <form onSubmit={handleSubmit} className="space-y-8">
+        <form onSubmit={handleSubmit} noValidate className="space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Personal Info */}
             <div className="space-y-4">
@@ -63,7 +63,7 @@ export const InvestorRegisterForm: React.FC = () => {
                   <FormItem>
                     <FormLabel>{t('auth.email')}</FormLabel>
                     <FormControl>
-                      <Input type="email" {...field} />
+                      <Input type="text" inputMode="email" autoComplete="email" placeholder={t('auth.emailPlaceholder')} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -77,7 +77,10 @@ export const InvestorRegisterForm: React.FC = () => {
                     value={field.value}
                     onChange={field.onChange}
                     countryCodeValue={form.watch('country_code')}
-                    onCountryCodeChange={(val) => form.setValue('country_code', val, { shouldValidate: true })}
+                    onCountryCodeChange={(val) => {
+                      form.setValue('country_code', val, { shouldValidate: true });
+                      form.trigger('phone');
+                    }}
                     error={form.formState.errors.phone?.message}
                   />
                 )}
@@ -165,6 +168,7 @@ export const InvestorRegisterForm: React.FC = () => {
                           onChange={(e) => {
                              const rawValue = parseLimitedIntegerInput(e.target.value, MAX_MONEY_AMOUNT);
                              onChange(rawValue ? Number(rawValue) : 0);
+                             form.trigger(['capital', 'available_capital']);
                           }}
                         />
                       </FormControl>
@@ -187,6 +191,7 @@ export const InvestorRegisterForm: React.FC = () => {
                           onChange={(e) => {
                              const rawValue = parseLimitedIntegerInput(e.target.value, MAX_MONEY_AMOUNT);
                              onChange(rawValue ? Number(rawValue) : 0);
+                             form.trigger(['capital', 'available_capital']);
                           }}
                         />
                       </FormControl>
@@ -262,7 +267,7 @@ export const InvestorRegisterForm: React.FC = () => {
                   </FormControl>
                   <div className="space-y-1 leading-none">
                     <FormLabel className="text-sm text-gray-400 normal-case" htmlFor="terms-inv">
-                      {t('auth.agreeToTerms')} <a href="/terms" className="text-brand-gold hover:underline">{t('auth.investmentTermsLink')}</a>
+                      {t('auth.agreeToTerms')} <Link to="/terms-of-use" target="_blank" className="text-brand-gold hover:underline">{t('auth.investmentTermsLink')}</Link>
                     </FormLabel>
                     <FormMessage />
                   </div>

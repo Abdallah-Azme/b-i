@@ -1,10 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useStore } from '../hooks/useStore';
-import { useNavigate, Link } from '@tanstack/react-router';
-import { Mail, Key, Lock, ArrowRight, ArrowLeft, Loader2, CheckCircle, Eye, EyeOff } from 'lucide-react';
+import { useNavigate } from '@tanstack/react-router';
+import { Mail, Key, Lock, ArrowLeft, Loader2 } from 'lucide-react';
 import { useForgotPasswordRequestCode, useForgotPasswordVerifyCode, useForgotPasswordReset } from '../features/auth/hooks/useForgotPassword';
 import { PasswordInput } from '@/components/ui/PasswordInput';
+import {
+  getPasswordTooShortMessage,
+  getPasswordsDoNotMatchMessage,
+  isValidPassword,
+  passwordsMatch,
+} from '@/lib/password-validation';
+import { cn } from '@/lib/utils';
+import { toast } from '@/lib/toast';
 
 export const ForgotPassword = () => {
   const { t, i18n } = useTranslation();
@@ -16,6 +23,10 @@ export const ForgotPassword = () => {
   const [code, setCode] = useState('');
   const [password, setPassword] = useState('');
   const [passwordConfirmation, setPasswordConfirmation] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [codeError, setCodeError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [confirmPasswordError, setConfirmPasswordError] = useState('');
   const [resendCountdown, setResendCountdown] = useState(0);
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -23,7 +34,6 @@ export const ForgotPassword = () => {
   const verifyCode = useForgotPasswordVerifyCode();
   const resetPassword = useForgotPasswordReset();
 
-  // Start 60-second resend countdown whenever we enter step 2
   useEffect(() => {
     if (step === 2) {
       setResendCountdown(60);
@@ -46,6 +56,7 @@ export const ForgotPassword = () => {
     if (!email || resendCountdown > 0) return;
     requestCode.mutate({ email }, {
       onSuccess: () => {
+        toast.success(t('auth.codeSent'), { id: 'forgot-password-code-sent' });
         setResendCountdown(60);
         countdownRef.current = setInterval(() => {
           setResendCountdown((prev) => {
@@ -62,7 +73,11 @@ export const ForgotPassword = () => {
 
   const handleRequestCode = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
+    if (!email.trim()) {
+      setEmailError(t('errors.emailRequired'));
+      return;
+    }
+    setEmailError('');
     requestCode.mutate(
       { email },
       { onSuccess: () => setStep(2) }
@@ -71,19 +86,56 @@ export const ForgotPassword = () => {
 
   const handleVerifyCode = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!code) return;
+    if (!code.trim()) {
+      setCodeError(t('errors.verificationCodeRequired'));
+      return;
+    }
+    setCodeError('');
     verifyCode.mutate(
       { email, otp: code },
-      { onSuccess: () => setStep(3) }
+      {
+        onSuccess: () => {
+          toast.success(t('auth.codeVerified'), { id: 'forgot-password-code-verified' });
+          setStep(3);
+        },
+      }
     );
   };
 
   const handleResetPassword = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!password || password !== passwordConfirmation) return;
+    let hasError = false;
+
+    if (!password) {
+      setPasswordError(t('errors.passwordRequired'));
+      hasError = true;
+    } else if (!isValidPassword(password)) {
+      setPasswordError(getPasswordTooShortMessage(t));
+      hasError = true;
+    } else {
+      setPasswordError('');
+    }
+
+    if (!passwordConfirmation) {
+      setConfirmPasswordError(t('errors.confirmPasswordRequired'));
+      hasError = true;
+    } else if (!passwordsMatch(password, passwordConfirmation)) {
+      setConfirmPasswordError(getPasswordsDoNotMatchMessage(t));
+      hasError = true;
+    } else {
+      setConfirmPasswordError('');
+    }
+
+    if (hasError) return;
+
     resetPassword.mutate(
       { email, otp: code, password, password_confirmation: passwordConfirmation },
-      { onSuccess: () => navigate({ to: '/login' }) }
+      {
+        onSuccess: () => {
+          toast.success(t('auth.passwordResetSuccess'), { id: 'forgot-password-reset-success' });
+          navigate({ to: '/login' });
+        },
+      }
     );
   };
 
@@ -113,19 +165,29 @@ export const ForgotPassword = () => {
 
           <div className="bg-[#121212] p-8 rounded-2xl border border-white/10 shadow-xl shadow-brand-gold/5 relative overflow-hidden">
             {step === 1 && (
-              <form onSubmit={handleRequestCode} className="space-y-6 animate-fade-in relative z-10">
+              <form onSubmit={handleRequestCode} noValidate className="space-y-6 animate-fade-in relative z-10">
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-gray-300 ms-1">{t('auth.emailOrPhone')}</label>
+                  <label className={cn("text-sm font-bold ms-1", emailError ? "text-red-500" : "text-gray-300")}>
+                    {t('auth.emailOrPhone')}
+                  </label>
                   <div className="relative">
                     <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={20} />
                     <input 
-                      type="text" 
-                      required
+                      type="text"
+                      inputMode="email"
+                      autoComplete="email"
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full bg-black/50 border border-white/10 rounded-xl py-3 ps-12 pe-4 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition"
+                      onChange={(e) => {
+                        setEmail(e.target.value);
+                        if (emailError) setEmailError('');
+                      }}
+                      className={cn(
+                        "w-full bg-black/50 border rounded-xl py-3 ps-12 pe-4 text-white focus:ring-2 focus:ring-brand-gold/20 outline-none transition",
+                        emailError ? "border-red-500 focus:border-red-500" : "border-white/10 focus:border-brand-gold"
+                      )}
                     />
                   </div>
+                  {emailError && <p className="text-sm text-red-500">{emailError}</p>}
                 </div>
 
                 <button 
@@ -139,20 +201,29 @@ export const ForgotPassword = () => {
             )}
 
             {step === 2 && (
-              <form onSubmit={handleVerifyCode} className="space-y-6 animate-fade-in relative z-10">
+              <form onSubmit={handleVerifyCode} noValidate className="space-y-6 animate-fade-in relative z-10">
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-gray-300 ms-1">{t('auth.verificationCode')}</label>
+                  <label className={cn("text-sm font-bold ms-1", codeError ? "text-red-500" : "text-gray-300")}>
+                    {t('auth.verificationCode')}
+                  </label>
                   <div className="relative">
                     <Key className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={20} />
                     <input 
-                      type="text" 
-                      required
+                      type="text"
+                      inputMode="numeric"
                       value={code}
-                      onChange={(e) => setCode(e.target.value)}
-                      className="w-full bg-black/50 border border-white/10 rounded-xl py-3 ps-12 pe-4 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition tracking-widest font-mono text-center"
+                      onChange={(e) => {
+                        setCode(e.target.value.replace(/\D/g, '').slice(0, 6));
+                        if (codeError) setCodeError('');
+                      }}
+                      className={cn(
+                        "w-full bg-black/50 border rounded-xl py-3 ps-12 pe-4 text-white focus:ring-2 focus:ring-brand-gold/20 outline-none transition tracking-widest font-mono text-center",
+                        codeError ? "border-red-500 focus:border-red-500" : "border-white/10 focus:border-brand-gold"
+                      )}
                       maxLength={6}
                     />
                   </div>
+                  {codeError && <p className="text-sm text-red-500">{codeError}</p>}
                 </div>
 
                 <button 
@@ -163,7 +234,6 @@ export const ForgotPassword = () => {
                   {verifyCode.isPending ? <Loader2 className="animate-spin" /> : t('common.verify')}
                 </button>
 
-                {/* Resend Code */}
                 <div className="text-center pt-2">
                   <span className="text-gray-500 text-sm">{t('auth.didntReceive')} </span>
                   {resendCountdown > 0 ? (
@@ -185,31 +255,41 @@ export const ForgotPassword = () => {
             )}
 
             {step === 3 && (
-              <form onSubmit={handleResetPassword} className="space-y-6 animate-fade-in relative z-10">
+              <form onSubmit={handleResetPassword} noValidate className="space-y-6 animate-fade-in relative z-10">
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-gray-300 ms-1">{t('dashboard.newPassword')}</label>
+                  <label className={cn("text-sm font-bold ms-1", passwordError ? "text-red-500" : "text-gray-300")}>
+                    {t('dashboard.newPassword')}
+                  </label>
                   <PasswordInput 
-                    required
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      if (passwordError) setPasswordError('');
+                    }}
                     leftIcon={<Lock size={20} />}
-                    className="rounded-xl py-3"
+                    className={cn("rounded-xl py-3", passwordError && "border-red-500 focus:border-red-500")}
                   />
+                  {passwordError && <p className="text-sm text-red-500">{passwordError}</p>}
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-gray-300 ms-1">{t('dashboard.confirmPassword')}</label>
+                  <label className={cn("text-sm font-bold ms-1", confirmPasswordError ? "text-red-500" : "text-gray-300")}>
+                    {t('dashboard.confirmPassword')}
+                  </label>
                   <PasswordInput 
-                    required
                     value={passwordConfirmation}
-                    onChange={(e) => setPasswordConfirmation(e.target.value)}
+                    onChange={(e) => {
+                      setPasswordConfirmation(e.target.value);
+                      if (confirmPasswordError) setConfirmPasswordError('');
+                    }}
                     leftIcon={<Lock size={20} />}
-                    className="rounded-xl py-3"
+                    className={cn("rounded-xl py-3", confirmPasswordError && "border-red-500 focus:border-red-500")}
                   />
+                  {confirmPasswordError && <p className="text-sm text-red-500">{confirmPasswordError}</p>}
                 </div>
 
                 <button 
                   type="submit" 
-                  disabled={resetPassword.isPending || password !== passwordConfirmation}
+                  disabled={resetPassword.isPending}
                   className="w-full bg-brand-gold text-black font-bold py-3.5 rounded-xl hover:bg-yellow-500 transition shadow-lg shadow-brand-gold/20 disabled:opacity-50 flex justify-center items-center"
                 >
                   {resetPassword.isPending ? <Loader2 className="animate-spin" /> : t('auth.saveChanges')}

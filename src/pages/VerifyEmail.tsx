@@ -4,11 +4,24 @@ import { Link, useNavigate } from '@tanstack/react-router';
 import { Mail, ArrowLeft, ArrowRight, Loader2, CheckCircle, RefreshCw, ShieldCheck } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
 import { authService } from '@/features/auth/services/auth.service';
-import { TOAST_MAX_DURATION_MS, toast } from '@/lib/toast';
+import { TOAST_MAX_DURATION_MS, toast, showToastOnce } from '@/lib/toast';
 import type { UserRole } from '@/features/auth/types';
 
 const OTP_LENGTH = 6;
 const RESEND_COOLDOWN = 60; // seconds
+const RESEND_COOLDOWN_UNTIL_KEY = 'verify_resend_cooldown_until';
+
+const getRemainingCooldown = () => {
+  const cooldownUntil = sessionStorage.getItem(RESEND_COOLDOWN_UNTIL_KEY);
+  if (!cooldownUntil) return 0;
+  return Math.max(0, Math.ceil((Number(cooldownUntil) - Date.now()) / 1000));
+};
+
+const startResendCooldown = () => {
+  const until = Date.now() + RESEND_COOLDOWN * 1000;
+  sessionStorage.setItem(RESEND_COOLDOWN_UNTIL_KEY, String(until));
+  return RESEND_COOLDOWN;
+};
 
 export const VerifyEmail: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -22,7 +35,7 @@ export const VerifyEmail: React.FC = () => {
   const role = (sessionStorage.getItem('verify_role') ?? 'advertiser') as UserRole;
 
   const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(''));
-  const [cooldown, setCooldown] = useState(0);
+  const [cooldown, setCooldown] = useState(getRemainingCooldown);
   const [verified, setVerified] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -30,9 +43,27 @@ export const VerifyEmail: React.FC = () => {
     const registrationToast = sessionStorage.getItem('registration_success_toast');
     if (!registrationToast) return;
 
-    toast.success(registrationToast, { duration: TOAST_MAX_DURATION_MS });
+    showToastOnce('registration-success-toast', () => {
+      toast.success(registrationToast, {
+        id: 'registration-success-toast',
+        duration: TOAST_MAX_DURATION_MS,
+      });
+    }, { sessionKey: 'registration_success_toast_shown' });
+
     sessionStorage.removeItem('registration_success_toast');
   }, []);
+
+  useEffect(() => {
+    const cooldownUntil = sessionStorage.getItem(RESEND_COOLDOWN_UNTIL_KEY);
+    if (cooldownUntil) {
+      setCooldown(getRemainingCooldown());
+      return;
+    }
+
+    if (email && password) {
+      setCooldown(startResendCooldown());
+    }
+  }, [email, password]);
 
   // Countdown timer
   useEffect(() => {
@@ -61,6 +92,7 @@ export const VerifyEmail: React.FC = () => {
       sessionStorage.removeItem('verify_email');
       sessionStorage.removeItem('verify_password');
       sessionStorage.removeItem('verify_role');
+      sessionStorage.removeItem(RESEND_COOLDOWN_UNTIL_KEY);
       setVerified(true);
       setTimeout(() => navigate({ to: '/dashboard' }), 2500);
     },
@@ -71,8 +103,8 @@ export const VerifyEmail: React.FC = () => {
     mutationFn: () =>
       authService.resendCode({ email, password, role }),
     onSuccess: () => {
-      toast.success(t('auth.codeSent'));
-      setCooldown(RESEND_COOLDOWN);
+      toast.success(t('auth.codeSent'), { id: 'verify-code-sent' });
+      setCooldown(startResendCooldown());
     },
     onError: () => { },
   });
@@ -184,7 +216,7 @@ export const VerifyEmail: React.FC = () => {
 
           {/* Card */}
           <div className="bg-[#121212] p-5 rounded-2xl border border-white/10 shadow-xl shadow-brand-gold/5 md:p-8">
-            <form onSubmit={handleSubmit} className="space-y-6 md:space-y-8">
+            <form onSubmit={handleSubmit} noValidate className="space-y-6 md:space-y-8">
               {/* OTP inputs */}
               <div className="space-y-3">
                 <label className="block text-sm font-bold text-gray-300 text-center">

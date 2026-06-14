@@ -1,8 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { authService } from '../services/auth.service';
 import { LoginPayload } from '../types';
-import { toast } from '@/lib/toast';
+import { toast, clearShownToasts } from '@/lib/toast';
 import { useTranslation } from 'react-i18next';
+import { extractApiError } from '@/lib/fetcher';
 
 export const useLogin = () => {
   const { t } = useTranslation();
@@ -13,13 +14,55 @@ export const useLogin = () => {
         Object.keys(sessionStorage)
           .filter((key) => key.startsWith('login_reason_toast_'))
           .forEach((key) => sessionStorage.removeItem(key));
+        sessionStorage.removeItem('bi-auth-redirect-reason');
+        clearShownToasts();
         localStorage.setItem('auth_token', response.data.token);
         // role is { key: "investor"|"advertiser", label: "..." }
         const roleKey = (response.data.role as any)?.key ?? response.data.role;
         if (roleKey) localStorage.setItem('auth_role', roleKey);
-        toast.success(t('auth.loginSuccess'));
+        toast.success(t('auth.loginSuccess'), { id: 'login-success' });
         window.location.href = '/dashboard';
       }
+    },
+    onError: (error, variables) => {
+      const apiError = extractApiError(error);
+      const msg = (apiError?.serverData?.msg || '').toLowerCase();
+
+      const isNotActivated =
+        msg.includes('not activated') ||
+        msg.includes('inactive') ||
+        msg.includes('deactivated') ||
+        msg.includes('not active') ||
+        msg.includes('غير مفعل') ||
+        msg.includes('غير مفعّل') ||
+        msg.includes('غير نشط') ||
+        msg.includes('مفعل') && msg.includes('كود') ||
+        msg.includes('activation code') ||
+        msg.includes('verification code') ||
+        msg.includes('code has been sent') ||
+        msg.includes('sent a code');
+
+      if (!isNotActivated) return;
+
+      sessionStorage.setItem('verify_email', variables.email);
+      sessionStorage.setItem('verify_password', variables.password);
+      sessionStorage.setItem('verify_role', variables.role);
+      sessionStorage.setItem(
+        'registration_success_toast',
+        t('auth.accountNotActivatedToast', {
+          defaultValue: 'Your account is not activated yet. We sent you a verification code.',
+        }),
+      );
+      sessionStorage.setItem('verify_resend_cooldown_until', String(Date.now() + 60_000));
+
+      toast.success(
+        t('auth.accountNotActivatedToast', {
+          defaultValue: 'Your account is not activated yet. We sent you a verification code.',
+        }),
+        { id: 'login-account-not-activated' },
+      );
+
+      window.location.href = '/verify-email';
     },
   });
 };
@@ -31,7 +74,13 @@ export const useUpdateProfile = () => {
     mutationFn: (payload: FormData) => authService.updateProfile(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['profile'] });
-      toast.success(t('auth.profileUpdateSuccess'));
+      queryClient.invalidateQueries({ queryKey: ['profile-update-request-latest'] });
+      toast.success(
+        t('auth.profileUpdateRequestSubmitted', {
+          defaultValue: 'Your update request has been sent to the admin for review',
+        }),
+        { id: 'profile-update-request-submitted' },
+      );
     },
   });
 };

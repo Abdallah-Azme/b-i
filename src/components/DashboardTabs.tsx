@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Link, useNavigate } from "@tanstack/react-router";
+import * as z from "zod";
 import { useStore } from "../hooks/useStore";
 import { useChangePassword } from "../features/auth/hooks/useChangePassword";
 import { useDeleteAccount, useAuth } from "../features/auth/hooks/useAuth";
@@ -11,6 +13,12 @@ import { useLatestProfileUpdateRequest } from "../features/auth/hooks/useProfile
 import { ChangeEmailModal } from "../features/auth/ui/ChangeEmailModal";
 import { PasswordInput } from "@/components/ui/PasswordInput";
 import { toast } from "@/lib/toast";
+import {
+  getPasswordTooShortMessage,
+  getPasswordsDoNotMatchMessage,
+  isValidPassword,
+  passwordsMatch,
+} from "@/lib/password-validation";
 import {
   Dialog,
   DialogContent,
@@ -26,7 +34,6 @@ import {
 import {
   useInvestorCurrentRequests,
   useInvestorSentInterests,
-  useInvestorPurchasedSeats,
 } from "../features/investor/hooks/useInvestorInteractions";
 import { Money } from "./Money";
 import {
@@ -43,6 +50,7 @@ import {
 export const IncomingRequestsTab: React.FC = () => {
   const { t, i18n } = useTranslation();
   const { user: apiUser } = useAuth();
+  const navigate = useNavigate();
   const storedRole = localStorage.getItem("auth_role");
   const role = (apiUser?.role as any)?.key ?? apiUser?.role ?? storedRole;
   const isAdvertiser = role === "advertiser";
@@ -75,7 +83,8 @@ export const IncomingRequestsTab: React.FC = () => {
         requests.map((req: any) => (
           <div
             key={req.id}
-            className="bg-brand-gray/20 p-4 rounded-xl border border-white/5 flex items-center justify-between"
+            onClick={() => navigate({ to: "/projects/$id", params: { id: String(req.opportunity?.id ?? req.opportunity_id ?? req.model_id ?? req.id) } })}
+            className="cursor-pointer bg-brand-gray/20 p-4 rounded-xl border border-white/5 flex items-center justify-between hover:border-brand-gold/30 hover:bg-brand-gray/30 transition"
           >
             <div>
               <h4 className="font-bold text-white">
@@ -134,10 +143,13 @@ export const SentInterestsTab: React.FC = () => {
       ) : (
         interests.map((int: any) => {
           const opportunity = int.opportunity || int;
+          const opportunityId = opportunity?.id ?? int.opportunity_id ?? int.model_id ?? int.id;
           return (
-            <div
+            <Link
               key={int.id}
-              className="bg-brand-gray/20 p-4 rounded-xl border border-white/5 flex gap-4"
+              to="/projects/$id"
+              params={{ id: String(opportunityId) }}
+              className="bg-brand-gray/20 p-4 rounded-xl border border-white/5 flex gap-4 hover:border-brand-gold/30 hover:bg-brand-gray/30 transition"
             >
               <img
                 src={opportunity?.image || "/placeholder.png"}
@@ -155,7 +167,7 @@ export const SentInterestsTab: React.FC = () => {
                   {int.status?.label?.toUpperCase() || int.status?.toUpperCase() || "SENT"}
                 </span>
               </div>
-            </div>
+            </Link>
           );
         })
       )}
@@ -171,13 +183,13 @@ export const OngoingRequestsTab: React.FC = () => {
   const isAdvertiser = role === "advertiser";
 
   const companyQuery = usePurchasedSeats({}, { enabled: isAdvertiser });
-  const investorQuery = useInvestorPurchasedSeats(
+  const investorQuery = useInvestorCurrentRequests(
     {},
     { enabled: !isAdvertiser },
   );
 
   const data = isAdvertiser ? companyQuery.data : investorQuery.data;
-  const deals = data?.data?.seats || data?.data?.opportunities || [];
+  const deals = data?.data?.opportunities || data?.data?.seats || [];
 
   return (
     <div className="space-y-4">
@@ -188,29 +200,62 @@ export const OngoingRequestsTab: React.FC = () => {
       ) : (
         deals.map((deal: any) => {
           const opportunity = deal.opportunity || deal;
+          const opportunityId = opportunity?.id ?? deal.opportunity_id ?? deal.model_id ?? deal.id;
+          const statusLabel =
+            opportunity?.status?.label ||
+            opportunity?.status?.name ||
+            opportunity?.status?.value ||
+            deal.status?.label ||
+            deal.status?.name ||
+            deal.status?.value ||
+            "ACTIVE";
+          const goalLabel = opportunity?.goal?.label || deal.goal?.label || "";
+          const categoryName = opportunity?.category?.name || deal.category?.name || "";
+          const image = opportunity?.image || deal.image || "/placeholder.png";
           return (
-            <div
+            <Link
               key={deal.id}
-              className="bg-brand-gray/20 p-4 rounded-xl border border-white/5 flex items-center justify-between"
+              to="/projects/$id"
+              params={{ id: String(opportunityId) }}
+              className="bg-brand-gray/20 p-4 rounded-xl border border-white/5 flex gap-4 items-center hover:border-brand-gold/30 hover:bg-brand-gray/30 transition"
             >
-              <div>
-                <h4 className="font-bold text-white">
-                  {opportunity?.company_name}
-                </h4>
-                <p className="text-xs text-gray-400">
-                  {t("dashboard.counterparty")}
-                  {deal.counterparty?.name || "N/A"}
+              <img
+                src={image}
+                alt=""
+                className="w-16 h-16 rounded-lg object-cover shrink-0 border border-white/10"
+              />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between gap-3">
+                  <h4 className="font-bold text-white truncate">
+                    {opportunity?.company_name || t("common.noDetails")}
+                  </h4>
+                  <span className="shrink-0 px-2 py-1 rounded text-[10px] font-bold bg-brand-gold/10 text-brand-gold border border-brand-gold/20">
+                    {statusLabel}
+                  </span>
+                </div>
+                <p className="text-xs text-gray-400 mt-1">
+                  {opportunity?.opportunity_number || deal.opportunity_number || ""}
                 </p>
+                <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-gray-500">
+                  {categoryName && <span>{categoryName}</span>}
+                  {goalLabel && <span>• {goalLabel}</span>}
+                </div>
+                <div className="mt-3 grid grid-cols-3 gap-2 text-[11px] text-gray-400">
+                  <div className="rounded-lg bg-black/20 px-2 py-2">
+                    <span className="block text-gray-500">{t("dashboard.value")}</span>
+                    <span className="block text-white font-bold">{opportunity?.investment_required ?? deal.investment_required ?? "N/A"}</span>
+                  </div>
+                  <div className="rounded-lg bg-black/20 px-2 py-2">
+                    <span className="block text-gray-500">{t("dashboard.seats")}</span>
+                    <span className="block text-white font-bold">{opportunity?.statistics?.purchased_seats_count ?? deal.statistics?.purchased_seats_count ?? 0}</span>
+                  </div>
+                  <div className="rounded-lg bg-black/20 px-2 py-2">
+                    <span className="block text-gray-500">{t("dashboard.interests")}</span>
+                    <span className="block text-white font-bold">{opportunity?.statistics?.interest_requests_count ?? deal.statistics?.interest_requests_count ?? 0}</span>
+                  </div>
+                </div>
               </div>
-              <div className="text-end">
-                <span className="block text-[10px] font-bold text-white">
-                  {deal.status?.toUpperCase() || (deal.status?.label ? deal.status.label.toUpperCase() : "ACTIVE")}
-                </span>
-                <span className="text-[10px] text-gray-500">
-                  {deal.created_at ? new Date(deal.created_at).toLocaleDateString() : ""}
-                </span>
-              </div>
-            </div>
+            </Link>
           );
         })
       )}
@@ -292,6 +337,11 @@ export const SettingsTab: React.FC = () => {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordErrors, setPasswordErrors] = useState<{
+    currentPassword?: string;
+    newPassword?: string;
+    confirmPassword?: string;
+  }>({});
 
   // Notifications state
   const { data: notifData } = useNotificationSettings();
@@ -303,33 +353,72 @@ export const SettingsTab: React.FC = () => {
   };
 
   const handleChangePassword = () => {
-    if (!currentPassword || !newPassword || !confirmPassword) {
-      toast.error(t("common.errorDesc"));
+    const schema = z
+      .object({
+        currentPassword: z.string().trim().min(1, t("errors.currentPasswordRequired")),
+        newPassword: z.string().trim().min(1, t("errors.newPasswordRequired")),
+        confirmPassword: z.string().trim().min(1, t("errors.confirmPasswordRequired")),
+      })
+      .refine((data) => isValidPassword(data.newPassword), {
+        message: getPasswordTooShortMessage(t),
+        path: ["newPassword"],
+      })
+      .refine((data) => passwordsMatch(data.newPassword, data.confirmPassword), {
+        message: getPasswordsDoNotMatchMessage(t),
+        path: ["confirmPassword"],
+      });
+
+    const result = schema.safeParse({
+      currentPassword,
+      newPassword,
+      confirmPassword,
+    });
+
+    if (!result.success) {
+      const nextErrors: typeof passwordErrors = {};
+      result.error.issues.forEach((issue) => {
+        const key = issue.path[0] as keyof typeof nextErrors | undefined;
+        if (key) nextErrors[key] = issue.message;
+      });
+      setPasswordErrors(nextErrors);
       return;
     }
-    if (newPassword !== confirmPassword) {
-      toast.error(t('auth.passwordsDoNotMatch'));
-      return;
-    }
+
+    setPasswordErrors({});
     changePassword.mutate(
       {
         current_password: currentPassword,
         password: newPassword,
         password_confirmation: confirmPassword,
       },
-      {
-        onSuccess: () => {
-          setCurrentPassword("");
-          setNewPassword("");
-          setConfirmPassword("");
+        {
+          onSuccess: () => {
+            toast.success(t("auth.passwordResetSuccess"), {
+              id: "change-password-success",
+            });
+            setCurrentPassword("");
+            setNewPassword("");
+            setConfirmPassword("");
+            window.setTimeout(() => {
+              localStorage.removeItem("auth_token");
+              localStorage.removeItem("auth_role");
+              window.location.replace("/login?reason=password_changed");
+            }, 900);
+          },
         },
-      },
-    );
+      );
   };
 
   const handleToggleNotif = (field: string) => {
     updateNotifSettings.mutate({ [field]: !settings[field] });
   };
+
+  const isPasswordFormValid =
+    currentPassword.trim().length > 0 &&
+    newPassword.trim().length > 0 &&
+    confirmPassword.trim().length > 0 &&
+    isValidPassword(newPassword) &&
+    passwordsMatch(newPassword, confirmPassword);
 
   return (
     <div className="space-y-8">
@@ -342,25 +431,43 @@ export const SettingsTab: React.FC = () => {
         <div className="space-y-4">
           <PasswordInput
             value={currentPassword}
-            onChange={(e) => setCurrentPassword(e.target.value)}
+            onChange={(e) => {
+              setCurrentPassword(e.target.value);
+              setPasswordErrors((prev) => ({ ...prev, currentPassword: undefined }));
+            }}
             placeholder={t("dashboard.currentPassword")}
             className="bg-black/30 border-white/10 p-3 text-sm"
           />
+          {passwordErrors.currentPassword && (
+            <p className="text-xs text-red-400 -mt-2">{passwordErrors.currentPassword}</p>
+          )}
           <PasswordInput
             value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
+            onChange={(e) => {
+              setNewPassword(e.target.value);
+              setPasswordErrors((prev) => ({ ...prev, newPassword: undefined }));
+            }}
             placeholder={t("dashboard.newPassword")}
             className="bg-black/30 border-white/10 p-3 text-sm"
           />
+          {passwordErrors.newPassword && (
+            <p className="text-xs text-red-400 -mt-2">{passwordErrors.newPassword}</p>
+          )}
           <PasswordInput
             value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
+            onChange={(e) => {
+              setConfirmPassword(e.target.value);
+              setPasswordErrors((prev) => ({ ...prev, confirmPassword: undefined }));
+            }}
             placeholder={t("dashboard.confirmPassword")}
             className="bg-black/30 border-white/10 p-3 text-sm"
           />
+          {passwordErrors.confirmPassword && (
+            <p className="text-xs text-red-400 -mt-2">{passwordErrors.confirmPassword}</p>
+          )}
           <button
             onClick={handleChangePassword}
-            disabled={changePassword.isPending}
+            disabled={changePassword.isPending || !isPasswordFormValid}
             className="bg-brand-gold text-black px-4 py-2 rounded-lg font-bold text-xs disabled:opacity-50"
           >
             {changePassword.isPending ? "..." : t("dashboard.changePassword")}

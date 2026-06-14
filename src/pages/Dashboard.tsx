@@ -99,21 +99,105 @@ const ProjectCard: React.FC<{ project: any; type: "ad" | "booklet" }> = ({
     : getDemoStats(project);
 
   // Handling new schema (project.status.value) vs legacy string
-  const rawStatus = project.status?.value || project.status;
+  const rawStatus = project.status?.value || project.status?.key || project.status;
   const status = rawStatus as AdStatus;
 
   const categoryName = project.category?.name || project.category?.[lang] || "";
   const projectName = project.company_name || project.name?.[lang] || "";
   const locationName = project.location?.[lang] || "Riyadh"; // Add missing field in new schema gracefully
   const price = project.investment_required ?? project.askingPrice ?? 0;
+  const isClickableAd = type !== "ad" || status === "approved" || status === "published";
+  const reviewLabel =
+    status === "under_review" || status === "needs_revision"
+      ? t("dashboard.adUnderReview")
+      : status === "rejected" || status === "suspended"
+        ? t("dashboard.adNotApproved")
+        : t("dashboard.adUnavailable");
 
   return (
-    <div className="relative group block bg-brand-gray/20 rounded-xl overflow-hidden border border-white/5 hover:border-brand-gold/30 transition-all hover:scale-[1.02] shadow-md">
-      <Link
-        to="/projects/$id"
-        params={{ id: project.id.toString() }}
-        className="block"
-      >
+    <div className={`relative group block bg-brand-gray/20 rounded-xl overflow-hidden border border-white/5 transition-all shadow-md ${isClickableAd ? "hover:border-brand-gold/30 hover:scale-[1.02]" : "opacity-95"}`}>
+      {isClickableAd ? (
+        <Link
+          to="/projects/$id"
+          params={{ id: project.id.toString() }}
+          className="block"
+        >
+          <div className="aspect-[4/3] bg-gray-800 relative overflow-hidden">
+            <img
+              src={project.image || FALLBACK_IMAGE}
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.onerror = null;
+                target.src = FALLBACK_IMAGE;
+              }}
+              alt=""
+              className="w-full h-full object-cover group-hover:scale-105 transition duration-500 opacity-80 group-hover:opacity-100"
+            />
+            {type === "ad" && AD_STATUS_CONFIG[status] ? (
+              <div
+                className={`absolute top-2 right-2 px-2 py-1 rounded text-[10px] font-bold text-white flex items-center gap-1 ${AD_STATUS_CONFIG[status].color}`}
+              >
+                {project.status?.label || t(AD_STATUS_CONFIG[status].labelKey)}
+              </div>
+            ) : (
+              <div className="absolute top-2 right-2 px-2 py-1 rounded text-[10px] font-bold bg-black/60 backdrop-blur text-white flex items-center gap-1">
+                <Unlock size={10} className="text-brand-gold" />{" "}
+                {t("dashboard.unlocked")}
+              </div>
+            )}
+
+            {/* Stats Overlay */}
+            <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/85 to-transparent flex items-center justify-end gap-4 text-white backdrop-blur-[2px] transition-opacity duration-300">
+              <div className="flex items-center gap-4 text-xs font-bold">
+                <div
+                  className="flex items-center gap-1.5"
+                  title={t('dashboard.interestTooltip')}
+                >
+                  <span>{formatCompact(stats.interest)}</span>{" "}
+                  <Star size={14} className="text-white/80" />
+                </div>
+                <div
+                  className="flex items-center gap-1.5"
+                  title={t('dashboard.bookletTooltip')}
+                >
+                  <span>{formatCompact(stats.purchases)}</span>{" "}
+                  <FileText size={14} className="text-white/80" />
+                </div>
+                <div
+                  className="flex items-center gap-1.5"
+                  title={t('dashboard.viewsTooltip')}
+                >
+                  <span>{formatCompact(stats.views)}</span>{" "}
+                  <Eye size={14} className="text-white/80" />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="p-4">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-[10px] text-brand-gold uppercase tracking-wider font-bold">
+                {categoryName}
+              </span>
+            </div>
+            <h3 className="font-bold text-white mb-3 line-clamp-1 group-hover:text-brand-gold transition text-sm md:text-base">
+              {projectName}
+            </h3>
+
+            <div className="flex justify-between items-center pt-3 border-t border-white/5">
+              <div className="flex items-center gap-1 text-gray-500 text-xs">
+                <MapPin size={12} />
+                <span>{locationName}</span>
+              </div>
+              <div className="text-end">
+                <span className="block text-[10px] text-gray-500 uppercase">
+                  {t("dashboard.value")}
+                </span>
+                <Money value={price} className="font-bold text-white text-sm" />
+              </div>
+            </div>
+          </div>
+        </Link>
+      ) : (
         <div className="aspect-[4/3] bg-gray-800 relative overflow-hidden">
           <img
             src={project.image || FALLBACK_IMAGE}
@@ -164,31 +248,14 @@ const ProjectCard: React.FC<{ project: any; type: "ad" | "booklet" }> = ({
               </div>
             </div>
           </div>
-        </div>
-        <div className="p-4">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-[10px] text-brand-gold uppercase tracking-wider font-bold">
-              {categoryName}
-            </span>
-          </div>
-          <h3 className="font-bold text-white mb-3 line-clamp-1 group-hover:text-brand-gold transition text-sm md:text-base">
-            {projectName}
-          </h3>
-
-          <div className="flex justify-between items-center pt-3 border-t border-white/5">
-            <div className="flex items-center gap-1 text-gray-500 text-xs">
-              <MapPin size={12} />
-              <span>{locationName}</span>
-            </div>
-            <div className="text-end">
-              <span className="block text-[10px] text-gray-500 uppercase">
-                {t("dashboard.value")}
-              </span>
-              <Money value={price} className="font-bold text-white text-sm" />
+          <div className="absolute inset-0 bg-black/35 backdrop-blur-[1px] flex items-center justify-center p-4 text-center">
+            <div className="bg-black/75 border border-white/10 rounded-2xl px-4 py-3">
+              <p className="text-sm font-bold text-brand-gold">{reviewLabel}</p>
+              <p className="text-xs text-gray-300 mt-1">{t("dashboard.adNotClickable")}</p>
             </div>
           </div>
         </div>
-      </Link>
+      )}
 
       {type === "ad" && (
         <div className="absolute top-2 left-2 flex flex-col gap-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">

@@ -1,24 +1,27 @@
 import { QueryClient, QueryCache, MutationCache } from '@tanstack/react-query';
 import { FetchError } from 'ofetch';
-import { toast } from '@/lib/toast';
-import { extractApiError, isAuthErrorStatus } from './fetcher';
+import { toast, toastIdForMessage } from '@/lib/toast';
+import { ApiError, extractApiError, isAuthErrorStatus } from './fetcher';
 import i18n from '../i18n';
 
-const shouldSkipErrorToast = (error: unknown) => {
-  if (error instanceof FetchError && isAuthErrorStatus(error.status)) return true;
+const getAuthErrorStatus = (error: unknown): number | undefined => {
+  if (error instanceof ApiError) {
+    return error.serverData?.code;
+  }
 
-  const apiError = extractApiError(error);
-  return isAuthErrorStatus(apiError?.serverData?.code);
+  if (error instanceof FetchError) {
+    return (
+      error.status ??
+      (error as FetchError & { statusCode?: number }).statusCode ??
+      error.response?.status
+    );
+  }
+
+  return extractApiError(error)?.serverData?.code;
 };
 
-/**
- * Flatten { field: ["msg1", "msg2"], ... } into a single string with
- * one bullet per message, e.g.:
- *   • phone: The phone format is invalid.
- *   • email: The email has already been taken.
- *
- * Returns null when validation_errors is an empty array or has no entries.
- */
+const shouldSkipErrorToast = (error: unknown) => isAuthErrorStatus(getAuthErrorStatus(error));
+
 function formatValidationErrors(
   validationErrors: Record<string, string[]> | []
 ): string | null {
@@ -29,9 +32,7 @@ function formatValidationErrors(
   if (entries.length === 0) return null;
 
   return entries
-    .flatMap(([field, messages]) =>
-      messages.map((msg) => `• ${field}: ${msg}`)
-    )
+    .flatMap(([, messages]) => messages.map((msg) => `• ${msg}`))
     .join('\n');
 }
 
@@ -45,7 +46,7 @@ export const queryClient = new QueryClient({
         apiError?.serverData?.msg ||
         (error instanceof Error ? error.message : null) ||
         i18n.t('common.error');
-      toast.error(message);
+      toast.error(message, { id: toastIdForMessage(message) });
     },
   }),
   mutationCache: new MutationCache({
@@ -61,7 +62,9 @@ export const queryClient = new QueryClient({
           ? formatValidationErrors(validationErrors)
           : null;
 
-        toast.error(apiError.serverData.msg || i18n.t('common.error'), {
+        const title = description ? i18n.t('common.error') : (apiError.serverData.msg || i18n.t('common.error'));
+        toast.error(title, {
+          id: toastIdForMessage(description ? `${title}:${description}` : title, 'api-mutation-error'),
           ...(description ? { description } : {}),
         });
         return;
@@ -69,7 +72,7 @@ export const queryClient = new QueryClient({
 
       const message =
         error instanceof Error ? error.message : i18n.t('common.error');
-      toast.error(message);
+      toast.error(message, { id: toastIdForMessage(message, 'api-mutation-error') });
     },
   }),
   defaultOptions: {

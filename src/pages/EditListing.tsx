@@ -281,7 +281,7 @@ export const EditListing: React.FC = () => {
         )}
 
         {step === 2 && (
-            <form onSubmit={handleSubmit} className="space-y-8 animate-fade-in">
+            <form onSubmit={handleSubmit} noValidate className="space-y-8 animate-fade-in">
                 <div className="flex justify-end">
                     <button type="button" onClick={fillDemoData} className="text-xs bg-brand-gold/10 text-brand-gold px-3 py-1.5 rounded-md hover:bg-brand-gold/20 transition">
                         {t('auth.fillDemo')}
@@ -314,7 +314,7 @@ export const EditListing: React.FC = () => {
                     </div>
                     <div className="space-y-2">
                         <label className="text-sm font-medium text-gray-300">{t('auth.email')} <span className="text-brand-gold">*</span></label>
-                        <input type="email" name="email" value={formData.email} onChange={handleChange} className={`w-full bg-[#121212] border ${errors.email ? 'border-red-500' : 'border-white/15'} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`} />
+                        <input type="text" inputMode="email" autoComplete="email" name="email" value={formData.email} onChange={handleChange} className={`w-full bg-[#121212] border ${errors.email ? 'border-red-500' : 'border-white/15'} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`} />
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">

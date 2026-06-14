@@ -8,9 +8,11 @@ import { Money } from "../components/Money";
 import { useHomePage } from "@/features/general/hooks/useHomePage";
 import { Logo } from "@/components/Logo";
 import { FavoriteButton } from "@/components/FavoriteButton";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 
 export const Home: React.FC = () => {
   const { lang } = useStore();
+  const { isAuthenticated } = useAuth();
   const { t } = useTranslation();
 
   const { data: homeResponse, isLoading, isError } = useHomePage();
@@ -118,12 +120,14 @@ export const Home: React.FC = () => {
             >
               {t("hero.cta")}
             </Link>
-            <Link
-              to="/register-type"
-              className="px-10 py-5 rounded-full font-bold text-xl border-2 border-white/20 hover:bg-white/10 hover-scale transition duration-300 backdrop-blur-sm min-w-[200px] text-white"
-            >
-              {t("nav.register")}
-            </Link>
+            {!isAuthenticated && (
+              <Link
+                to="/register-type"
+                className="px-10 py-5 rounded-full font-bold text-xl border-2 border-white/20 hover:bg-white/10 hover-scale transition duration-300 backdrop-blur-sm min-w-[200px] text-white"
+              >
+                {t("nav.register")}
+              </Link>
+            )}
           </div>
 
           {/* Scroll Indicator */}

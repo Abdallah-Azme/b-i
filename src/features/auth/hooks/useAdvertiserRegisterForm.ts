@@ -4,6 +4,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useMutation } from '@tanstack/react-query';
 import { authService } from '../services/auth.service';
+import { passwordSchema, passwordConfirmationSchema, passwordMatchRefinement } from '@/lib/password-validation';
+import { emailSchema } from '@/lib/field-validation';
 
 export const useAdvertiserRegisterForm = () => {
   const { t } = useTranslation();
@@ -16,16 +18,19 @@ export const useAdvertiserRegisterForm = () => {
       sessionStorage.setItem('verify_password', password);
       sessionStorage.setItem('verify_role', 'advertiser');
       sessionStorage.setItem('registration_success_toast', t('auth.successAdvertiser'));
+      sessionStorage.setItem('verify_resend_cooldown_until', String(Date.now() + 60_000));
       window.location.href = '/verify-email';
     },
   });
 
+  const passwordMatch = passwordMatchRefinement(t);
+
   const advertiserSchema = z.object({
-    first_name: z.string().min(2, t('errors.firstNameTooShort')),
-    last_name: z.string().min(2, t('errors.lastNameTooShort')),
-    email: z.string().email(t('errors.invalidEmail')),
-    password: z.string().min(8, t('errors.passwordTooShort8')),
-    password_confirmation: z.string(),
+    first_name: z.string().min(2, t('errors.firstNameTooShort')).max(50, t('errors.maxLength', { count: 50 })),
+    last_name: z.string().min(2, t('errors.lastNameTooShort')).max(50, t('errors.maxLength', { count: 50 })),
+    email: emailSchema(t),
+    password: passwordSchema(t),
+    password_confirmation: passwordConfirmationSchema(),
     country_code: z.string().default('965'),
     phone: z.string().superRefine((val, ctx) => {
       const digits = val.replace(/\D/g, '');
@@ -36,7 +41,7 @@ export const useAdvertiserRegisterForm = () => {
         });
       }
     }),
-    company_name: z.string().min(2, t('errors.companyNameRequired')),
+    company_name: z.string().min(2, t('errors.companyNameRequired')).max(50, t('errors.maxLength', { count: 50 })),
     license_number: z.string().min(1, t('errors.licenseNumberRequired')),
     company_license: z.any().refine(val => val instanceof File || (typeof FileList !== 'undefined' && val instanceof FileList && val.length > 0), t('errors.licenseFileRequired')),
     image: z.any().optional(),
@@ -56,9 +61,9 @@ export const useAdvertiserRegisterForm = () => {
       message: t('errors.invalidPhoneLength', { length: expected }),
       path: ['phone']
     };
-  }).refine((data) => data.password === data.password_confirmation, {
-    message: t('auth.passwordsDoNotMatch'),
-    path: ['password_confirmation']
+  }).refine(passwordMatch.check, {
+    message: passwordMatch.message,
+    path: ['password_confirmation'],
   });
 
   type AdvertiserFormValues = z.infer<typeof advertiserSchema>;

@@ -67,7 +67,7 @@ export const AdvertiserRegisterForm: React.FC = () => {
       </div>
 
       <Form {...form}>
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} noValidate className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormField
               control={form.control}
@@ -76,7 +76,7 @@ export const AdvertiserRegisterForm: React.FC = () => {
                 <FormItem>
                   <FormLabel>{t('auth.firstName')}</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input {...field} maxLength={50} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -89,7 +89,7 @@ export const AdvertiserRegisterForm: React.FC = () => {
                 <FormItem>
                   <FormLabel>{t('auth.lastName')}</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input {...field} maxLength={50} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -104,7 +104,7 @@ export const AdvertiserRegisterForm: React.FC = () => {
               <FormItem>
                 <FormLabel>{t('auth.email')}</FormLabel>
                 <FormControl>
-                  <Input type="email" {...field} />
+                  <Input type="text" inputMode="email" autoComplete="email" placeholder={t('auth.emailPlaceholder')} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -133,7 +133,7 @@ export const AdvertiserRegisterForm: React.FC = () => {
                 <FormItem>
                   <FormLabel>{t('auth.companyName')}</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input {...field} maxLength={50} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -321,7 +321,7 @@ export const AdvertiserRegisterForm: React.FC = () => {
                 </FormControl>
                 <div className="space-y-1 leading-none">
                   <FormLabel className="text-sm text-gray-400 normal-case" htmlFor="terms">
-                    {t('auth.agreeToTerms')} <a href="/terms" className="text-brand-gold hover:underline">{t('auth.termsAndConditions')}</a>
+                    {t('auth.agreeToTerms')} <Link to="/terms-of-use" target="_blank" className="text-brand-gold hover:underline">{t('auth.termsAndConditions')}</Link>
                   </FormLabel>
                   <FormMessage />
                 </div>

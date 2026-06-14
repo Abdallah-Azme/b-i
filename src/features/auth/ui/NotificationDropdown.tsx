@@ -3,6 +3,7 @@ import { Bell, X, CheckCheck, Trash2, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link } from '@tanstack/react-router';
 import { useQueryClient } from '@tanstack/react-query';
+import { resolveNotificationRoute } from '../utils/notification-route';
 import {
   NOTIFICATIONS_REFETCH_INTERVAL,
   invalidateNotificationsQueries,
@@ -224,6 +225,7 @@ const NotificationRow: React.FC<{
 }> = ({ notification: n, lang, onDelete, isDeleting }) => {
   const dotColor = categoryColors[n.notification_category] ?? 'bg-gray-400';
   const isUnread = !n.seen;
+  const route = resolveNotificationRoute(n);
 
   const inner = (
     <div className={`group flex items-start gap-3 px-4 py-3 border-b border-white/5 transition-colors hover:bg-white/5 ${isUnread ? 'bg-white/[0.03]' : ''}`}>
@@ -250,8 +252,8 @@ const NotificationRow: React.FC<{
     </div>
   );
 
-  if (n.target_url) {
-    return <a href={n.target_url} target="_blank" rel="noopener noreferrer">{inner}</a>;
+  if (route) {
+    return <Link to={route.to as any} search={route.search as any}>{inner}</Link>;
   }
   return <div>{inner}</div>;
 };

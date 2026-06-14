@@ -4,6 +4,7 @@ import { ofetch, FetchError } from 'ofetch';
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://portal.businessandinvestments.net/api'; // Production Base URL
 
 let authRedirectInProgress = false;
+const AUTH_REDIRECT_REASON_KEY = 'bi-auth-redirect-reason';
 
 export const isAuthErrorStatus = (status?: number) => status === 401 || status === 403;
 
@@ -82,11 +83,15 @@ export const apiFetcher = ofetch.create({
         reason = 'deleted';
       }
 
-      if (
+      const currentReason = sessionStorage.getItem(AUTH_REDIRECT_REASON_KEY);
+      const shouldRedirect =
         !authRedirectInProgress &&
-        !window.location.pathname.startsWith('/login')
-      ) {
+        !window.location.pathname.startsWith('/login') &&
+        currentReason !== reason;
+
+      if (shouldRedirect) {
         authRedirectInProgress = true;
+        sessionStorage.setItem(AUTH_REDIRECT_REASON_KEY, reason);
         window.location.replace(`/login?reason=${reason}`);
       }
     }
