@@ -76,9 +76,7 @@ export const useUpdateProfile = () => {
       queryClient.invalidateQueries({ queryKey: ['profile'] });
       queryClient.invalidateQueries({ queryKey: ['profile-update-request-latest'] });
       toast.success(
-        t('auth.profileUpdateRequestSubmitted', {
-          defaultValue: 'Your update request has been sent to the admin for review',
-        }),
+        t('auth.profileUpdateRequestSubmitted'),
         { id: 'profile-update-request-submitted' },
       );
     },
@@ -86,15 +84,24 @@ export const useUpdateProfile = () => {
 };
 
 export const useDeleteAccount = () => {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload?: any) => authService.deleteAccount(payload),
     onSuccess: () => {
       queryClient.cancelQueries();
       queryClient.clear();
+      toast.success(
+        t('auth.accountDeletionRequested', {
+          defaultValue: 'Your account deletion request has been sent to the admin for review',
+        }),
+        { id: 'account-deletion-requested' },
+      );
       localStorage.removeItem('auth_token');
       localStorage.removeItem('auth_role');
-      window.location.replace('/login?reason=account_deleted');
+      window.setTimeout(() => {
+        window.location.replace('/login?reason=account_deleted');
+      }, 900);
     },
   });
 };

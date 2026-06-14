@@ -82,6 +82,10 @@ export const AddListing: React.FC = () => {
   const [termsError, setTermsError] = React.useState(false);
 
   const createOpportunity = useCreateOpportunity();
+  const renderError = (key: string) =>
+    errors[key] ? (
+      <p className="mt-1 text-xs font-medium text-red-500">{errors[key]}</p>
+    ) : null;
 
   const fillDemoData = () => {
     setFormData({
@@ -407,6 +411,7 @@ export const AddListing: React.FC = () => {
                       onChange={handleChange}
                       className={`w-full bg-[#121212] border ${errors.fullName ? "border-red-500" : "border-white/15"} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`}
                     />
+                    {renderError("fullName")}
                   </div>
                   <div className="md:col-span-2">
                     <PhoneInputField
@@ -426,15 +431,16 @@ export const AddListing: React.FC = () => {
                       <span className="text-brand-gold">*</span>
                     </label>
                   </div>
-                  <input
-                    type="text"
-                    inputMode="email"
-                    autoComplete="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    className={`w-full bg-[#121212] border ${errors.email ? "border-red-500" : "border-white/15"} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`}
-                  />
+                    <input
+                      type="text"
+                      inputMode="email"
+                      autoComplete="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      className={`w-full bg-[#121212] border ${errors.email ? "border-red-500" : "border-white/15"} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`}
+                    />
+                  {renderError("email")}
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
@@ -452,6 +458,7 @@ export const AddListing: React.FC = () => {
                       onChange={handleChange}
                       className={`w-full bg-[#121212] border ${errors.adminCompanyName ? "border-red-500" : "border-white/15"} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`}
                     />
+                    {renderError("adminCompanyName")}
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 mb-2 text-sm font-medium text-gray-300">
@@ -468,6 +475,7 @@ export const AddListing: React.FC = () => {
                       onChange={handleChange}
                       className={`w-full bg-[#121212] border ${errors.companyOwnerName ? "border-red-500" : "border-white/15"} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`}
                     />
+                    {renderError("companyOwnerName")}
                   </div>
                 </div>
                 <div className="space-y-2">
@@ -485,6 +493,7 @@ export const AddListing: React.FC = () => {
                     onChange={handleChange}
                     className={`w-full bg-[#121212] border ${errors.licenseNumber ? "border-red-500" : "border-white/15"} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`}
                   />
+                  {renderError("licenseNumber")}
                 </div>
               </div>
 
@@ -519,6 +528,7 @@ export const AddListing: React.FC = () => {
                       onChange={handleChange}
                       className={`w-full bg-[#121212] border ${errors.companyName ? "border-red-500" : "border-white/15"} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`}
                     />
+                    {renderError("companyName")}
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
@@ -541,6 +551,7 @@ export const AddListing: React.FC = () => {
                           </option>
                         ))}
                       </select>
+                      {renderError("sector")}
                     </div>
                     <div className="space-y-2">
                       <div className="flex items-center gap-2 mb-2 text-sm font-medium text-gray-300">
@@ -558,6 +569,7 @@ export const AddListing: React.FC = () => {
                         onChange={handleChange}
                         className={`w-full bg-[#121212] border ${errors.companyAge ? "border-red-500" : "border-white/15"} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`}
                       />
+                      {renderError("companyAge")}
                     </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -581,6 +593,7 @@ export const AddListing: React.FC = () => {
                           </option>
                         ))}
                       </select>
+                      {renderError("companyStage")}
                     </div>
                     <div className="space-y-2">
                       <div className="flex items-center gap-2 mb-2 text-sm font-medium text-gray-300">
@@ -600,6 +613,7 @@ export const AddListing: React.FC = () => {
                         onChange={handleChange}
                         className={`w-full bg-[#121212] border ${errors.requestedInvestment ? "border-red-500" : "border-white/15"} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`}
                       />
+                      {renderError("requestedInvestment")}
                     </div>
                   </div>
                   {purpose === "request_investment" && (
@@ -619,6 +633,7 @@ export const AddListing: React.FC = () => {
                         onChange={handleChange}
                         className={`w-full bg-[#121212] border ${errors.shareToSell ? "border-red-500" : "border-white/15"} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`}
                       />
+                      {renderError("shareToSell")}
                     </div>
                   )}
                 </div>
@@ -655,6 +670,7 @@ export const AddListing: React.FC = () => {
                       onChange={handleChange}
                       className={`w-full bg-[#121212] border ${errors.legalEntity ? "border-red-500" : "border-white/15"} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`}
                     />
+                    {renderError("legalEntity")}
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 mb-2 text-sm font-medium text-gray-300">
@@ -676,6 +692,7 @@ export const AddListing: React.FC = () => {
                         </option>
                       ))}
                     </select>
+                    {renderError("financialHealth")}
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 mb-2 text-sm font-medium text-gray-300">
@@ -692,6 +709,7 @@ export const AddListing: React.FC = () => {
                       onChange={handleChange}
                       className={`w-full bg-[#121212] border ${errors.investmentReason ? "border-red-500" : "border-white/15"} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`}
                     />
+                    {renderError("investmentReason")}
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 mb-2 text-sm font-medium text-gray-300">
@@ -708,6 +726,7 @@ export const AddListing: React.FC = () => {
                       onChange={handleChange}
                       className={`w-full bg-[#121212] border ${errors.fullDetails ? "border-red-500" : "border-white/15"} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`}
                     />
+                    {renderError("fullDetails")}
                   </div>
 
                   {/* File Uploads */}

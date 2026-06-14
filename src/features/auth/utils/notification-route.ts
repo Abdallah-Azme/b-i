@@ -31,6 +31,9 @@ export const resolveNotificationRoute = (notification: ApiNotification): Notific
 
   const modelId =
     payload.model_id ?? payload.project_id ?? payload.opportunity_id ?? notification.model_id;
+  const type = `${notification.notification_type ?? ''}`.toLowerCase();
+  const category = `${notification.notification_category ?? ''}`.toLowerCase();
+  const modelType = `${notification.model_type ?? ''}`.toLowerCase();
 
   switch (notification.model_type) {
     case 'opportunity':
@@ -55,7 +58,39 @@ export const resolveNotificationRoute = (notification: ApiNotification): Notific
       break;
   }
 
+  if (
+    /profile.*update|update.*profile|account.*update|approve.*profile|verification/i.test(
+      type,
+    )
+  ) {
+    return { to: '/dashboard', search: { tab: 'verification' } };
+  }
+
+  if (
+    modelId &&
+    (
+      modelType === 'opportunity' ||
+      modelType === 'project' ||
+      category === 'project' ||
+      type.includes('opportunity') ||
+      type.includes('project') ||
+      type.includes('status') ||
+      type.includes('approve') ||
+      type.includes('reject') ||
+      type.includes('revision') ||
+      type.includes('publish') ||
+      type.includes('reserved')
+    )
+  ) {
+    return { to: `/projects/${modelId}` };
+  }
+
   switch (notification.notification_category) {
+    case 'profile_update':
+    case 'profile':
+    case 'account':
+    case 'verification':
+      return { to: '/dashboard', search: { tab: 'verification' } };
     case 'deal':
     case 'project':
       return modelId ? { to: `/projects/${modelId}` } : null;

@@ -279,6 +279,7 @@ export const VerificationInfoTab: React.FC<{ onEditProfile?: () => void }> = ({
 
   const { data: updateRequestData } = useLatestProfileUpdateRequest();
   const pendingRequest = updateRequestData?.data;
+  const isPending = pendingRequest?.status?.key === "pending";
 
   return (
     <div className="bg-brand-gray/20 p-6 rounded-xl border border-white/5 space-y-4">
@@ -291,30 +292,41 @@ export const VerificationInfoTab: React.FC<{ onEditProfile?: () => void }> = ({
         </span>
       </div>
       <div className="grid grid-cols-2 gap-4 text-sm">
-        <p className="text-gray-400">
-          {t("dashboard.companyName")}
-          <span className="text-white ms-2">
-            {info.first_name} {info.last_name}
-          </span>
-        </p>
-        <p className="text-gray-400">
-          {t("dashboard.licenseNumber")}
-          <span className="text-white ml-2">
-            {info.license_number || "N/A"}
-          </span>
-        </p>
+        {(info.first_name || info.last_name) && (
+          <p className="text-gray-400">
+            {t("dashboard.companyName")}
+            <span className="text-white ms-2">
+              {info.first_name} {info.last_name}
+            </span>
+          </p>
+        )}
+        {info.license_number && info.license_number !== "N/A" && (
+          <p className="text-gray-400">
+            {t("dashboard.licenseNumber")}
+            <span className="text-white ml-2">
+              {info.license_number}
+            </span>
+          </p>
+        )}
       </div>
 
-      {pendingRequest && (
+      {isPending && (
         <div className="mt-4 p-3 bg-brand-gold/10 border border-brand-gold/20 rounded-lg text-brand-gold text-sm font-medium">
           {t('dashboard.updateReview')}
+        </div>
+      )}
+
+      {pendingRequest?.status?.key === "rejected" && (
+        <div className="mt-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-500 text-sm font-medium">
+          {t('dashboard.updateRejected', { defaultValue: 'Update request rejected' })}
+          {pendingRequest.rejection_reason && `: ${pendingRequest.rejection_reason}`}
         </div>
       )}
 
       <div className="flex gap-2 pt-4">
         <button
           onClick={onEditProfile}
-          disabled={!!pendingRequest}
+          disabled={isPending}
           className="bg-brand-gray border border-white/10 text-white px-4 py-2 rounded-lg font-bold text-xs disabled:opacity-50"
         >
           {t("dashboard.updateData")}
