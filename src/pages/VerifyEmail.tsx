@@ -159,7 +159,7 @@ export const VerifyEmail: React.FC = () => {
   return (
     <div className="min-h-[calc(100dvh-10rem)] bg-brand-black flex flex-col md:min-h-screen md:flex-row">
       {/* Form Side */}
-      <div className="flex-1 flex flex-col justify-start px-4 pt-2 pb-4 sm:px-6 md:justify-center md:py-4 lg:px-20 xl:px-24">
+      <div className="flex-1 flex flex-col justify-start px-4 pb-4 sm:px-6 md:justify-center md:py-4 lg:px-20 xl:px-24">
         <div className="mx-auto w-full max-w-md animate-fade-in">
           {/* Back link */}
           <Link

@@ -276,6 +276,7 @@ export interface OpportunitiesQueryParams {
   per_page?: number;
   category_id?: number;
   goal?: 'request_investment' | 'sell_business';
+  order?: 'latest' | 'price_asc' | 'price_desc';
 }
 
 export interface OpportunitiesListResponse {

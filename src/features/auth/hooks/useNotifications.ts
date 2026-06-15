@@ -5,6 +5,7 @@ import { toast, showToastOnce } from '@/lib/toast';
 import i18n from '@/i18n';
 
 const isAuthed = () => !!localStorage.getItem('auth_token');
+const AUTH_LOGIN_AT_KEY = 'auth_login_at';
 export const NOTIFICATIONS_REFETCH_INTERVAL = 20_000;
 export const NOTIFICATIONS_PAGE_REFETCH_INTERVAL = 5_000;
 
@@ -39,9 +40,50 @@ const FORCE_LOGOUT_TOAST_KEYS = {
   deleted: 'force_logout_toast_deleted',
 } as const;
 
+const FORCE_LOGOUT_HANDLED_IDS_KEY = 'force_logout_handled_notification_ids';
+
+const getHandledForceLogoutNotificationIds = () => {
+  try {
+    const raw = localStorage.getItem(FORCE_LOGOUT_HANDLED_IDS_KEY);
+    if (!raw) return new Set<string>();
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return new Set<string>();
+    return new Set(parsed.filter((value): value is string => typeof value === 'string'));
+  } catch {
+    return new Set<string>();
+  }
+};
+
+const markForceLogoutNotificationHandled = (notificationId: string) => {
+  const handledIds = getHandledForceLogoutNotificationIds();
+  handledIds.add(notificationId);
+
+  const cappedIds = Array.from(handledIds).slice(-50);
+  localStorage.setItem(FORCE_LOGOUT_HANDLED_IDS_KEY, JSON.stringify(cappedIds));
+};
+
+const getCurrentLoginAt = () => {
+  const storedLoginAt = Number(localStorage.getItem(AUTH_LOGIN_AT_KEY));
+  if (Number.isFinite(storedLoginAt) && storedLoginAt > 0) return storedLoginAt;
+
+  const loginAt = Date.now();
+  localStorage.setItem(AUTH_LOGIN_AT_KEY, String(loginAt));
+  return loginAt;
+};
+
+const isNotificationFromCurrentSession = (createdAt?: string | null) => {
+  if (!createdAt) return false;
+
+  const createdAtMs = Date.parse(createdAt);
+  if (!Number.isFinite(createdAtMs)) return false;
+
+  return createdAtMs >= getCurrentLoginAt() - 5_000;
+};
+
 const clearAuthAndRedirect = (reason: 'banned' | 'deleted') => {
   localStorage.removeItem('auth_token');
   localStorage.removeItem('auth_role');
+  localStorage.removeItem(AUTH_LOGIN_AT_KEY);
   sessionStorage.setItem('bi-auth-redirect-reason', reason);
   window.location.replace(`/login?reason=${reason}`);
 };
@@ -65,12 +107,16 @@ export const useAccountAccessNotificationWatcher = () => {
     });
 
     if (!latestBlockingNotification) return;
+    if (!isNotificationFromCurrentSession(latestBlockingNotification.created_at)) return;
+
+    const handledIds = getHandledForceLogoutNotificationIds();
+    if (handledIds.has(latestBlockingNotification.id)) return;
 
     const type = (latestBlockingNotification.notification_type || '').toLowerCase();
     const isDeleted = type === 'delete_account';
     const reason = isDeleted ? 'deleted' : 'banned';
-    const toastKey = FORCE_LOGOUT_TOAST_KEYS[reason];
-    const toastId = `force-logout-${reason}`;
+    const toastKey = `${FORCE_LOGOUT_TOAST_KEYS[reason]}-${latestBlockingNotification.id}`;
+    const toastId = `force-logout-${reason}-${latestBlockingNotification.id}`;
 
     showToastOnce(
       toastId,
@@ -83,6 +129,7 @@ export const useAccountAccessNotificationWatcher = () => {
       { sessionKey: toastKey },
     );
 
+    markForceLogoutNotificationHandled(latestBlockingNotification.id);
     clearAuthAndRedirect(reason);
   }, [notificationsData]);
 };

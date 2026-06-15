@@ -59,6 +59,7 @@ export const apiFetcher = ofetch.create({
     if (isAuthErrorStatus(response.status)) {
       localStorage.removeItem('auth_token');
       localStorage.removeItem('auth_role');
+      localStorage.removeItem('auth_login_at');
 
       const body: ApiErrorData = (response as any)._data ?? {};
       const msg = (body.msg || '').toLowerCase();

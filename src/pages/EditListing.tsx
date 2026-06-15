@@ -244,7 +244,7 @@ export const EditListing: React.FC = () => {
       
       {/* Progress */}
       <div className="flex items-center justify-between mb-8">
-         <h1 className="text-2xl font-bold">{t('listing.title')}</h1>
+         <h1 className="text-2xl font-bold">{t('listing.editTitle')}</h1>
          <div className="flex items-center gap-2 text-sm text-gray-400">
             <span className={step === 1 ? 'text-brand-gold font-bold' : ''}>1. {t('listing.step1')}</span>
             <span>&rarr;</span>
@@ -444,9 +444,9 @@ export const EditListing: React.FC = () => {
                         {updateOpportunity.isPending ? (
                             <span className="flex items-center justify-center gap-2">
                             <span className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin"></span>
-                            {t('listing.processing')}
+                            {t('listing.updateProcessing')}
                             </span>
-                        ) : t('auth.saveChanges')}
+                        ) : t('listing.updateSubmit')}
                     </button>
                 </div>
 

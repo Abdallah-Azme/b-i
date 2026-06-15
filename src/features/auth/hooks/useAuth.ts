@@ -17,6 +17,7 @@ export const useLogin = () => {
         sessionStorage.removeItem('bi-auth-redirect-reason');
         clearShownToasts();
         localStorage.setItem('auth_token', response.data.token);
+        localStorage.setItem('auth_login_at', String(Date.now()));
         // role is { key: "investor"|"advertiser", label: "..." }
         const roleKey = (response.data.role as any)?.key ?? response.data.role;
         if (roleKey) localStorage.setItem('auth_role', roleKey);
@@ -117,6 +118,7 @@ export const useDeleteAccount = () => {
       );
       localStorage.removeItem('auth_token');
       localStorage.removeItem('auth_role');
+      localStorage.removeItem('auth_login_at');
       window.setTimeout(() => {
         window.location.replace('/login?reason=account_deleted');
       }, 900);
@@ -136,12 +138,14 @@ export const useAuth = () => {
     onSuccess: () => {
       localStorage.removeItem('auth_token');
       localStorage.removeItem('auth_role');
+      localStorage.removeItem('auth_login_at');
       window.location.href = '/login';
     },
     onError: () => {
       // Even on API error, clear local state
       localStorage.removeItem('auth_token');
       localStorage.removeItem('auth_role');
+      localStorage.removeItem('auth_login_at');
       window.location.href = '/login';
     },
   });

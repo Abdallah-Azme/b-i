@@ -235,6 +235,7 @@
   },
   "listing": {
     "title": "Add New Listing",
+    "editTitle": "Edit Listing",
     "step1": "Purpose",
     "step2": "Details",
     "purposeTitle": "What is your goal?",
@@ -245,6 +246,8 @@
     "next": "Next Step",
     "submit": "Publish Listing",
     "processing": "Publishing...",
+    "updateProcessing": "Updating...",
+    "updateSubmit": "Save Changes",
     "success": "Your listing has been submitted successfully and is now under review. It will be published after admin approval.",
     "investorTypesTitle": "Investor Types",
     "companyType": "Company (Investor)",

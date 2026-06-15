@@ -45,6 +45,7 @@ export const Projects: React.FC = () => {
   const { data: opportunitiesData, isLoading } = useOpportunities({
     ...(filterCat !== undefined && { category_id: filterCat }),
     ...(filterPurpose ? { goal: filterPurpose } : {}),
+    order: "latest",
     page: 1,
     per_page: 50, // Get a chunk of them for now
   });
