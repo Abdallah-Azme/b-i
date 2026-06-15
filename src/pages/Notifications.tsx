@@ -76,6 +76,10 @@ export const Notifications: React.FC = () => {
     return notifications.filter(n => n.notification_category === activeFilter);
   }, [notifications, activeFilter]);
 
+  const selectedNotificationRoute = selectedNotification
+    ? resolveNotificationRoute(selectedNotification)
+    : null;
+
   const handleItemClick = (n: ApiNotification) => {
     if (!n.seen) {
       markOneRead.mutate(n.id);
@@ -173,6 +177,9 @@ export const Notifications: React.FC = () => {
          ) : filteredList.length > 0 ? (
            <div className="space-y-3 animate-fade-in">
              {filteredList.map((n) => (
+               (() => {
+                 const route = resolveNotificationRoute(n);
+                 return (
                <div 
                  key={n.id}
                  className={`group relative overflow-hidden rounded-xl border transition-all duration-300 ${
@@ -185,7 +192,7 @@ export const Notifications: React.FC = () => {
                      {/* Clickable Content Area */}
                      <div 
                         onClick={() => handleItemClick(n)}
-                        className="flex-1 min-w-0 p-4 cursor-pointer flex gap-4"
+                        className={`flex-1 min-w-0 p-4 flex gap-4 ${route ? 'cursor-pointer' : 'cursor-default'}`}
                      >
                         {/* Icon */}
                         <div className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${n.seen ? 'bg-white/5 grayscale' : 'bg-black/40'}`}>
@@ -226,6 +233,8 @@ export const Notifications: React.FC = () => {
                      </div>
                   </div>
                </div>
+                 );
+               })()
              ))}
            </div>
          ) : (
@@ -277,18 +286,18 @@ export const Notifications: React.FC = () => {
 
       {/* View Notification Modal */}
       <Dialog open={!!selectedNotification} onOpenChange={(open) => !open && setSelectedNotification(null)}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle className="pe-14 text-base sm:text-lg text-white font-bold break-words">
+        <DialogContent className="sm:max-w-[560px]">
+          <DialogHeader className="space-y-3">
+            <DialogTitle className="pe-14 text-right text-base sm:text-lg text-white font-bold leading-tight break-words">
               {selectedNotification?.title}
             </DialogTitle>
           </DialogHeader>
-          <div className="mt-1 min-w-0">
-            <p className="text-sm sm:text-base text-gray-300 whitespace-pre-wrap break-words leading-relaxed">
+          <div className="mt-2 min-w-0">
+            <p className="text-sm sm:text-base text-gray-300 whitespace-pre-wrap break-words leading-7">
               {selectedNotification?.body}
             </p>
           </div>
-          <div className="mt-5 flex justify-end gap-3">
+          <div className="mt-6 flex justify-end gap-3 pt-2">
             <button
               type="button"
               onClick={() => setSelectedNotification(null)}
@@ -296,14 +305,11 @@ export const Notifications: React.FC = () => {
             >
               {isAr ? 'إغلاق' : 'Close'}
             </button>
-            {selectedNotification?.target_url && (
+            {selectedNotificationRoute && (
               <button
                 type="button"
                     onClick={() => {
-                  const route = resolveNotificationRoute(selectedNotification);
-                  if (route) {
-                    navigate(route as any);
-                  }
+                  navigate(selectedNotificationRoute as any);
                   setSelectedNotification(null);
                 }}
                 className="bg-brand-gold text-black px-6 py-2.5 rounded-lg font-bold text-sm hover:bg-brand-gold/90 transition-colors"

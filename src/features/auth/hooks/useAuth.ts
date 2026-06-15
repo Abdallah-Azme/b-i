@@ -72,11 +72,12 @@ export const useUpdateProfile = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload: FormData) => authService.updateProfile(payload),
-    onSuccess: () => {
+    onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ['profile'] });
       queryClient.invalidateQueries({ queryKey: ['profile-update-request-latest'] });
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
       toast.success(
-        t('auth.profileUpdateRequestSubmitted'),
+        response?.msg || t('auth.profileUpdateRequestSubmitted'),
         { id: 'profile-update-request-submitted' },
       );
     },

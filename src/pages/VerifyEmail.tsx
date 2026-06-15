@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { Mail, ArrowLeft, ArrowRight, Loader2, CheckCircle, RefreshCw, ShieldCheck } from 'lucide-react';
@@ -6,6 +6,7 @@ import { useMutation } from '@tanstack/react-query';
 import { authService } from '@/features/auth/services/auth.service';
 import { TOAST_MAX_DURATION_MS, toast, showToastOnce } from '@/lib/toast';
 import type { UserRole } from '@/features/auth/types';
+import { OtpInput } from '@/components/ui/OtpInput';
 
 const OTP_LENGTH = 6;
 const RESEND_COOLDOWN = 60; // seconds
@@ -37,8 +38,6 @@ export const VerifyEmail: React.FC = () => {
   const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(''));
   const [cooldown, setCooldown] = useState(getRemainingCooldown);
   const [verified, setVerified] = useState(false);
-  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-
   useEffect(() => {
     const registrationToast = sessionStorage.getItem('registration_success_toast');
     if (!registrationToast) return;
@@ -108,34 +107,6 @@ export const VerifyEmail: React.FC = () => {
     },
     onError: () => { },
   });
-
-  // --- OTP input handlers ---
-  const handleOtpChange = (index: number, value: string) => {
-    if (!/^\d*$/.test(value)) return;
-    const next = [...otp];
-    next[index] = value.slice(-1);
-    setOtp(next);
-    if (value && index < OTP_LENGTH - 1) {
-      inputRefs.current[index + 1]?.focus();
-    }
-  };
-
-  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Backspace' && !otp[index] && index > 0) {
-      inputRefs.current[index - 1]?.focus();
-    }
-    if (e.key === 'ArrowLeft' && index > 0) inputRefs.current[index - 1]?.focus();
-    if (e.key === 'ArrowRight' && index < OTP_LENGTH - 1) inputRefs.current[index + 1]?.focus();
-  };
-
-  const handlePaste = (e: React.ClipboardEvent) => {
-    e.preventDefault();
-    const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, OTP_LENGTH);
-    const next = [...otp];
-    pasted.split('').forEach((char, i) => { next[i] = char; });
-    setOtp(next);
-    inputRefs.current[Math.min(pasted.length, OTP_LENGTH - 1)]?.focus();
-  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -222,32 +193,11 @@ export const VerifyEmail: React.FC = () => {
                 <label className="block text-sm font-bold text-gray-300 text-center">
                   {t('auth.enterOtp')}
                 </label>
-                <div
-                  className="flex gap-1 justify-center"
-                  onPaste={handlePaste}
-                  dir="ltr"
-                >
-                  {otp.map((digit, i) => (
-                    <input
-                      key={i}
-                      ref={(el) => { inputRefs.current[i] = el; }}
-                      type="text"
-                      inputMode="numeric"
-                      maxLength={1}
-                      value={digit}
-                      onChange={(e) => handleOtpChange(i, e.target.value)}
-                      onKeyDown={(e) => handleKeyDown(i, e)}
-                      disabled={isLoading}
-                      className={`
-                        w-12 h-14 text-center text-xl font-bold rounded-xl
-                        bg-black/60 border-2 outline-none transition-all
-                        ${digit ? 'border-brand-gold text-white' : 'border-white/10 text-white'}
-                        focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20
-                        disabled:opacity-50
-                      `}
-                    />
-                  ))}
-                </div>
+                <OtpInput
+                  value={otp.join('')}
+                  onChange={(value) => setOtp(value.split('').concat(Array(OTP_LENGTH).fill('')).slice(0, OTP_LENGTH))}
+                  disabled={isLoading}
+                />
               </div>
 
 

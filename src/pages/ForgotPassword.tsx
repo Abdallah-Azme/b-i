@@ -4,6 +4,7 @@ import { useNavigate } from '@tanstack/react-router';
 import { Mail, Key, Lock, ArrowLeft, Loader2 } from 'lucide-react';
 import { useForgotPasswordRequestCode, useForgotPasswordVerifyCode, useForgotPasswordReset } from '../features/auth/hooks/useForgotPassword';
 import { PasswordInput } from '@/components/ui/PasswordInput';
+import { OtpInput } from '@/components/ui/OtpInput';
 import {
   getPasswordTooShortMessage,
   getPasswordsDoNotMatchMessage,
@@ -206,23 +207,14 @@ export const ForgotPassword = () => {
                   <label className={cn("text-sm font-bold ms-1", codeError ? "text-red-500" : "text-gray-300")}>
                     {t('auth.verificationCode')}
                   </label>
-                  <div className="relative">
-                    <Key className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={20} />
-                    <input 
-                      type="text"
-                      inputMode="numeric"
-                      value={code}
-                      onChange={(e) => {
-                        setCode(e.target.value.replace(/\D/g, '').slice(0, 6));
-                        if (codeError) setCodeError('');
-                      }}
-                      className={cn(
-                        "w-full bg-black/50 border rounded-xl py-3 ps-12 pe-4 text-white focus:ring-2 focus:ring-brand-gold/20 outline-none transition tracking-widest font-mono text-center",
-                        codeError ? "border-red-500 focus:border-red-500" : "border-white/10 focus:border-brand-gold"
-                      )}
-                      maxLength={6}
-                    />
-                  </div>
+                  <OtpInput
+                    value={code}
+                    onChange={(value) => {
+                      setCode(value.slice(0, 6));
+                      if (codeError) setCodeError('');
+                    }}
+                    hasError={!!codeError}
+                  />
                   {codeError && <p className="text-sm text-red-500">{codeError}</p>}
                 </div>
 

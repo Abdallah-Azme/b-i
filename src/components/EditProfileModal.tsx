@@ -1,10 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Camera, Lock, Loader2 } from 'lucide-react';
+import { Camera, Lock, Loader2, FileText, Eye } from 'lucide-react';
 import { useUpdateProfile } from '../features/auth/hooks/useAuth';
+import { useQueryClient } from '@tanstack/react-query';
 import { useInvestorTypes, useInvestorExperiences, usePreferredSectors } from '../features/general/hooks/useGeneralLookups';
 import { PhoneInputField } from '../features/auth/ui/PhoneInputField';
 import { MAX_MONEY_AMOUNT, formatNumberWithCommas, parseLimitedIntegerInput } from '@/lib/number-format';
+import { FileUpload } from '@/components/ui/FileUpload';
 import {
   Dialog,
   DialogContent,
@@ -21,9 +23,11 @@ interface EditProfileModalProps {
 export const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClose }) => {
   const { t } = useTranslation();
   const updateProfile = useUpdateProfile();
+  const queryClient = useQueryClient();
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
+  const [companyLicenseFile, setCompanyLicenseFile] = useState<File | null>(null);
   const resolveImageUrl = (value: any) => {
     if (!value) return '';
     if (typeof value === 'string') return value;
@@ -85,7 +89,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClos
     available_capital: user?.available_capital || '',
     preferred_sector_id: String(user?.preferred_sector_id || user?.focus_sector?.id || ''),
     experience_level: resolveExperienceId(user?.experience_level),
-    investment_experience: resolveLookupValue(
+    investor_experience: resolveLookupValue(
       user?.investment_experience ||
       user?.investor_experience ||
       '',
@@ -94,9 +98,13 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClos
   };
 
   const [formData, setFormData] = useState(initialFormData);
+  const [companyLicensePreview, setCompanyLicensePreview] = useState<string>(
+    user?.company_license_url || user?.company_license || '',
+  );
 
   useEffect(() => {
     setProfileImagePreview(resolveImageUrl(user?.image || user?.photo || user?.avatar || user?.profile_image));
+    setCompanyLicensePreview(user?.company_license_url || user?.company_license || '');
     setFormData(initialFormData);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
@@ -134,12 +142,10 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClos
         experience_level: matchedExperience
           ? String(matchedExperience.id ?? matchedExperience.value ?? prev.experience_level)
           : String(prev.experience_level || ''),
-        investment_experience: matchedInvestorType
-          ? String(prev.investment_experience || user?.investment_experience || '')
-          : String(prev.investment_experience || user?.investment_experience || ''),
         investor_type: matchedInvestorType
           ? String(matchedInvestorType.value ?? prev.investor_type)
           : String(prev.investor_type || ''),
+        investor_experience: String(prev.investor_experience || user?.investor_experience || user?.investment_experience || ''),
       };
     });
   }, [investorTypesData, experiencesData, sectorsData, user]);
@@ -149,6 +155,19 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClos
       const file = e.target.files[0];
       setProfileImageFile(file);
       setProfileImagePreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleCompanyLicenseChange = (file: File | null) => {
+    setCompanyLicenseFile(file);
+    if (!file) {
+      setCompanyLicensePreview(user?.company_license_url || user?.company_license || '');
+      return;
+    }
+    if (file.type.startsWith('image/')) {
+      setCompanyLicensePreview(URL.createObjectURL(file));
+    } else {
+      setCompanyLicensePreview(file.name);
     }
   };
 
@@ -192,11 +211,16 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClos
       data.append('image', profileImageFile);
     }
 
+    if (user?.role === 'advertiser' && companyLicenseFile) {
+      data.append('company_license', companyLicenseFile);
+    }
+
     if (user?.role === 'investor') {
       if (formData.investor_type) data.append('investor_type', formData.investor_type);
       if (formData.capital) data.append('capital', formData.capital.toString());
       if (formData.available_capital) data.append('available_capital', formData.available_capital.toString());
       if (formData.preferred_sector_id) data.append('preferred_sector_id', formData.preferred_sector_id.toString());
+      if (formData.investor_experience) data.append('investor_experience', formData.investor_experience);
       if (formData.experience_level !== '') {
         const experienceId = Number(formData.experience_level);
         if (Number.isFinite(experienceId)) data.append('experience_level', String(experienceId));
@@ -205,13 +229,21 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClos
     }
 
     updateProfile.mutate(data, {
-      onSuccess: () => {
+      onSuccess: async (response) => {
+        if (response?.data) {
+          queryClient.setQueryData(['profile'], response);
+        }
+        await queryClient.invalidateQueries({ queryKey: ['profile'] });
+        await queryClient.invalidateQueries({ queryKey: ['profile-update-request-latest'] });
+        await queryClient.invalidateQueries({ queryKey: ['notifications'] });
         onClose();
       },
       onError: () => {
         setFormData(initialFormData);
         setProfileImageFile(null);
         setProfileImagePreview(user?.image || '');
+        setCompanyLicenseFile(null);
+        setCompanyLicensePreview(user?.company_license_url || user?.company_license || '');
         setPhoneError('');
       }
     });
@@ -254,6 +286,26 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClos
               />
             </div>
           </div>
+
+          {user?.role === 'advertiser' && (
+            <div className="space-y-2 pt-2">
+              <label className="text-sm text-gray-400 flex items-center gap-2">
+                <FileText size={14} /> {t('auth.companyLicense')}
+              </label>
+              <FileUpload
+                label={t('auth.companyLicense')}
+                value={companyLicenseFile}
+                onChange={handleCompanyLicenseChange}
+                accept=".pdf,.jpg,.jpeg,.png,.webp"
+              />
+              {!companyLicenseFile && companyLicensePreview && typeof companyLicensePreview === 'string' && (
+                <div className="text-xs text-gray-500 break-all flex items-center gap-2">
+                  <Eye size={12} />
+                  <span>{typeof companyLicensePreview === 'string' ? companyLicensePreview : ''}</span>
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -317,7 +369,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClos
 
               <div className="space-y-2">
                 <label className="text-sm text-gray-400">{t('auth.investorExperience')}</label>
-                <select value={String(formData.investment_experience || '')} onChange={(e) => setFormData({...formData, investment_experience: e.target.value})} className="w-full bg-[#121212] border border-white/15 rounded-lg px-4 py-3 text-white focus:border-brand-gold outline-none">
+                <select value={String(formData.investor_experience || '')} onChange={(e) => setFormData({...formData, investor_experience: e.target.value})} className="w-full bg-[#121212] border border-white/15 rounded-lg px-4 py-3 text-white focus:border-brand-gold outline-none">
                   <option value="">{t('common.select')}</option>
                   {experiencesData?.data?.map((exp: any) => (
                     <option key={exp.value ?? exp.id} value={exp.value ?? exp.id}>{resolveLookupLabel(exp)}</option>

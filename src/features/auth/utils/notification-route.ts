@@ -1,59 +1,90 @@
 import type { ApiNotification } from '../types';
 
-const normalizeRelativePath = (value: string) => {
+export type NotificationRoute =
+  | { to: string; search?: Record<string, string> }
+  | null;
+
+const toSearchRecord = (search: string) => {
+  const params = new URLSearchParams(search);
+  const record: Record<string, string> = {};
+  params.forEach((value, key) => {
+    record[key] = value;
+  });
+  return Object.keys(record).length > 0 ? record : undefined;
+};
+
+const normalizeRelativeRoute = (value: string): NotificationRoute => {
   if (!value) return null;
 
-  if (value.startsWith('/')) return value;
+  const isValidRoute = (path: string) => {
+    if (!path) return false;
+    if (path === '/projects' || path === '/advertiser/edit-listing') return false;
+    if (/^\/projects\/\d+\/?$/.test(path)) return true;
+    if (/^\/advertiser\/edit-listing\/\d+\/?$/.test(path)) return true;
+    if (path === '/dashboard' || path === '/notifications') return true;
+    return path.startsWith('/'); // keep other explicit internal routes
+  };
+
+  const fromPath = (path: string, search = ''): NotificationRoute => {
+    if (!isValidRoute(path)) return null;
+    return { to: path, search: toSearchRecord(search) };
+  };
+
+  if (value.startsWith('/')) {
+    const [pathWithMaybeHash, searchWithMaybeHash] = value.split('?');
+    const [search = ''] = (searchWithMaybeHash || '').split('#');
+    return fromPath(pathWithMaybeHash, search ? `?${search}` : '');
+  }
 
   try {
     const url = new URL(value);
-    return `${url.pathname}${url.search}${url.hash}` || null;
+    return fromPath(url.pathname, url.search);
   } catch {
     return null;
   }
 };
 
-export type NotificationRoute =
-  | { to: string; search?: Record<string, string> }
-  | null;
-
 export const resolveNotificationRoute = (notification: ApiNotification): NotificationRoute => {
-  const directUrl = normalizeRelativePath(notification.target_url ?? '');
-  if (directUrl) return { to: directUrl };
+  const nonNavigableTypes = new Set([
+    'change_opportunity_status',
+    'purchase_opportunity_booklet',
+    'create_interest_request_for_opportunity_owner',
+  ]);
+
+  if (nonNavigableTypes.has(notification.notification_type)) {
+    return null;
+  }
+
+  const directUrl = normalizeRelativeRoute(notification.target_url ?? '');
+  if (directUrl) return directUrl;
 
   const payload = notification.payload ?? {};
   const payloadUrl =
-    normalizeRelativePath(payload.target_url ?? '') ??
-    normalizeRelativePath(payload.url ?? '') ??
-    normalizeRelativePath(payload.route ?? '');
+    normalizeRelativeRoute(payload.target_url ?? '') ??
+    normalizeRelativeRoute(payload.url ?? '') ??
+    normalizeRelativeRoute(payload.route ?? '');
 
-  if (payloadUrl) return { to: payloadUrl };
+  if (payloadUrl) return payloadUrl;
 
   const modelId =
     payload.model_id ?? payload.project_id ?? payload.opportunity_id ?? notification.model_id;
   const type = `${notification.notification_type ?? ''}`.toLowerCase();
-  const category = `${notification.notification_category ?? ''}`.toLowerCase();
-  const modelType = `${notification.model_type ?? ''}`.toLowerCase();
-
-  switch (notification.model_type) {
-    case 'opportunity':
-    case 'project':
-      return modelId ? { to: `/projects/${modelId}` } : null;
-    case 'advertiser':
-      return modelId ? { to: `/advertiser/edit-listing/${modelId}` } : null;
-    case 'ProfileUpdateRequest':
-      return { to: '/dashboard', search: { tab: 'verification' } };
-    default:
-      break;
-  }
 
   switch (notification.notification_type) {
     case 'publish_opportunity':
       return modelId ? { to: `/projects/${modelId}` } : null;
     case 'approve_profile_update_request':
+    case 'reject_profile_update_request':
       return { to: '/dashboard', search: { tab: 'verification' } };
     case 'change_password':
       return { to: '/dashboard', search: { tab: 'settings', section: 'password' } };
+    default:
+      break;
+  }
+
+  switch (notification.model_type) {
+    case 'ProfileUpdateRequest':
+      return { to: '/dashboard', search: { tab: 'verification' } };
     default:
       break;
   }
@@ -66,34 +97,12 @@ export const resolveNotificationRoute = (notification: ApiNotification): Notific
     return { to: '/dashboard', search: { tab: 'verification' } };
   }
 
-  if (
-    modelId &&
-    (
-      modelType === 'opportunity' ||
-      modelType === 'project' ||
-      category === 'project' ||
-      type.includes('opportunity') ||
-      type.includes('project') ||
-      type.includes('status') ||
-      type.includes('approve') ||
-      type.includes('reject') ||
-      type.includes('revision') ||
-      type.includes('publish') ||
-      type.includes('reserved')
-    )
-  ) {
-    return { to: `/projects/${modelId}` };
-  }
-
   switch (notification.notification_category) {
     case 'profile_update':
     case 'profile':
     case 'account':
     case 'verification':
       return { to: '/dashboard', search: { tab: 'verification' } };
-    case 'deal':
-    case 'project':
-      return modelId ? { to: `/projects/${modelId}` } : null;
     default:
       return null;
   }

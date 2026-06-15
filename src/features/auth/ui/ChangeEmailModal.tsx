@@ -16,6 +16,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { PasswordInput } from "@/components/ui/PasswordInput";
+import { OtpInput } from "@/components/ui/OtpInput";
 import { toast } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 
@@ -166,27 +167,14 @@ export const ChangeEmailModal = ({ onClose }: { onClose: () => void }) => {
           {step === 2 && (
             <form onSubmit={handleStep2} noValidate className="space-y-4">
               <div className="space-y-2">
-                <div className="relative">
-                  <Key
-                    className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
-                    size={20}
-                  />
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    value={currentOtp}
-                    onChange={(e) => {
-                      setCurrentOtp(e.target.value.replace(/\D/g, "").slice(0, 6));
-                      if (currentOtpError) setCurrentOtpError("");
-                    }}
-                    placeholder={t("auth.verificationCode")}
-                    className={cn(
-                      "w-full bg-[#121212] border rounded-xl py-3 ps-12 pe-4 text-white focus:border-brand-gold outline-none tracking-widest text-center",
-                      currentOtpError ? "border-red-500" : "border-white/15",
-                    )}
-                    maxLength={6}
-                  />
-                </div>
+                <OtpInput
+                  value={currentOtp}
+                  onChange={(value) => {
+                    setCurrentOtp(value.slice(0, 6));
+                    if (currentOtpError) setCurrentOtpError("");
+                  }}
+                  hasError={!!currentOtpError}
+                />
                 {currentOtpError && <p className="text-sm text-red-500">{currentOtpError}</p>}
               </div>
               <button
@@ -246,27 +234,14 @@ export const ChangeEmailModal = ({ onClose }: { onClose: () => void }) => {
           {step === 4 && (
             <form onSubmit={handleStep4} noValidate className="space-y-4">
               <div className="space-y-2">
-                <div className="relative">
-                  <Key
-                    className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
-                    size={20}
-                  />
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    value={newOtp}
-                    onChange={(e) => {
-                      setNewOtp(e.target.value.replace(/\D/g, "").slice(0, 6));
-                      if (newOtpError) setNewOtpError("");
-                    }}
-                    placeholder={t("auth.verificationCode")}
-                    className={cn(
-                      "w-full bg-[#121212] border rounded-xl py-3 ps-12 pe-4 text-white focus:border-brand-gold outline-none tracking-widest text-center",
-                      newOtpError ? "border-red-500" : "border-white/15",
-                    )}
-                    maxLength={6}
-                  />
-                </div>
+                <OtpInput
+                  value={newOtp}
+                  onChange={(value) => {
+                    setNewOtp(value.slice(0, 6));
+                    if (newOtpError) setNewOtpError("");
+                  }}
+                  hasError={!!newOtpError}
+                />
                 {newOtpError && <p className="text-sm text-red-500">{newOtpError}</p>}
               </div>
               <button

@@ -9,6 +9,18 @@ import { InvestorsQueryParams } from '../features/general/types';
 import { useSendInvestorInterestRequest } from '../features/company/hooks/useCompanyInteractions';
 import { toast } from '@/lib/toast';
 
+const translateInvestorExperience = (t: (key: string, opts?: any) => string, value?: string) => {
+  const normalized = String(value || '').toLowerCase();
+  const map: Record<string, string> = {
+    beginner: t('auth.expBeginner', { defaultValue: 'مبتدئ' }),
+    intermediate: t('auth.expIntermediate', { defaultValue: 'متوسط' }),
+    moderate: t('auth.expIntermediate', { defaultValue: 'متوسط' }),
+    expert: t('auth.expExpert', { defaultValue: 'خبير' }),
+  };
+
+  return map[normalized] || value || t('common.noData');
+};
+
 export const Investors: React.FC = () => {
   const { t, i18n } = useTranslation();
   const lang = i18n.language as 'ar' | 'en';
@@ -264,7 +276,12 @@ export const Investors: React.FC = () => {
                           <Award size={16} className="text-brand-gold" />
                           <span>{t('auth.investorExperience')}</span>
                        </div>
-                       <span className="font-bold text-white">{investor.investment_experience.label}</span>
+                       <span className="font-bold text-white">
+                         {translateInvestorExperience(
+                           t,
+                           investor.investment_experience?.label || investor.investment_experience?.value
+                         )}
+                       </span>
                     </div>
                  </div>
 

@@ -64,7 +64,7 @@ export const IncomingRequestsTab: React.FC = () => {
   );
 
   const data = isAdvertiser ? companyQuery.data : investorQuery.data;
-  const requests = data?.data?.requests || [];
+  const requests = data?.data?.opportunities || data?.data?.requests || [];
 
   const getWhatsAppLink = (req: any) => {
     const projectName = req.opportunity?.company_name || "Project";
@@ -88,11 +88,10 @@ export const IncomingRequestsTab: React.FC = () => {
           >
             <div>
               <h4 className="font-bold text-white">
-                {req.opportunity?.company_name}
+                {req.opportunity?.company_name || req.company_name || t("common.noDetails")}
               </h4>
               <p className="text-xs text-gray-400">
-                {t("dashboard.investorLabel")}
-                {req.investor?.name} •{" "}
+                {(req.investor?.name || req.investor_name) ? `${t("dashboard.investorLabel")}${req.investor?.name || req.investor_name} • ` : ""}
                 {new Date(req.created_at).toLocaleDateString()}
               </p>
             </div>
@@ -100,7 +99,7 @@ export const IncomingRequestsTab: React.FC = () => {
               <span
                 className={`px-2 py-1 rounded text-[10px] font-bold ${req.status === "new" ? "bg-blue-500/20 text-blue-400" : "bg-gray-500/20 text-gray-400"}`}
               >
-                {req.status.toUpperCase()}
+                {(req.status?.label || req.status?.value || req.status || "NEW").toString().toUpperCase()}
               </span>
               <a
                 href={getWhatsAppLink(req)}

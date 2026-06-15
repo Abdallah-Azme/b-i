@@ -26,6 +26,20 @@ import { PaymentModal } from "../components/PaymentModal";
 import { toast } from "@/lib/toast";
 import { FavoriteButton } from "@/components/FavoriteButton";
 
+const translateStage = (t: (key: string, opts?: any) => string, stage?: string) => {
+  const normalized = String(stage || "").toLowerCase();
+  const map: Record<string, string> = {
+    pre_seed: t("stages.pre_seed"),
+    seed: t("stages.seed"),
+    series_a: t("stages.series_a"),
+    series_b: t("stages.series_b"),
+    series_c: t("stages.series_c"),
+    series_d: t("stages.series_d"),
+  };
+
+  return map[normalized] || stage || t("common.noData");
+};
+
 export const ProjectDetails: React.FC = () => {
   const { t, i18n } = useTranslation();
   const lang = i18n.language as "ar" | "en";
@@ -243,7 +257,7 @@ export const ProjectDetails: React.FC = () => {
                 </span>
               </div>
               <div className="text-xs sm:text-sm md:text-lg font-bold text-brand-gold whitespace-nowrap overflow-hidden text-ellipsis leading-tight">
-                {project.business_stage}
+                {translateStage(t, project.business_stage)}
               </div>
 
               {/* Tooltip Popup */}
@@ -258,7 +272,7 @@ export const ProjectDetails: React.FC = () => {
                 >
                   <div className="text-sm text-gray-200 leading-relaxed text-center">
                     <strong className="block text-brand-gold mb-2 border-b border-brand-gold/20 pb-2">
-                      {project.business_stage}
+                      {translateStage(t, project.business_stage)}
                     </strong>
                   </div>
                   {/* Arrow */}

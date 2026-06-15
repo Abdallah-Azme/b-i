@@ -228,7 +228,7 @@ const NotificationRow: React.FC<{
   const route = resolveNotificationRoute(n);
 
   const inner = (
-    <div className={`group flex items-start gap-3 px-4 py-3 border-b border-white/5 transition-colors hover:bg-white/5 ${isUnread ? 'bg-white/[0.03]' : ''}`}>
+    <div className={`group flex items-start gap-3 px-4 py-3 border-b border-white/5 transition-colors ${route ? 'hover:bg-white/5 cursor-pointer' : ''} ${isUnread ? 'bg-white/[0.03]' : ''}`}>
       {/* Category dot */}
       <span className={`mt-1.5 flex-shrink-0 w-2 h-2 rounded-full ${dotColor} ${isUnread ? 'ring-2 ring-offset-1 ring-offset-[#111] ring-current opacity-90' : 'opacity-40'}`} />
 
@@ -252,8 +252,13 @@ const NotificationRow: React.FC<{
     </div>
   );
 
-  if (route) {
-    return <Link to={route.to as any} search={route.search as any}>{inner}</Link>;
+  if (!route) {
+    return <div>{inner}</div>;
   }
-  return <div>{inner}</div>;
+
+  if (route.to === '/projects' || route.to === '/advertiser/edit-listing') {
+    return <div>{inner}</div>;
+  }
+
+  return <Link to={route.to as any} search={route.search as any}>{inner}</Link>;
 };

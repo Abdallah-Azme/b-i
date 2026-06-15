@@ -46,7 +46,6 @@ import {
 import { useWhoWeAre } from "../features/general/hooks/useGeneralLookups";
 import {
   useCurrentRequests,
-  usePurchasedSeats,
 } from "../features/company/hooks/useCompanyInteractions";
 import { useInvestorPurchasedSeats } from "../features/investor/hooks/useInvestorInteractions";
 import { OpportunitySummary } from "../features/general/types";
@@ -336,7 +335,7 @@ export const Dashboard: React.FC = () => {
         available_capital: parseFloat(apiUser.available_capital) || 0,
         favorites: [] as string[],
         unlockedProjects: [] as string[],
-        companyLicenseUrl: undefined as string | undefined,
+        companyLicenseUrl: apiUser.company_license_url ?? undefined,
       }
     : isAuthenticated
       ? {
@@ -469,17 +468,19 @@ export const Dashboard: React.FC = () => {
     { enabled: user.role === "advertiser" },
   );
   const myAds = myOpsData?.data?.opportunities ?? [];
-  const { data: companySeatsData } = usePurchasedSeats(
-    {},
-    { enabled: user.role === "advertiser" },
-  );
   const { data: investorSeatsData } = useInvestorPurchasedSeats(
     {},
     { enabled: user.role !== "advertiser" },
   );
 
-  const myBooklets = investorSeatsData?.data?.opportunities ?? [];
-  const successfulDeals = companySeatsData?.data?.seats?.length || 0;
+  const mySoldBooklets = myAds.filter(
+    (opp: any) => (opp.statistics?.purchased_seats_count || 0) > 0,
+  );
+  const myBooklets =
+    user.role === "advertiser"
+      ? mySoldBooklets
+      : investorSeatsData?.data?.opportunities ?? [];
+  const successfulDeals = mySoldBooklets.length;
   const totalValue = myAds.reduce(
     (acc: number, curr: any) => acc + (curr.investment_required || 0),
     0,
@@ -599,6 +600,12 @@ export const Dashboard: React.FC = () => {
   }, [activeTab, search]);
 
   const displayName = user.name || user.displayName || "";
+  const profileImageUrl =
+    (user as any).image ||
+    (user as any).profile_image ||
+    (user as any).avatar ||
+    (user as any).companyLicenseUrl ||
+    "";
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 md:py-12 min-h-screen relative">
@@ -620,11 +627,11 @@ export const Dashboard: React.FC = () => {
       <div className="flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-10 mb-10">
         {/* Avatar */}
         <div className="relative group shrink-0">
-          <div className="w-24 h-24 md:w-32 md:h-32 rounded-full border-2 border-brand-gold p-1 bg-black">
-            <div className="w-full h-full rounded-full overflow-hidden bg-brand-gray relative">
-              {user.role === "advertiser" && user.companyLicenseUrl ? (
+              <div className="w-24 h-24 md:w-32 md:h-32 rounded-full border-2 border-brand-gold p-1 bg-black">
+                <div className="w-full h-full rounded-full overflow-hidden bg-brand-gray relative">
+              {profileImageUrl ? (
                 <img
-                  src={user.companyLicenseUrl}
+                  src={profileImageUrl}
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
                     target.onerror = null;
