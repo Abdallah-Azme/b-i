@@ -42,9 +42,9 @@ export const companyService = {
   getOpportunityDetail: (id: number | string) =>
     api.get<CompanyOpportunityResponse>(`/v1/company/opportunities/${id}`),
 
-  /** PATCH /v1/company/opportunities/:id — Update an existing opportunity */
+  /** PUT /v1/company/opportunities/:id — Update an existing opportunity */
   updateOpportunity: (id: number | string, payload: Partial<CreateOpportunityPayload>) =>
-    api.patch<CompanyOpportunityResponse>(
+    api.put<CompanyOpportunityResponse>(
       `/v1/company/opportunities/${id}`,
       toFormData(payload as CreateOpportunityPayload),
     ),

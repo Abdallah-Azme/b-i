@@ -118,6 +118,9 @@ export const useMarkAllNotificationsRead = () => {
     mutationFn: () => authService.markAllNotificationsRead(),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      toast.success(i18n.t('notifications.markAllReadSuccess', { defaultValue: 'All notifications marked as read' }), {
+        id: 'notifications-mark-all-read-success',
+      });
     },
   });
 };
@@ -175,6 +178,9 @@ export const useDeleteAllNotifications = () => {
     mutationFn: () => authService.deleteAllNotifications(),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      toast.success(i18n.t('notifications.deleteSuccess', { defaultValue: 'Notifications deleted successfully' }), {
+        id: 'notifications-delete-all-success',
+      });
     },
   });
 };
@@ -185,6 +191,9 @@ export const useDeleteNotification = () => {
     mutationFn: (id: string | number) => authService.deleteNotification(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      toast.success(i18n.t('notifications.deleteSuccess', { defaultValue: 'Notification deleted successfully' }), {
+        id: 'notification-delete-success',
+      });
     },
   });
 };

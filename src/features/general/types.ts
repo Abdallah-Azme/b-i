@@ -10,6 +10,7 @@ export interface Section {
   id: number;
   name: string;
   opportunities_count: number;
+  image: string | null;
 }
 
 export interface OpportunityStatistics {
@@ -297,6 +298,7 @@ export interface OpportunityDetail {
   status: { value: string; name: string; label: string };
   image: string;
   company_name: string;
+  category_id?: number;
   category: { id: number; name: string };
   business_age_years: number;
   investment_required: number;

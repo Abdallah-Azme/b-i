@@ -42,6 +42,10 @@
     "interestSubmitted": "تم تقديم الاهتمام",
     "idLabel": "رقم التعريف"
   },
+  "notifications": {
+    "markAllReadSuccess": "تم تعليم جميع الإشعارات كمقروءة",
+    "deleteSuccess": "تم حذف الإشعار بنجاح"
+  },
   "common": {
     "buyFile": "شراء كراسة المشروع",
     "interested": "أنا مهتم",
@@ -57,7 +61,7 @@
     "commission": "ملاحظة: تطبق عمولة 2.5% على الصفقات المكتملة.",
     "lockedDetails": "هذه التفاصيل متاحة بعد شراء ملف المشروع",
     "loading": "جاري التحميل...",
-    "error": "حدث خطأ ما",
+    "error": "حدث خطأ ما!",
     "errorDesc": "لم نتمكن من تحميل البيانات. يرجى المحاولة مرة أخرى لاحقاً.",
     "retry": "إعادة المحاولة",
     "viewAll": "عرض الكل",
@@ -259,6 +263,7 @@
     "selectSector": "اختر القطاع",
     "back": "السابق",
     "submitted": "تم الإرسال!",
+    "editSubmitted": "تم إرسال طلب تعديل الإعلان للمراجعة",
     "selectGoalFirst": "يرجى اختيار الهدف أولاً",
     "demoReason": "توسيع النشاط وفتح فرعين جديدين في مناطق حيوية.",
     "demoDetails": "مشروع مطاعم قائم يحقق أرباح مستقرة، مع خطة توسع واضحة خلال 12 شهر."
@@ -282,6 +287,7 @@
     "accountNotActivatedToast": "حسابك غير مفعل بعد. لقد أرسلنا إليك رمز التحقق.",
     "profileUpdateRequestSubmitted": "تم إرسال طلب تعديل البيانات إلى الإدارة للمراجعة",
     "profileUpdateSuccess": "تم تحديث الملف الشخصي بنجاح",
+    "notificationSettingsSaved": "تم حفظ إعدادات الإشعارات بنجاح",
     "bannedError": "تم حظر حسابك أو إيقاف تفعيله من قبل الإدارة.",
     "deletedError": "تم حذف حسابك من قبل الإدارة.",
     "accountDeleted": "تم حذف حسابك بنجاح.",
@@ -294,7 +300,7 @@
     "emailPlaceholder": "name@example.com",
     "password": "كلمة المرور",
     "confirmPassword": "تأكيد كلمة المرور",
-    "phone": "رقم الهاتف",
+    "phone": "الهاتف",
     "phonePlaceholder": "مثال: 5xxxxxxx",
     "companyName": "اسم الشركة",
     "licenseNumber": "رقم الترخيص",
@@ -576,6 +582,8 @@
   "favorites": {
     "addedToast": "تمت إضافة المشروع إلى المفضلة",
     "removedToast": "تم حذف المشروع من المفضلة",
+    "investorAddedToast": "تمت إضافة المستثمر إلى المفضلة",
+    "investorRemovedToast": "تمت إزالة المستثمر من المفضلة",
     "title": "المفضلة",
     "savedCount": "لديك {{count}} من الفرص المحفوظة في قائمتك",
     "noFavoritesTitle": "لا توجد مفضلة بعد",

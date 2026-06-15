@@ -164,7 +164,7 @@ export const VerifyEmail: React.FC = () => {
           {/* Back link */}
           <Link
             to="/login"
-            className="mb-4 inline-flex items-center gap-2 text-sm font-bold text-gray-400 hover:text-white transition md:mb-8"
+            className="mb-6 inline-flex items-center gap-2 text-sm font-bold text-gray-400 hover:text-white transition"
           >
             <ArrowLeft size={16} className={isRtl ? 'rotate-180' : ''} />
             {t('auth.backToLogin')}

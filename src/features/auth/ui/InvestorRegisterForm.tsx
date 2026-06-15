@@ -15,6 +15,29 @@ export const InvestorRegisterForm: React.FC = () => {
   const { t } = useTranslation();
   const { form, handleSubmit, isLoading } = useInvestorRegisterForm();
 
+  const blockNonNumericKeys = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    const allowedKeys = [
+      'Backspace',
+      'Delete',
+      'Tab',
+      'ArrowLeft',
+      'ArrowRight',
+      'ArrowUp',
+      'ArrowDown',
+      'Home',
+      'End',
+      'Enter',
+    ];
+
+    if (allowedKeys.includes(e.key)) return;
+    if (e.ctrlKey || e.metaKey) return;
+    if (/^\d$/.test(e.key)) return;
+
+    e.preventDefault();
+  };
+
+  const sanitizeNumericInput = (value: string) => value.replace(/[^\d]/g, '');
+
   return (
     <div className="w-full max-w-4xl mx-auto p-8 glass-card animate-fade-in mb-12">
       <div className="text-center mb-10">
@@ -163,6 +186,14 @@ export const InvestorRegisterForm: React.FC = () => {
                         <Input 
                           type="text" 
                           inputMode="numeric"
+                          pattern="[0-9]*"
+                          onKeyDown={blockNonNumericKeys}
+                          onPaste={(e) => {
+                            const pasted = e.clipboardData.getData('text');
+                            if (/[^\d]/.test(pasted)) {
+                              e.preventDefault();
+                            }
+                          }}
                           {...fieldProps}
                           value={formatNumberWithCommas(value)}
                           onChange={(e) => {
@@ -186,6 +217,14 @@ export const InvestorRegisterForm: React.FC = () => {
                         <Input 
                           type="text" 
                           inputMode="numeric"
+                          pattern="[0-9]*"
+                          onKeyDown={blockNonNumericKeys}
+                          onPaste={(e) => {
+                            const pasted = e.clipboardData.getData('text');
+                            if (/[^\d]/.test(pasted)) {
+                              e.preventDefault();
+                            }
+                          }}
                           {...fieldProps}
                           value={formatNumberWithCommas(value)}
                           onChange={(e) => {
@@ -209,11 +248,20 @@ export const InvestorRegisterForm: React.FC = () => {
                       <FormLabel>{t('auth.prevInvestments')}</FormLabel>
                       <FormControl>
                         <Input 
-                          type="number" 
+                          type="text" 
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                          onKeyDown={blockNonNumericKeys}
+                          onPaste={(e) => {
+                            const pasted = e.clipboardData.getData('text');
+                            if (/[^\d]/.test(pasted)) {
+                              e.preventDefault();
+                            }
+                          }}
                           {...fieldProps}
                           value={value === 0 ? '' : value}
                           onChange={(e) => {
-                             const rawValue = e.target.value;
+                             const rawValue = sanitizeNumericInput(e.target.value);
                              if (/^\d*$/.test(rawValue) && Number(rawValue) <= 10000) {
                                onChange(rawValue ? Number(rawValue) : 0);
                              }
@@ -232,11 +280,20 @@ export const InvestorRegisterForm: React.FC = () => {
                       <FormLabel>{t('auth.expLevel')}</FormLabel>
                       <FormControl>
                         <Input 
-                          type="number" 
+                          type="text" 
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                          onKeyDown={blockNonNumericKeys}
+                          onPaste={(e) => {
+                            const pasted = e.clipboardData.getData('text');
+                            if (/[^\d]/.test(pasted)) {
+                              e.preventDefault();
+                            }
+                          }}
                           {...fieldProps}
                           value={value === 0 ? '' : value}
                           onChange={(e) => {
-                             const rawValue = e.target.value;
+                             const rawValue = sanitizeNumericInput(e.target.value);
                              if (/^\d*$/.test(rawValue) && Number(rawValue) <= 100) {
                                onChange(rawValue ? Number(rawValue) : 0);
                              }

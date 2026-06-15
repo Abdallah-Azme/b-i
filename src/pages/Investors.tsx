@@ -1,13 +1,14 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useStore } from '../hooks/useStore';
-import { Filter, Users, DollarSign, Briefcase, Award, ChevronDown, ChevronUp, X, CheckCircle, Loader2 } from 'lucide-react';
+import { Filter, Users, DollarSign, Briefcase, Award, ChevronDown, ChevronUp, X, CheckCircle, Loader2, Heart } from 'lucide-react';
 import { Money } from '../components/Money';
 import { useInvestors } from '../features/general/hooks/useInvestors';
 import { useInvestorTypes, useInvestorExperiences, usePreferredSectors } from '../features/general/hooks/useGeneralLookups';
 import { InvestorsQueryParams } from '../features/general/types';
 import { useSendInvestorInterestRequest } from '../features/company/hooks/useCompanyInteractions';
 import { toast } from '@/lib/toast';
+import { useInvestorFavoritesStore } from '@/hooks/useInvestorFavoritesStore';
 
 const translateInvestorExperience = (t: (key: string, opts?: any) => string, value?: string) => {
   const normalized = String(value || '').toLowerCase();
@@ -25,8 +26,10 @@ export const Investors: React.FC = () => {
   const { t, i18n } = useTranslation();
   const lang = i18n.language as 'ar' | 'en';
   const { user, toggleInterestInvestor, isInterestedInInvestor } = useStore();
+  const { toggleFavorite, isFavorite } = useInvestorFavoritesStore();
   const sendInterest = useSendInvestorInterestRequest();
   const [selectedInvestorId, setSelectedInvestorId] = useState<number | null>(null);
+  const isLoggedIn = !!localStorage.getItem('auth_token');
 
   // Filter States
   const [filterType, setFilterType] = useState<string>('');
@@ -231,27 +234,44 @@ export const Investors: React.FC = () => {
                        </div>
                     </div>
 
-                    {/* Interested Action */}
-                    {user && user.role === 'advertiser' && (
-                      <button
-                        onClick={() => setSelectedInvestorId(investor.id)}
-                        disabled={isInterestedInInvestor(investor.id.toString())}
-                        className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center justify-center gap-1.5 transition-all whitespace-nowrap ${
-                          isInterestedInInvestor(investor.id.toString())
-                            ? 'bg-emerald-900/50 text-emerald-400 cursor-default border border-emerald-900'
-                            : 'bg-emerald-600 text-white hover:bg-emerald-700'
-                        }`}
-                      >
-                        {isInterestedInInvestor(investor.id.toString()) ? (
-                          <>
-                            <CheckCircle size={14} />
-                            {t('investorsPage.interestSent')}
-                          </>
-                        ) : (
-                          t('investorsPage.interested')
-                        )}
-                      </button>
-                    )}
+                    <div className="flex items-center gap-2 shrink-0">
+                      {isLoggedIn && (
+                        <button
+                          type="button"
+                          onClick={() => toggleFavorite(investor.id)}
+                          disabled={isFavorite(investor.id)}
+                          className={`w-11 h-11 rounded-full border transition-all flex items-center justify-center shadow-lg ${
+                            isFavorite(investor.id)
+                              ? 'bg-brand-gold text-black border-brand-gold shadow-brand-gold/30'
+                              : 'bg-black/70 text-gray-200 border-white/15 hover:border-brand-gold/60 hover:text-brand-gold'
+                          }`}
+                          aria-label={isFavorite(investor.id) ? 'Investor already favorited' : 'Add investor to favorites'}
+                          title={isFavorite(investor.id) ? (lang === 'ar' ? 'مضاف للمفضلة' : 'Already favorited') : (lang === 'ar' ? 'إضافة للمفضلة' : 'Add to favorites')}
+                        >
+                          <Heart size={19} fill={isFavorite(investor.id) ? 'currentColor' : 'none'} />
+                        </button>
+                      )}
+                      {isLoggedIn && (
+                        <button
+                          onClick={() => setSelectedInvestorId(investor.id)}
+                          disabled={isInterestedInInvestor(investor.id.toString())}
+                          className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center justify-center gap-1.5 transition-all whitespace-nowrap ${
+                            isInterestedInInvestor(investor.id.toString())
+                              ? 'bg-emerald-900/50 text-emerald-400 cursor-default border border-emerald-900'
+                              : 'bg-emerald-600 text-white hover:bg-emerald-700'
+                          }`}
+                        >
+                          {isInterestedInInvestor(investor.id.toString()) ? (
+                            <>
+                              <CheckCircle size={14} />
+                              {t('investorsPage.interestSent')}
+                            </>
+                          ) : (
+                            t('investorsPage.interested')
+                          )}
+                        </button>
+                      )}
+                    </div>
                  </div>
 
                  <div className="space-y-4">

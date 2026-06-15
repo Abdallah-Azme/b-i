@@ -10,6 +10,7 @@ import { useMyOpportunityDetail, useUpdateOpportunity } from '../features/compan
 import { useAuth } from '../features/auth/hooks/useAuth';
 import { PhoneInputField } from '../features/auth/ui/PhoneInputField';
 import { MAX_MONEY_AMOUNT, formatNumberWithCommas, parseLimitedIntegerInput } from '../lib/number-format';
+import { toast } from '@/lib/toast';
 
 export const EditListing: React.FC = () => {
   const { id } = useParams({ from: '/advertiser/edit-listing/$id' });
@@ -30,6 +31,7 @@ export const EditListing: React.FC = () => {
   const [termsError, setTermsError] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [loadingExistingData, setLoadingExistingData] = useState(true);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -72,7 +74,10 @@ export const EditListing: React.FC = () => {
 
   React.useEffect(() => {
     if (existingProject) {
-      setPurpose(existingProject.goal as any);
+      const normalizedGoal = existingProject.goal === 'sell_business'
+        ? 'sell_business'
+        : 'request_investment';
+      setPurpose(normalizedGoal);
       const code = existingProject.country_code || '965';
       setFormData({
         companyName: existingProject.company_name || '',
@@ -83,10 +88,10 @@ export const EditListing: React.FC = () => {
         adminCompanyName: existingProject.admin_company_name || '',
         companyOwnerName: existingProject.owner_name || '',
         licenseNumber: existingProject.license_number || '',
-        sector: existingProject.category_id?.toString() || '',
+        sector: (existingProject.category_id ?? existingProject.category?.id ?? '').toString(),
         companyAge: existingProject.business_age_years?.toString() || '',
         legalEntity: existingProject.legal_entity || '',
-        companyType: existingProject.company_type || '', // This maps to what? We didn't have company_type in the payload, but maybe legal_entity? 
+        companyType: (existingProject as any).company_type || existingProject.legal_entity || '',
         companyStage: existingProject.business_stage || 'seed',
         financialHealth: (existingProject.financial_status as FinancialStatus) || 'Stable',
         requestedInvestment: existingProject.investment_required?.toString() || '',
@@ -95,10 +100,19 @@ export const EditListing: React.FC = () => {
         fullDetails: existingProject.full_description || ''
       });
       setTermsAccepted(true);
+      setLoadingExistingData(false);
     }
   }, [existingProject]);
 
-  if (isLoading || authLoading) return <div className="p-12 text-center text-white">Loading...</div>;
+  React.useEffect(() => {
+    if (!isLoading) {
+      setLoadingExistingData(false);
+    }
+  }, [isLoading]);
+
+  if (isLoading || authLoading || loadingExistingData) {
+    return <div className="p-12 text-center text-white">{t('common.loading')}</div>;
+  }
 
   const storedRole = localStorage.getItem("auth_role");
   const userRole = (apiUser?.role as any)?.key ?? apiUser?.role ?? storedRole;
@@ -176,11 +190,22 @@ export const EditListing: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // we bypass strict validation for edit if they don't upload new files.
-    // just append what we have
-    const payload: any = {
+    const payload: Partial<{
+      goal: 'request_investment' | 'sell_business';
+      category_id: number;
+      company_name: string;
+      business_age_years: number;
+      legal_entity: string;
+      investment_required: number;
+      sale_percentage?: number;
+      business_stage: string;
+      financial_status: string;
+      investment_reason: string;
+      full_description: string;
+      image?: File;
+    }> = {
       goal: purpose!,
-      category_id: Number(formData.sector),
+      category_id: Number(formData.sector || existingProject?.category?.id || 0),
       company_name: formData.companyName,
       business_age_years: Number(formData.companyAge),
       legal_entity: formData.legalEntity,
@@ -190,27 +215,17 @@ export const EditListing: React.FC = () => {
       financial_status: formData.financialHealth,
       investment_reason: formData.investmentReason,
       full_description: formData.fullDetails,
-      contact_name: formData.fullName,
-      country_code: formData.country_code,
-      contact_phone: formData.phone,
-      contact_email: formData.email,
-      owner_name: formData.companyOwnerName,
-      admin_company_name: formData.adminCompanyName,
-      license_number: formData.licenseNumber,
-      terms_accepted: termsAccepted,
-      _method: 'PATCH'
     };
     
     if (files.image) payload.image = files.image;
-    if (files.license_file) payload.license_file = files.license_file;
-    if (files.commercial_record_file) payload.commercial_record_file = files.commercial_record_file;
-    if (files.tax_certificate_file) payload.tax_certificate_file = files.tax_certificate_file;
-    if (files.financial_statements_file) payload.financial_statements_file = files.financial_statements_file;
 
     updateOpportunity.mutate(
       payload,
       {
         onSuccess: () => {
+          toast.success(t('listing.editSubmitted'), {
+            id: 'edit-listing-success',
+          });
           setShowSuccess(true);
           setTimeout(() => {
             setShowSuccess(false);
@@ -282,23 +297,17 @@ export const EditListing: React.FC = () => {
 
         {step === 2 && (
             <form onSubmit={handleSubmit} noValidate className="space-y-8 animate-fade-in">
-                <div className="flex justify-end">
-                    <button type="button" onClick={fillDemoData} className="text-xs bg-brand-gold/10 text-brand-gold px-3 py-1.5 rounded-md hover:bg-brand-gold/20 transition">
-                        {t('auth.fillDemo')}
-                    </button>
-                </div>
-
                 {/* SECTION 1: Admin Only */}
-                <div className="bg-black/20 border border-red-500/20 rounded-xl p-6 space-y-4">
-                    <div className="flex items-center gap-3 mb-2">
-                        <div className="p-2 bg-red-500/10 rounded-lg text-red-500"><Lock size={20} /></div>
-                        <div>
-                            <h3 className="font-bold text-lg">{t('listing.adminOnlyInfo')}</h3>
-                            <p className="text-xs text-gray-400">{t('listing.adminOnlyInfoDesc')}</p>
+                    <div className="bg-black/20 border border-red-500/20 rounded-xl p-6 space-y-4">
+                        <div className="flex items-center gap-3 mb-2">
+                            <div className="p-2 bg-red-500/10 rounded-lg text-red-500"><Lock size={20} /></div>
+                            <div>
+                                <h3 className="font-bold text-lg">{t('listing.adminOnlyInfo')}</h3>
+                                <p className="text-xs text-gray-400">{t('listing.adminOnlyInfoDesc')}</p>
+                            </div>
                         </div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
                             <label className="text-sm font-medium text-gray-300">{t('auth.firstName')} <span className="text-brand-gold">*</span></label>
                             <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} className={`w-full bg-[#121212] border ${errors.fullName ? 'border-red-500' : 'border-white/15'} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`} />
                         </div>
@@ -333,11 +342,11 @@ export const EditListing: React.FC = () => {
                 </div>
 
                 {/* SECTION 2: Public Information */}
-                <div className="bg-black/20 border border-brand-gold/20 rounded-xl p-6 space-y-4">
-                    <div className="flex items-center gap-3 mb-2">
-                        <div className="p-2 bg-brand-gold/10 rounded-lg text-brand-gold"><Globe size={20} /></div>
-                        <div>
-                            <h3 className="font-bold text-lg">{t('listing.publicInfo')}</h3>
+                    <div className="bg-black/20 border border-brand-gold/20 rounded-xl p-6 space-y-4">
+                        <div className="flex items-center gap-3 mb-2">
+                            <div className="p-2 bg-brand-gold/10 rounded-lg text-brand-gold"><Globe size={20} /></div>
+                            <div>
+                                <h3 className="font-bold text-lg">{t('listing.publicInfo')}</h3>
                             <p className="text-xs text-gray-400">{t('listing.publicInfoDesc')}</p>
                         </div>
                     </div>
@@ -360,14 +369,14 @@ export const EditListing: React.FC = () => {
                             </div>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-300">{t('auth.companyType')} <span className="text-brand-gold">*</span></label>
-                                <input type="text" name="companyType" value={formData.companyType} onChange={handleChange} className={`w-full bg-[#121212] border ${errors.companyType ? 'border-red-500' : 'border-white/15'} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`} />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-300">{purpose === 'sell_business' ? t('auth.salePrice') : t('auth.requestedInvestment')} <span className="text-brand-gold">*</span></label>
-                                <input type="tel" inputMode="numeric" pattern="[0-9]*" name="requestedInvestment" value={formatNumberWithCommas(formData.requestedInvestment)} onChange={handleChange} className={`w-full bg-[#121212] border ${errors.requestedInvestment ? 'border-red-500' : 'border-white/15'} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`} />
-                            </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-gray-300">{t('auth.companyType')} <span className="text-brand-gold">*</span></label>
+                            <input type="text" name="companyType" value={formData.companyType} onChange={handleChange} className={`w-full bg-[#121212] border ${errors.companyType ? 'border-red-500' : 'border-white/15'} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`} />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-gray-300">{purpose === 'sell_business' ? t('auth.salePrice') : t('auth.requestedInvestment')} <span className="text-brand-gold">*</span></label>
+                            <input type="tel" inputMode="numeric" pattern="[0-9]*" name="requestedInvestment" value={formatNumberWithCommas(formData.requestedInvestment)} onChange={handleChange} className={`w-full bg-[#121212] border ${errors.requestedInvestment ? 'border-red-500' : 'border-white/15'} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`} />
+                        </div>
                         </div>
                         {purpose === 'request_investment' && (
                             <div className="space-y-2">
@@ -407,27 +416,11 @@ export const EditListing: React.FC = () => {
                             <textarea name="fullDetails" rows={5} value={formData.fullDetails} onChange={handleChange} className={`w-full bg-[#121212] border ${errors.fullDetails ? 'border-red-500' : 'border-white/15'} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`} />
                         </div>
                         
-                        {/* File Uploads */}
+                        {/* Optional file upload for image only; backend update currently validates the core ad fields */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
                             <div className="space-y-2">
                                 <label className="text-sm font-medium text-gray-300">{t('auth.projectImage')} <span className="text-brand-gold">*</span></label>
                                 <input type="file" name="image" accept="image/*" onChange={handleFileChange} className={`w-full text-sm text-gray-400 file:me-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-brand-gold file:text-black hover:file:bg-brand-gold/90 border ${errors.image ? 'border-red-500' : 'border-transparent'}`} />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-300">{t('auth.licenseFile')} <span className="text-brand-gold">*</span></label>
-                                <input type="file" name="license_file" accept=".pdf,.png,.jpg" onChange={handleFileChange} className={`w-full text-sm text-gray-400 file:me-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-brand-gold file:text-black hover:file:bg-brand-gold/90 border ${errors.license_file ? 'border-red-500' : 'border-transparent'}`} />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-300">{t('auth.commercialRecord')} <span className="text-brand-gold">*</span></label>
-                                <input type="file" name="commercial_record_file" accept=".pdf,.png,.jpg" onChange={handleFileChange} className={`w-full text-sm text-gray-400 file:me-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-brand-gold file:text-black hover:file:bg-brand-gold/90 border ${errors.commercial_record_file ? 'border-red-500' : 'border-transparent'}`} />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-300">{t('auth.taxCertificate')} <span className="text-brand-gold">*</span></label>
-                                <input type="file" name="tax_certificate_file" accept=".pdf,.png,.jpg" onChange={handleFileChange} className={`w-full text-sm text-gray-400 file:me-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-brand-gold file:text-black hover:file:bg-brand-gold/90 border ${errors.tax_certificate_file ? 'border-red-500' : 'border-transparent'}`} />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-300">{t('auth.financialStatements')} <span className="text-brand-gold">*</span></label>
-                                <input type="file" name="financial_statements_file" accept=".pdf,.png,.jpg" onChange={handleFileChange} className={`w-full text-sm text-gray-400 file:me-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-brand-gold file:text-black hover:file:bg-brand-gold/90 border ${errors.financial_statements_file ? 'border-red-500' : 'border-transparent'}`} />
                             </div>
                         </div>
                     </div>

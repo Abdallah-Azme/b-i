@@ -42,6 +42,10 @@
     "interestSubmitted": "Interest Submitted",
     "idLabel": "ID"
   },
+  "notifications": {
+    "markAllReadSuccess": "All notifications marked as read",
+    "deleteSuccess": "Notification deleted successfully"
+  },
   "common": {
     "buyFile": "Purchase Project File",
     "interested": "I’m Interested",
@@ -57,7 +61,7 @@
     "commission": "Note: A 2.5% commission applies on completed deals.",
     "lockedDetails": "These details are available after purchasing the Project File",
     "loading": "Loading experience...",
-    "error": "Something went wrong",
+    "error": "Something went wrong!",
     "errorDesc": "We could not load the data. Please try again later.",
     "retry": "Retry",
     "viewAll": "View All",
@@ -269,6 +273,7 @@
     "selectSector": "Select Sector",
     "back": "Back",
     "submitted": "Submitted!",
+    "editSubmitted": "Your ad edit request has been sent for review",
     "selectGoalFirst": "Please select a goal first",
     "demoReason": "Expanding operations and opening two new branches in vital areas.",
     "demoDetails": "An existing restaurant project that achieves stable profits, with a clear expansion plan within 12 months."
@@ -292,6 +297,7 @@
     "accountNotActivatedToast": "Your account is not activated yet. We sent you a verification code.",
     "profileUpdateRequestSubmitted": "Your update request has been sent to the admin for review",
     "profileUpdateSuccess": "Profile updated successfully",
+    "notificationSettingsSaved": "Notification settings updated successfully",
     "bannedError": "Your account has been banned or deactivated by the administrator.",
     "deletedError": "Your account has been deleted by the administrator.",
     "accountDeleted": "Your account has been deleted successfully.",
@@ -304,7 +310,7 @@
     "emailPlaceholder": "name@example.com",
     "password": "Password",
     "confirmPassword": "Confirm Password",
-    "phone": "Phone Number",
+    "phone": "Phone",
     "phonePlaceholder": "e.g. 5xxxxxxx",
     "companyName": "Company Name",
     "licenseNumber": "License Number",
@@ -598,6 +604,8 @@
   "favorites": {
     "addedToast": "Project added to favorites",
     "removedToast": "Project removed from favorites",
+    "investorAddedToast": "Investor added to favorites",
+    "investorRemovedToast": "Investor removed from favorites",
     "title": "My Favorites",
     "savedCount": "{{count}} opportunities saved to your list",
     "noFavoritesTitle": "No favorites yet",

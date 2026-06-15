@@ -1,6 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { authService } from '../services/auth.service';
 import { UpdateNotificationSettingsPayload } from '../types';
+import { toast } from '@/lib/toast';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Fetches notification preference settings for the authenticated user.
@@ -20,12 +22,16 @@ export const useNotificationSettings = () => {
  * Body: { orders?: boolean, interest?: boolean, system?: boolean }
  */
 export const useUpdateNotificationSettings = () => {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload: UpdateNotificationSettingsPayload) =>
       authService.updateNotificationSettings(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notification-settings'] });
+      toast.success(t('auth.notificationSettingsSaved', { defaultValue: 'Notification settings updated successfully' }), {
+        id: 'notification-settings-updated',
+      });
     },
   });
 };

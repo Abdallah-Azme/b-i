@@ -309,10 +309,18 @@ export const Home: React.FC = () => {
                 <div className="absolute inset-0 opacity-10 group-hover:opacity-20 transition duration-500 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
 
                 <div className="relative z-10 flex flex-col items-center gap-4">
-                  <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-brand-gold/10 group-hover:scale-110 transition duration-500 border border-white/5">
-                    <span className="text-2xl font-black text-brand-gold/30 group-hover:text-brand-gold transition">
-                      {section.name.charAt(0)}
-                    </span>
+                  <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center group-hover:scale-110 transition duration-500 border border-white/5 overflow-hidden">
+                    {section.image ? (
+                      <img
+                        src={section.image}
+                        alt={section.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-2xl font-black text-brand-gold/30 group-hover:text-brand-gold transition">
+                        {section.name.charAt(0)}
+                      </span>
+                    )}
                   </div>
                   <div>
                     <span className="text-xl font-bold text-gray-200 group-hover:text-white transition block mb-1">

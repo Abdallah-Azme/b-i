@@ -6,7 +6,6 @@ import {
   Globe,
   FileText,
   Plus,
-  CheckCircle,
   LayoutDashboard,
   Briefcase,
   Phone,
@@ -34,6 +33,7 @@ import { useAuth } from "../features/auth/hooks/useAuth";
 import { FileUpload } from "../components/ui/FileUpload";
 import { PhoneInputField } from "../features/auth/ui/PhoneInputField";
 import { MAX_MONEY_AMOUNT, formatNumberWithCommas, parseLimitedIntegerInput } from "../lib/number-format";
+import { toast } from "@/lib/toast";
 
 export const AddListing: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -47,7 +47,6 @@ export const AddListing: React.FC = () => {
     "request_investment" | "sell_business" | null
   >(null);
   const [purposeError, setPurposeError] = React.useState(false);
-  const [showSuccess, setShowSuccess] = React.useState(false);
 
   const [formData, setFormData] = React.useState({
     fullName: "",
@@ -235,7 +234,7 @@ export const AddListing: React.FC = () => {
         },
         {
           onSuccess: () => {
-            setShowSuccess(true);
+            toast.success(t("listing.success"), { id: "listing-submit-success" });
             setTimeout(() => {
               window.location.href = "/dashboard";
             }, 3000);
@@ -830,19 +829,6 @@ export const AddListing: React.FC = () => {
               </button>
             </div>
           </form>
-        )}
-        {showSuccess && (
-          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 animate-fade-in p-4">
-            <div className="bg-[#121212] border border-brand-gold/20 p-8 rounded-2xl max-w-md text-center space-y-4">
-              <div className="w-16 h-16 bg-green-500/10 text-green-500 rounded-full flex items-center justify-center mx-auto">
-                <CheckCircle size={32} />
-              </div>
-              <h2 className="text-2xl font-bold text-white">
-                {t("listing.submitted")}
-              </h2>
-              <p className="text-gray-300">{t("listing.success")}</p>
-            </div>
-          </div>
         )}
       </div>
     </div>
