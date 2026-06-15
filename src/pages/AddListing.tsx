@@ -87,34 +87,6 @@ export const AddListing: React.FC = () => {
       <p className="mt-1 text-xs font-medium text-red-500">{errors[key]}</p>
     ) : null;
 
-  const fillDemoData = () => {
-    setFormData({
-      companyName: t("listing.placeholderCompany"),
-      fullName: t("auth.firstName"),
-      country_code: "965",
-      phone: "80808080",
-      email: "test@demo.com",
-      adminCompanyName: t("listing.placeholderElite"),
-      companyOwnerName: t("auth.firstName"),
-      licenseNumber: "LIC-123456",
-      sector: categories[0]?.id.toString() || "1",
-      companyAge: "3",
-      legalEntity: t("listing.placeholderWLL"),
-      companyStage: "seed",
-      financialHealth: "Stable",
-      requestedInvestment: "65000",
-      investmentReason: t("listing.demoReason"),
-      shareToSell: "20",
-      fullDetails: t("listing.demoDetails"),
-    });
-  };
-
-  React.useEffect(() => {
-    if (step === 2) {
-      fillDemoData();
-    }
-  }, [lang, step]);
-
   if (authLoading) return <div className="p-12 text-center text-white">Loading...</div>;
 
   const storedRole = localStorage.getItem("auth_role");
@@ -525,6 +497,7 @@ export const AddListing: React.FC = () => {
                       type="text"
                       name="companyName"
                       value={formData.companyName}
+                      placeholder={t("listing.placeholderCompany")}
                       onChange={handleChange}
                       className={`w-full bg-[#121212] border ${errors.companyName ? "border-red-500" : "border-white/15"} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`}
                     />
@@ -562,10 +535,12 @@ export const AddListing: React.FC = () => {
                         </label>
                       </div>
                       <input
-                        type="text"
+                        type="tel"
                         inputMode="numeric"
+                        pattern="[0-9]*"
                         name="companyAge"
                         value={formData.companyAge}
+                        placeholder="3"
                         onChange={handleChange}
                         className={`w-full bg-[#121212] border ${errors.companyAge ? "border-red-500" : "border-white/15"} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`}
                       />
@@ -606,10 +581,12 @@ export const AddListing: React.FC = () => {
                         </label>
                       </div>
                       <input
-                        type="text"
+                        type="tel"
                         inputMode="numeric"
+                        pattern="[0-9]*"
                         name="requestedInvestment"
                         value={formatNumberWithCommas(formData.requestedInvestment)}
+                        placeholder={purpose === "sell_business" ? "250000" : "65000"}
                         onChange={handleChange}
                         className={`w-full bg-[#121212] border ${errors.requestedInvestment ? "border-red-500" : "border-white/15"} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`}
                       />
@@ -626,10 +603,12 @@ export const AddListing: React.FC = () => {
                         </label>
                       </div>
                       <input
-                        type="text"
+                        type="tel"
                         inputMode="numeric"
+                        pattern="[0-9]*"
                         name="shareToSell"
                         value={formData.shareToSell}
+                        placeholder="20"
                         onChange={handleChange}
                         className={`w-full bg-[#121212] border ${errors.shareToSell ? "border-red-500" : "border-white/15"} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`}
                       />
@@ -667,6 +646,7 @@ export const AddListing: React.FC = () => {
                       type="text"
                       name="legalEntity"
                       value={formData.legalEntity}
+                      placeholder={t("listing.placeholderWLL")}
                       onChange={handleChange}
                       className={`w-full bg-[#121212] border ${errors.legalEntity ? "border-red-500" : "border-white/15"} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`}
                     />
@@ -706,6 +686,7 @@ export const AddListing: React.FC = () => {
                       name="investmentReason"
                       rows={3}
                       value={formData.investmentReason}
+                      placeholder={t("listing.demoReason")}
                       onChange={handleChange}
                       className={`w-full bg-[#121212] border ${errors.investmentReason ? "border-red-500" : "border-white/15"} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`}
                     />
@@ -723,6 +704,7 @@ export const AddListing: React.FC = () => {
                       name="fullDetails"
                       rows={5}
                       value={formData.fullDetails}
+                      placeholder={t("listing.demoDetails")}
                       onChange={handleChange}
                       className={`w-full bg-[#121212] border ${errors.fullDetails ? "border-red-500" : "border-white/15"} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`}
                     />

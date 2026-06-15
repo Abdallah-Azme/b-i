@@ -1,5 +1,10 @@
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
+
+try {
+  localStorage.removeItem('profile-draft-storage');
+} catch {
+  // Ignore storage access issues in private mode / restricted contexts.
+}
 
 interface ProfileDraftState {
   draft: any | null;
@@ -8,15 +13,9 @@ interface ProfileDraftState {
 }
 
 export const useProfileDraftStore = create<ProfileDraftState>()(
-  persist(
-    (set) => ({
-      draft: null,
-      setDraft: (draft) => set({ draft }),
-      clearDraft: () => set({ draft: null }),
-    }),
-    {
-      name: 'profile-draft-storage',
-      storage: createJSONStorage(() => localStorage),
-    }
-  )
+  (set) => ({
+    draft: null,
+    setDraft: (draft) => set({ draft }),
+    clearDraft: () => set({ draft: null }),
+  })
 );

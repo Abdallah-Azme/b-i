@@ -264,7 +264,7 @@ export const Notifications: React.FC = () => {
       {showConfirmClear && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/80 backdrop-blur-sm animate-fade-in">
            <div className="bg-brand-gray border border-white/10 p-6 rounded-2xl w-full max-w-sm text-center">
-              <h3 className="text-lg font-bold text-white mb-2">{isAr ? 'مسح كل الإشعارات؟' : 'Clear all notifications?'}</h3>
+              <h3 className="text-lg font-bold text-white mb-2">{isAr ? 'حذف جميع الإشعارات؟' : 'Clear all notifications?'}</h3>
               <p className="text-sm text-gray-400 mb-6">{isAr ? 'لا يمكن التراجع عن هذا الإجراء.' : 'This action cannot be undone.'}</p>
               <div className="flex gap-3">
                  <button 
@@ -277,7 +277,7 @@ export const Notifications: React.FC = () => {
                    onClick={confirmClearAll}
                    className="flex-1 py-2.5 rounded-lg bg-red-500 text-white hover:bg-red-600 font-bold text-sm transition"
                  >
-                   {isAr ? 'مسح' : 'Clear'}
+                   {isAr ? 'حذف' : 'Delete'}
                  </button>
               </div>
            </div>

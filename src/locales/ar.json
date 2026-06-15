@@ -429,7 +429,7 @@
     "confirmPasswordRequired": "تأكيد كلمة المرور مطلوب",
     "otpIncomplete": "يرجى إدخال جميع الأرقام الستة",
     "verifiedTitle": "تم التحقق من الحساب!",
-    "verifiedDesc": "تم التحقق من حسابك بنجاح. يتم تحويلك...",
+    "verifiedDesc": "يتم تحويلك...",
     "verifySessionExpired": "انتهت الجلسة. يرجى التسجيل مجدداً أو العودة لتسجيل الدخول.",
     "verifySpam": "تحقق من مجلد البريد المزعج إذا لم يظهر في صندوق الوارد.",
     "secureVerification": "تحقق آمن",

@@ -28,6 +28,17 @@ export const useLogin = () => {
       const apiError = extractApiError(error);
       const msg = (apiError?.serverData?.msg || '').toLowerCase();
 
+      const isBanned =
+        msg.includes('ban') ||
+        msg.includes('block') ||
+        msg.includes('suspend') ||
+        msg.includes('deactivate') ||
+        msg.includes('حظر') ||
+        msg.includes('تجميد') ||
+        msg.includes('موقوف') ||
+        msg.includes('blocked') ||
+        msg.includes('banned');
+
       const isNotActivated =
         msg.includes('not activated') ||
         msg.includes('inactive') ||
@@ -41,6 +52,12 @@ export const useLogin = () => {
         msg.includes('verification code') ||
         msg.includes('code has been sent') ||
         msg.includes('sent a code');
+
+      if (isBanned) {
+        sessionStorage.setItem('bi-auth-redirect-reason', 'banned');
+        window.location.replace('/login?reason=banned');
+        return;
+      }
 
       if (!isNotActivated) return;
 

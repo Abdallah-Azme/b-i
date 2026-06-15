@@ -402,22 +402,22 @@ export const SettingsTab: React.FC = () => {
         password: newPassword,
         password_confirmation: confirmPassword,
       },
-        {
-          onSuccess: () => {
-            toast.success(t("auth.passwordResetSuccess"), {
-              id: "change-password-success",
-            });
-            setCurrentPassword("");
-            setNewPassword("");
-            setConfirmPassword("");
-            window.setTimeout(() => {
-              localStorage.removeItem("auth_token");
-              localStorage.removeItem("auth_role");
-              window.location.replace("/login?reason=password_changed");
-            }, 900);
-          },
+      {
+        onSuccess: () => {
+          toast.success(t("auth.passwordResetSuccess"), {
+            id: "change-password-success",
+          });
+          setCurrentPassword("");
+          setNewPassword("");
+          setConfirmPassword("");
+          window.setTimeout(() => {
+            localStorage.removeItem("auth_token");
+            localStorage.removeItem("auth_role");
+            window.location.replace("/login?reason=password_changed");
+          }, 900);
         },
-      );
+      },
+    );
   };
 
   const handleToggleNotif = (field: string) => {

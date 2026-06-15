@@ -1,6 +1,8 @@
 import { useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient, type QueryClient } from '@tanstack/react-query';
 import { authService } from '../services/auth.service';
+import { toast, showToastOnce } from '@/lib/toast';
+import i18n from '@/i18n';
 
 const isAuthed = () => !!localStorage.getItem('auth_token');
 export const NOTIFICATIONS_REFETCH_INTERVAL = 20_000;
@@ -30,6 +32,59 @@ export const useNotificationsLiveSync = () => {
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [queryClient]);
+};
+
+const FORCE_LOGOUT_TOAST_KEYS = {
+  banned: 'force_logout_toast_banned',
+  deleted: 'force_logout_toast_deleted',
+} as const;
+
+const clearAuthAndRedirect = (reason: 'banned' | 'deleted') => {
+  localStorage.removeItem('auth_token');
+  localStorage.removeItem('auth_role');
+  sessionStorage.setItem('bi-auth-redirect-reason', reason);
+  window.location.replace(`/login?reason=${reason}`);
+};
+
+export const useAccountAccessNotificationWatcher = () => {
+  const { data: notificationsData } = useNotifications({
+    per_page: 20,
+    refetchInterval: NOTIFICATIONS_REFETCH_INTERVAL,
+  });
+
+  useEffect(() => {
+    const notifications = notificationsData?.data?.notifications ?? [];
+    const latestBlockingNotification = notifications.find((notification) => {
+      const type = (notification.notification_type || '').toLowerCase();
+      return (
+        notification.payload?.force_logout === true ||
+        type === 'user_blocked' ||
+        type === 'admin_blocked' ||
+        type === 'delete_account'
+      );
+    });
+
+    if (!latestBlockingNotification) return;
+
+    const type = (latestBlockingNotification.notification_type || '').toLowerCase();
+    const isDeleted = type === 'delete_account';
+    const reason = isDeleted ? 'deleted' : 'banned';
+    const toastKey = FORCE_LOGOUT_TOAST_KEYS[reason];
+    const toastId = `force-logout-${reason}`;
+
+    showToastOnce(
+      toastId,
+      () => {
+        toast.error(
+          isDeleted ? i18n.t('auth.deletedError') : i18n.t('auth.bannedError'),
+          { id: toastId },
+        );
+      },
+      { sessionKey: toastKey },
+    );
+
+    clearAuthAndRedirect(reason);
+  }, [notificationsData]);
 };
 
 export const useNotifications = (params?: { page?: number; per_page?: number; refetchInterval?: number | false }) => {

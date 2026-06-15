@@ -165,6 +165,17 @@ export const ForgotPassword = () => {
           </div>
 
           <div className="bg-[#121212] p-8 rounded-2xl border border-white/10 shadow-xl shadow-brand-gold/5 relative overflow-hidden">
+            <div className="mb-6 flex justify-start">
+              <button
+                type="button"
+                onClick={() => navigate({ to: '/login' })}
+                className="inline-flex items-center gap-2 text-sm font-bold text-brand-gold hover:text-yellow-400 transition"
+              >
+                <ArrowLeft size={16} className={lang === 'ar' ? 'rotate-180' : ''} />
+                {lang === 'ar' ? 'العودة لتسجيل الدخول' : 'Back to login'}
+              </button>
+            </div>
+
             {step === 1 && (
               <form onSubmit={handleRequestCode} noValidate className="space-y-6 animate-fade-in relative z-10">
                 <div className="space-y-2">
