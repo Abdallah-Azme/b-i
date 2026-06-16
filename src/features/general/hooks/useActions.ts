@@ -9,10 +9,13 @@ export const useBuySeat = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id, payload }: { id: string | number; payload?: any }) => generalService.buySeat(id, payload),
-    onSuccess: (_, { id }) => {
+    onSuccess: (response: any, { id }) => {
       queryClient.invalidateQueries({ queryKey: ['opportunity', id] });
       queryClient.invalidateQueries({ queryKey: ['opportunities'] });
-      toast.success(t('common.purchaseSuccess'), { id: `buy-seat-success-${id}` });
+      const sid = response?.data?.session_id || response?.session_id;
+      if (!sid) {
+        toast.success(t('common.purchaseSuccess'), { id: `buy-seat-success-${id}` });
+      }
     },
   });
 };
@@ -25,7 +28,7 @@ export const useSubmitInterestRequest = () => {
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: ['opportunity', id] });
       invalidateNotificationsQueries(queryClient);
-      toast.success(t('common.interestSubmitted', { defaultValue: 'Interest submitted successfully' }), {
+      toast.success(t('nav.interestSubmitted'), {
         id: `submit-interest-success-${id}`,
       });
     },

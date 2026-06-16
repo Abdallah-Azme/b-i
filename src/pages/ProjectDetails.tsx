@@ -104,11 +104,6 @@ export const ProjectDetails: React.FC = () => {
           const sid = response?.data?.session_id || response?.session_id;
           if (sid) {
             setPaymentSessionId(sid);
-          } else {
-            toast.success(t("common.purchaseSuccess"));
-            queryClient.invalidateQueries({
-              queryKey: ["opportunity", id],
-            });
           }
         },
       },
