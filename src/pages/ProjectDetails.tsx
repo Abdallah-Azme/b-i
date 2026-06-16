@@ -89,6 +89,7 @@ export const ProjectDetails: React.FC = () => {
   if (!project) return <Navigate to="/projects" />;
 
   const unlocked = project.file_access.is_open || project.has_seat;
+  const isOwner = Boolean(project.is_owner);
 
   const handlePurchase = () => {
     if (!isAuthenticated) {
@@ -345,53 +346,48 @@ export const ProjectDetails: React.FC = () => {
                 }}
               />
 
-              <div className="mt-8 flex gap-4 border-t border-green-500/20 pt-6">
-                <button
-                  onClick={() => {
-                    if (!isAuthenticated) {
-                      navigate({ to: "/login-type" });
-                      return;
-                    }
+              {!isOwner && (
+                <div className="mt-8 flex gap-4 border-t border-green-500/20 pt-6">
+                  <button
+                    onClick={() => {
+                      if (!isAuthenticated) {
+                        navigate({ to: "/login-type" });
+                        return;
+                      }
                     submitInterest.mutate(
                       { id },
-                      {
-                        onSuccess: (res: any) => {
-                          toast.success(
-                            res.msg || t("common.interestSubmitted")
-                          );
-                        },
-                      },
                     );
                   }}
-                  disabled={
-                    submitInterest.isPending ||
-                    submitInterest.isSuccess ||
-                    !project.can_submit_interest
-                  }
-                  className="flex-1 bg-brand-gold text-black font-bold py-3 rounded-lg hover:bg-yellow-500 transition disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2"
-                >
-                  {submitInterest.isPending ? (
-                    <Loader2 className="animate-spin" size={20} />
-                  ) : submitInterest.isSuccess ||
-                    project.has_submitted_interest ? (
-                    t("nav.interestSubmitted") + " ✓"
-                  ) : (
-                    t("common.interested")
-                  )}
-                </button>
-                <a
-                  href={`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(contactEmail)}&su=${encodeURIComponent(
-                    lang === "ar"
-                      ? `اهتمام بـ ${project.company_name} (${project.opportunity_number})`
-                      : `Interest in ${project.company_name} (${project.opportunity_number})`
-                  )}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-1 flex justify-center items-center bg-white/10 text-white font-bold py-3 rounded-lg hover:bg-white/20 transition text-center"
-                >
-                  {t("common.contactAdmin")}
-                </a>
-              </div>
+                    disabled={
+                      submitInterest.isPending ||
+                      submitInterest.isSuccess ||
+                      !project.can_submit_interest
+                    }
+                    className="flex-1 bg-brand-gold text-black font-bold py-3 rounded-lg hover:bg-yellow-500 transition disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2"
+                  >
+                    {submitInterest.isPending ? (
+                      <Loader2 className="animate-spin" size={20} />
+                    ) : submitInterest.isSuccess ||
+                      project.has_submitted_interest ? (
+                      t("nav.interestSubmitted") + " ✓"
+                    ) : (
+                      t("common.interested")
+                    )}
+                  </button>
+                  <a
+                    href={`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(contactEmail)}&su=${encodeURIComponent(
+                      lang === "ar"
+                        ? `اهتمام بـ ${project.company_name} (${project.opportunity_number})`
+                        : `Interest in ${project.company_name} (${project.opportunity_number})`
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 flex justify-center items-center bg-white/10 text-white font-bold py-3 rounded-lg hover:bg-white/20 transition text-center"
+                  >
+                    {t("common.contactAdmin")}
+                  </a>
+                </div>
+              )}
             </div>
           ) : (
             <div className="bg-brand-gray border border-dashed border-white/20 p-10 rounded-xl text-center relative overflow-hidden">
@@ -409,20 +405,22 @@ export const ProjectDetails: React.FC = () => {
                   <span>{t("auth.fullDetails")}</span>
                   <span>{t("common.financial")}</span>
                 </div>
-                <button
-                  onClick={handlePurchase}
-                  disabled={buySeat.isPending || !project.can_buy_seat}
-                  className="bg-white text-black px-4 py-3 rounded-lg text-sm hover:bg-gray-200 transition shadow-lg shadow-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {buySeat.isPending ? (
-                    <Loader2 size={18} className="animate-spin mx-auto" />
-                  ) : (
-                    <>
-                      {t("common.buyFile")} (
-                      <Money value={project.seat_price} />)
-                    </>
-                  )}
-                </button>
+                {!isOwner && (
+                  <button
+                    onClick={handlePurchase}
+                    disabled={buySeat.isPending || !project.can_buy_seat}
+                    className="bg-white text-black px-4 py-3 rounded-lg text-sm hover:bg-gray-200 transition shadow-lg shadow-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {buySeat.isPending ? (
+                      <Loader2 size={18} className="animate-spin mx-auto" />
+                    ) : (
+                      <>
+                        {t("common.buyFile")} (
+                        <Money value={project.seat_price} />)
+                      </>
+                    )}
+                  </button>
+                )}
               </div>
             </div>
           )}

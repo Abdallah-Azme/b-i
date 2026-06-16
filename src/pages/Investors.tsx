@@ -7,7 +7,6 @@ import { useInvestors } from '../features/general/hooks/useInvestors';
 import { useInvestorTypes, useInvestorExperiences, usePreferredSectors } from '../features/general/hooks/useGeneralLookups';
 import { InvestorsQueryParams } from '../features/general/types';
 import { useSendInvestorInterestRequest } from '../features/company/hooks/useCompanyInteractions';
-import { toast } from '@/lib/toast';
 import { useInvestorFavoritesStore } from '@/hooks/useInvestorFavoritesStore';
 
 const translateInvestorExperience = (t: (key: string, opts?: any) => string, value?: string) => {
@@ -373,16 +372,15 @@ export const Investors: React.FC = () => {
             <p className="text-sm text-gray-400 mb-6">{t('investorsPage.sendInterestConfirm')}</p>
             <div className="flex gap-4">
               <button onClick={() => setSelectedInvestorId(null)} className="flex-1 bg-brand-gray border border-white/10 text-white py-2 rounded-lg font-bold">{t('dashboard.cancel')}</button>
-              <button 
-                onClick={() => {
+                <button 
+                  onClick={() => {
                   sendInterest.mutate({ investor_id: selectedInvestorId }, {
                     onSuccess: () => {
-                      toast.success(t('investorsPage.interestSentSuccess'));
                       toggleInterestInvestor(selectedInvestorId.toString());
                       setSelectedInvestorId(null);
                     },
                   });
-                }} 
+                  }} 
                 disabled={sendInterest.isPending} 
                 className="flex-1 flex justify-center items-center bg-brand-gold text-black py-2 rounded-lg font-bold disabled:opacity-50"
               >
