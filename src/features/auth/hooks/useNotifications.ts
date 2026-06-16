@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient, type QueryClient } from '@tanstack/react-query';
 import { authService } from '../services/auth.service';
 import { toast, showToastOnce } from '@/lib/toast';
@@ -17,6 +17,103 @@ const notificationQueryDefaults = {
   refetchOnWindowFocus: true,
   refetchOnReconnect: true,
 } as const;
+
+const NOTIFICATION_SOUND_PLAYED_IDS_KEY = 'bi_notification_sound_played_ids';
+const NOTIFICATION_SOUND_ENABLED_KEY = 'bi_notification_sound_enabled';
+const MAX_NOTIFICATION_SOUND_IDS = 100;
+
+const NOTIFICATION_BELL_SRC = '/bell.mp3';
+let notificationBellAudio: HTMLAudioElement | null = null;
+
+const playNotificationTone = () => {
+  try {
+    if (typeof window === 'undefined') return;
+
+    if (!notificationBellAudio) {
+      notificationBellAudio = new Audio(NOTIFICATION_BELL_SRC);
+      notificationBellAudio.preload = 'auto';
+      notificationBellAudio.volume = 1;
+    }
+
+    notificationBellAudio.currentTime = 0;
+    const promise = notificationBellAudio.play();
+    if (promise && typeof promise.catch === 'function') {
+      promise.catch(() => {
+        // Browser autoplay policies can block sound until the user interacts.
+      });
+    }
+  } catch {
+    // Silent fallback if audio is blocked by browser policy.
+  }
+};
+
+const getPlayedNotificationSoundIds = () => {
+  try {
+    const raw = localStorage.getItem(NOTIFICATION_SOUND_PLAYED_IDS_KEY);
+    if (!raw) return new Set<string>();
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return new Set<string>();
+    return new Set(parsed.filter((value): value is string => typeof value === 'string'));
+  } catch {
+    return new Set<string>();
+  }
+};
+
+const savePlayedNotificationSoundIds = (ids: Set<string>) => {
+  const cappedIds = Array.from(ids).slice(-MAX_NOTIFICATION_SOUND_IDS);
+  localStorage.setItem(NOTIFICATION_SOUND_PLAYED_IDS_KEY, JSON.stringify(cappedIds));
+};
+
+export const useNotificationSoundWatcher = () => {
+  const { data: notificationsData } = useNotifications({
+    per_page: 10,
+    refetchInterval: NOTIFICATIONS_REFETCH_INTERVAL,
+  });
+  const initializedRef = useRef(false);
+  const playedIdsRef = useRef<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const savedEnabled = localStorage.getItem(NOTIFICATION_SOUND_ENABLED_KEY);
+    if (savedEnabled === null) {
+      localStorage.setItem(NOTIFICATION_SOUND_ENABLED_KEY, 'true');
+    }
+  }, []);
+
+  useEffect(() => {
+    const notifications = notificationsData?.data?.notifications ?? [];
+    const notificationIds = notifications
+      .map((notification) => notification.id)
+      .filter((id): id is string => Boolean(id))
+      .map(String);
+
+    if (!initializedRef.current) {
+      initializedRef.current = true;
+      const playedIds = getPlayedNotificationSoundIds();
+      notificationIds.forEach((id) => playedIds.add(id));
+      playedIdsRef.current = playedIds;
+      savePlayedNotificationSoundIds(playedIds);
+      return;
+    }
+
+    if (notificationIds.length === 0) return;
+
+    const playedIds = playedIdsRef.current.size
+      ? playedIdsRef.current
+      : getPlayedNotificationSoundIds();
+    const newNotificationIds = notificationIds.filter((id) => !playedIds.has(id));
+    if (newNotificationIds.length === 0) return;
+
+    newNotificationIds.forEach((id) => playedIds.add(id));
+    playedIdsRef.current = playedIds;
+    savePlayedNotificationSoundIds(playedIds);
+
+    if (localStorage.getItem(NOTIFICATION_SOUND_ENABLED_KEY) === 'false') return;
+    newNotificationIds.forEach((_, index) => {
+      window.setTimeout(playNotificationTone, index * 450);
+    });
+  }, [notificationsData]);
+};
 
 export const useNotificationsLiveSync = () => {
   const queryClient = useQueryClient();

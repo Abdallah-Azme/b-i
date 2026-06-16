@@ -339,6 +339,26 @@ export const EditListing: React.FC = () => {
                         <label className="text-sm font-medium text-gray-300">{t('auth.licenseNumber')} <span className="text-brand-gold">*</span></label>
                         <input type="text" name="licenseNumber" value={formData.licenseNumber} onChange={handleChange} className={`w-full bg-[#121212] border ${errors.licenseNumber ? 'border-red-500' : 'border-white/15'} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`} />
                     </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-gray-300">{t('auth.legalEntity')} <span className="text-brand-gold">*</span></label>
+                            <input type="text" name="legalEntity" value={formData.legalEntity} onChange={handleChange} className={`w-full bg-[#121212] border ${errors.legalEntity ? 'border-red-500' : 'border-white/15'} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`} />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-gray-300">{t('common.financial')} <span className="text-brand-gold">*</span></label>
+                            <select name="financialHealth" value={formData.financialHealth} onChange={handleChange} className={`w-full bg-[#121212] border ${errors.financialHealth ? 'border-red-500' : 'border-white/15'} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`}>
+                                {FINANCIAL_STATUS_ORDER.map(status => <option key={status} value={status}>{t(FINANCIAL_HEALTH_MAP[status].labelKey)}</option>)}
+                            </select>
+                        </div>
+                    </div>
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-300">{t('auth.investmentReason')} <span className="text-brand-gold">*</span></label>
+                        <textarea name="investmentReason" rows={3} value={formData.investmentReason} onChange={handleChange} className={`w-full bg-[#121212] border ${errors.investmentReason ? 'border-red-500' : 'border-white/15'} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`} />
+                    </div>
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-300">{t('auth.fullDetails')} <span className="text-brand-gold">*</span></label>
+                        <textarea name="fullDetails" rows={5} value={formData.fullDetails} onChange={handleChange} className={`w-full bg-[#121212] border ${errors.fullDetails ? 'border-red-500' : 'border-white/15'} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`} />
+                    </div>
                 </div>
 
                 {/* SECTION 2: Public Information */}
@@ -397,25 +417,6 @@ export const EditListing: React.FC = () => {
                         </div>
                     </div>
                     <div className="space-y-4">
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-gray-300">{t('auth.legalEntity')} <span className="text-brand-gold">*</span></label>
-                            <input type="text" name="legalEntity" value={formData.legalEntity} onChange={handleChange} className={`w-full bg-[#121212] border ${errors.legalEntity ? 'border-red-500' : 'border-white/15'} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`} />
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-gray-300">{t('common.financial')} <span className="text-brand-gold">*</span></label>
-                            <select name="financialHealth" value={formData.financialHealth} onChange={handleChange} className={`w-full bg-[#121212] border ${errors.financialHealth ? 'border-red-500' : 'border-white/15'} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`}>
-                                {FINANCIAL_STATUS_ORDER.map(status => <option key={status} value={status}>{t(FINANCIAL_HEALTH_MAP[status].labelKey)}</option>)}
-                            </select>
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-gray-300">{t('auth.investmentReason')} <span className="text-brand-gold">*</span></label>
-                            <textarea name="investmentReason" rows={3} value={formData.investmentReason} onChange={handleChange} className={`w-full bg-[#121212] border ${errors.investmentReason ? 'border-red-500' : 'border-white/15'} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`} />
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-gray-300">{t('auth.fullDetails')} <span className="text-brand-gold">*</span></label>
-                            <textarea name="fullDetails" rows={5} value={formData.fullDetails} onChange={handleChange} className={`w-full bg-[#121212] border ${errors.fullDetails ? 'border-red-500' : 'border-white/15'} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`} />
-                        </div>
-                        
                         {/* Optional file upload for image only; backend update currently validates the core ad fields */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
                             <div className="space-y-2">

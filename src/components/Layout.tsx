@@ -12,6 +12,7 @@ import {
   NOTIFICATIONS_REFETCH_INTERVAL,
   useUnreadNotificationsCount,
   useAccountAccessNotificationWatcher,
+  useNotificationSoundWatcher,
 } from '@/features/auth/hooks/useNotifications';
 
 export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -19,6 +20,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   const { t } = useTranslation();
   const { isAuthenticated, logout: apiLogout } = useAuth();
   useAccountAccessNotificationWatcher();
+  useNotificationSoundWatcher();
   
   const { data: unreadCountData } = useUnreadNotificationsCount({
     refetchInterval: NOTIFICATIONS_REFETCH_INTERVAL,

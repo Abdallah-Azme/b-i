@@ -99,7 +99,7 @@ export const Home: React.FC = () => {
             </span>
           </div>
 
-          <h1 className="text-5xl font-black mb-6 tracking-tighter leading-[1.1] bg-clip-text text-transparent bg-gold-gradient py-2">
+          <h1 className="text-2xl md:text-5xl font-black mb-6 tracking-tighter leading-[1.1] bg-clip-text text-transparent bg-gold-gradient py-2">
             {homeData.website_header.title}
           </h1>
 
@@ -358,7 +358,7 @@ export const Home: React.FC = () => {
         <div className="max-w-5xl mx-auto px-4 text-center">
           <div className="glass-card p-12 rounded-[40px] border-white/5 shadow-inner">
             <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white leading-tight">
-                {t('nav.readyToExplore')}
+              {t('nav.readyToExplore')}
             </h2>
             <p className="text-gray-400 text-lg mb-10 max-w-2xl mx-auto">
               {homeData.project_brief}

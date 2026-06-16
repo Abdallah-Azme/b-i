@@ -72,7 +72,6 @@ export const AddListing: React.FC = () => {
     image: null,
     license_file: null,
     commercial_record_file: null,
-    tax_certificate_file: null,
     financial_statements_file: null,
   });
 
@@ -90,6 +89,14 @@ export const AddListing: React.FC = () => {
 
   const storedRole = localStorage.getItem("auth_role");
   const userRole = (apiUser?.role as any)?.key ?? apiUser?.role ?? storedRole;
+  const selectedCompanyStage = COMPANY_STAGES.find(
+    (stage) => stage.id === formData.companyStage,
+  );
+  const formatStageOptionLabel = (stage: (typeof COMPANY_STAGES)[number]) => {
+    const stageLabel = t(stage.labelKey);
+    const yearsLabel = t(`stages.${stage.id}_years`);
+    return lang === "ar" ? `${stageLabel} (${yearsLabel})` : `${stageLabel} (${yearsLabel})`;
+  };
 
   if (!isAuthenticated || userRole !== "advertiser") {
     return <Navigate to="/dashboard" />;
@@ -186,8 +193,6 @@ export const AddListing: React.FC = () => {
     if (!files.license_file) newErrors.license_file = requiredStr;
     if (!files.commercial_record_file)
       newErrors.commercial_record_file = requiredStr;
-    if (!files.tax_certificate_file)
-      newErrors.tax_certificate_file = requiredStr;
     if (!files.financial_statements_file)
       newErrors.financial_statements_file = requiredStr;
 
@@ -229,7 +234,6 @@ export const AddListing: React.FC = () => {
           image: files.image!,
           license_file: files.license_file!,
           commercial_record_file: files.commercial_record_file!,
-          tax_certificate_file: files.tax_certificate_file!,
           financial_statements_file: files.financial_statements_file!,
         },
         {
@@ -466,6 +470,164 @@ export const AddListing: React.FC = () => {
                   />
                   {renderError("licenseNumber")}
                 </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 mb-2 text-sm font-medium text-gray-300">
+                      <Briefcase size={16} className="text-brand-gold" />
+                      <label>
+                        {t("auth.legalEntity")}{" "}
+                        <span className="text-brand-gold">*</span>
+                      </label>
+                    </div>
+                    <input
+                      type="text"
+                      name="legalEntity"
+                      value={formData.legalEntity}
+                      placeholder={t("listing.placeholderWLL")}
+                      onChange={handleChange}
+                      className={`w-full bg-[#121212] border ${errors.legalEntity ? "border-red-500" : "border-white/15"} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`}
+                    />
+                    {renderError("legalEntity")}
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 mb-2 text-sm font-medium text-gray-300">
+                      <Activity size={16} className="text-brand-gold" />
+                      <label>
+                        {t("common.financial")}{" "}
+                        <span className="text-brand-gold">*</span>
+                      </label>
+                    </div>
+                    <select
+                      name="financialHealth"
+                      value={formData.financialHealth}
+                      onChange={handleChange}
+                      className={`w-full bg-[#121212] border ${errors.financialHealth ? "border-red-500" : "border-white/15"} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`}
+                    >
+                      {FINANCIAL_STATUS_ORDER.map((status) => (
+                        <option key={status} value={status}>
+                          {t(FINANCIAL_HEALTH_MAP[status].labelKey)}
+                        </option>
+                      ))}
+                    </select>
+                    {renderError("financialHealth")}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 mb-2 text-sm font-medium text-gray-300">
+                    <FileEdit size={16} className="text-brand-gold" />
+                    <label>
+                      {t("auth.investmentReason")}{" "}
+                      <span className="text-brand-gold">*</span>
+                    </label>
+                  </div>
+                  <textarea
+                    name="investmentReason"
+                    rows={3}
+                    value={formData.investmentReason}
+                    placeholder={t("listing.demoReason")}
+                    onChange={handleChange}
+                    className={`w-full bg-[#121212] border ${errors.investmentReason ? "border-red-500" : "border-white/15"} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`}
+                  />
+                  {renderError("investmentReason")}
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 mb-2 text-sm font-medium text-gray-300">
+                    <FileText size={16} className="text-brand-gold" />
+                    <label>
+                      {t("auth.fullDetails")}{" "}
+                      <span className="text-brand-gold">*</span>
+                    </label>
+                  </div>
+                  <textarea
+                    name="fullDetails"
+                    rows={5}
+                    value={formData.fullDetails}
+                    placeholder={t("listing.demoDetails")}
+                    onChange={handleChange}
+                    className={`w-full bg-[#121212] border ${errors.fullDetails ? "border-red-500" : "border-white/15"} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`}
+                  />
+                  {renderError("fullDetails")}
+                </div>
+                {/* File Uploads */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+                  <FileUpload
+                    label={t("auth.companyImage")}
+                    value={files.image}
+                    onChange={(file) => {
+                      setFiles((prev) => ({ ...prev, image: file }));
+                      if (errors.image) {
+                        setErrors((prev) => {
+                          const e = { ...prev };
+                          delete e.image;
+                          return e;
+                        });
+                      }
+                    }}
+                    error={errors.image}
+                    accept="image/*"
+                    icon={<ImageIcon size={16} className="text-brand-gold" />}
+                  />
+
+                  <FileUpload
+                    label={t("auth.companyLicense")}
+                    value={files.license_file}
+                    onChange={(file) => {
+                      setFiles((prev) => ({ ...prev, license_file: file }));
+                      if (errors.license_file) {
+                        setErrors((prev) => {
+                          const e = { ...prev };
+                          delete e.license_file;
+                          return e;
+                        });
+                      }
+                    }}
+                    error={errors.license_file}
+                    accept=".pdf,.png,.jpg"
+                    icon={<FileBadge size={16} className="text-brand-gold" />}
+                  />
+
+                  <FileUpload
+                    label={t("auth.commercialRecord")}
+                    value={files.commercial_record_file}
+                    onChange={(file) => {
+                      setFiles((prev) => ({
+                        ...prev,
+                        commercial_record_file: file,
+                      }));
+                      if (errors.commercial_record_file) {
+                        setErrors((prev) => {
+                          const e = { ...prev };
+                          delete e.commercial_record_file;
+                          return e;
+                        });
+                      }
+                    }}
+                    error={errors.commercial_record_file}
+                    accept=".pdf,.png,.jpg"
+                    icon={<FileText size={16} className="text-brand-gold" />}
+                  />
+
+                  <FileUpload
+                    label={t("auth.financialStatements")}
+                    value={files.financial_statements_file}
+                    onChange={(file) => {
+                      setFiles((prev) => ({
+                        ...prev,
+                        financial_statements_file: file,
+                      }));
+                      if (errors.financial_statements_file) {
+                        setErrors((prev) => {
+                          const e = { ...prev };
+                          delete e.financial_statements_file;
+                          return e;
+                        });
+                      }
+                    }}
+                    error={errors.financial_statements_file}
+                    accept=".pdf,.png,.jpg"
+                    icon={<Activity size={16} className="text-brand-gold" />}
+                  />
+                </div>
               </div>
 
               {/* SECTION 2: Public Information */}
@@ -559,14 +721,25 @@ export const AddListing: React.FC = () => {
                         name="companyStage"
                         value={formData.companyStage}
                         onChange={handleChange}
+                        dir={lang === "ar" ? "rtl" : "ltr"}
                         className={`w-full bg-[#121212] border ${errors.companyStage ? "border-red-500" : "border-white/15"} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`}
                       >
                         {COMPANY_STAGES.map((s) => (
-                          <option key={s.id} value={s.id}>
-                            {t(s.labelKey)}
+                          <option
+                            key={s.id}
+                            value={s.id}
+                            title={t(s.descKey)}
+                            aria-label={`${t(s.labelKey)} - ${t(s.descKey)}`}
+                          >
+                            {formatStageOptionLabel(s)}
                           </option>
                         ))}
                       </select>
+                      {selectedCompanyStage && (
+                        <p className="text-xs text-gray-400 leading-5">
+                          {t(selectedCompanyStage.descKey)}
+                        </p>
+                      )}
                       {renderError("companyStage")}
                     </div>
                     <div className="space-y-2">
@@ -617,163 +790,6 @@ export const AddListing: React.FC = () => {
                 </div>
               </div>
 
-              {/* SECTION 3: Premium / Booklet Info */}
-              <div className="bg-black/20 border border-blue-500/20 rounded-xl p-6 space-y-4">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2 bg-blue-500/10 rounded-lg text-blue-500">
-                    <FileText size={20} />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-lg">
-                      {t("listing.bookletInfo")}
-                    </h3>
-                    <p className="text-xs text-gray-400">
-                      {t("listing.bookletInfoDesc")}
-                    </p>
-                  </div>
-                </div>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 mb-2 text-sm font-medium text-gray-300">
-                      <Briefcase size={16} className="text-brand-gold" />
-                      <label>
-                        {t("auth.legalEntity")}{" "}
-                        <span className="text-brand-gold">*</span>
-                      </label>
-                    </div>
-                    <input
-                      type="text"
-                      name="legalEntity"
-                      value={formData.legalEntity}
-                      placeholder={t("listing.placeholderWLL")}
-                      onChange={handleChange}
-                      className={`w-full bg-[#121212] border ${errors.legalEntity ? "border-red-500" : "border-white/15"} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`}
-                    />
-                    {renderError("legalEntity")}
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 mb-2 text-sm font-medium text-gray-300">
-                      <Activity size={16} className="text-brand-gold" />
-                      <label>
-                        {t("common.financial")}{" "}
-                        <span className="text-brand-gold">*</span>
-                      </label>
-                    </div>
-                    <select
-                      name="financialHealth"
-                      value={formData.financialHealth}
-                      onChange={handleChange}
-                      className={`w-full bg-[#121212] border ${errors.financialHealth ? "border-red-500" : "border-white/15"} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`}
-                    >
-                      {FINANCIAL_STATUS_ORDER.map((status) => (
-                        <option key={status} value={status}>
-                          {t(FINANCIAL_HEALTH_MAP[status].labelKey)}
-                        </option>
-                      ))}
-                    </select>
-                    {renderError("financialHealth")}
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 mb-2 text-sm font-medium text-gray-300">
-                      <FileEdit size={16} className="text-brand-gold" />
-                      <label>
-                        {t("auth.investmentReason")}{" "}
-                        <span className="text-brand-gold">*</span>
-                      </label>
-                    </div>
-                    <textarea
-                      name="investmentReason"
-                      rows={3}
-                      value={formData.investmentReason}
-                      placeholder={t("listing.demoReason")}
-                      onChange={handleChange}
-                      className={`w-full bg-[#121212] border ${errors.investmentReason ? "border-red-500" : "border-white/15"} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`}
-                    />
-                    {renderError("investmentReason")}
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 mb-2 text-sm font-medium text-gray-300">
-                      <FileText size={16} className="text-brand-gold" />
-                      <label>
-                        {t("auth.fullDetails")}{" "}
-                        <span className="text-brand-gold">*</span>
-                      </label>
-                    </div>
-                    <textarea
-                      name="fullDetails"
-                      rows={5}
-                      value={formData.fullDetails}
-                      placeholder={t("listing.demoDetails")}
-                      onChange={handleChange}
-                      className={`w-full bg-[#121212] border ${errors.fullDetails ? "border-red-500" : "border-white/15"} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`}
-                    />
-                    {renderError("fullDetails")}
-                  </div>
-
-                  {/* File Uploads */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
-                    <FileUpload
-                      label={t("auth.companyImage")}
-                      value={files.image}
-                      onChange={(file) => {
-                        setFiles(prev => ({ ...prev, image: file }));
-                        if (errors.image) setErrors(prev => { const e = {...prev}; delete e.image; return e; });
-                      }}
-                      error={errors.image}
-                      accept="image/*"
-                      icon={<ImageIcon size={16} className="text-brand-gold" />}
-                    />
-                    
-                    <FileUpload
-                      label={t("auth.companyLicense")}
-                      value={files.license_file}
-                      onChange={(file) => {
-                        setFiles(prev => ({ ...prev, license_file: file }));
-                        if (errors.license_file) setErrors(prev => { const e = {...prev}; delete e.license_file; return e; });
-                      }}
-                      error={errors.license_file}
-                      accept=".pdf,.png,.jpg"
-                      icon={<FileBadge size={16} className="text-brand-gold" />}
-                    />
-
-                    <FileUpload
-                      label={t("auth.commercialRecord")}
-                      value={files.commercial_record_file}
-                      onChange={(file) => {
-                        setFiles(prev => ({ ...prev, commercial_record_file: file }));
-                        if (errors.commercial_record_file) setErrors(prev => { const e = {...prev}; delete e.commercial_record_file; return e; });
-                      }}
-                      error={errors.commercial_record_file}
-                      accept=".pdf,.png,.jpg"
-                      icon={<FileText size={16} className="text-brand-gold" />}
-                    />
-
-                    <FileUpload
-                      label={t("auth.taxCertificate")}
-                      value={files.tax_certificate_file}
-                      onChange={(file) => {
-                        setFiles(prev => ({ ...prev, tax_certificate_file: file }));
-                        if (errors.tax_certificate_file) setErrors(prev => { const e = {...prev}; delete e.tax_certificate_file; return e; });
-                      }}
-                      error={errors.tax_certificate_file}
-                      accept=".pdf,.png,.jpg"
-                      icon={<FileText size={16} className="text-brand-gold" />}
-                    />
-
-                    <FileUpload
-                      label={t("auth.financialStatements")}
-                      value={files.financial_statements_file}
-                      onChange={(file) => {
-                        setFiles(prev => ({ ...prev, financial_statements_file: file }));
-                        if (errors.financial_statements_file) setErrors(prev => { const e = {...prev}; delete e.financial_statements_file; return e; });
-                      }}
-                      error={errors.financial_statements_file}
-                      accept=".pdf,.png,.jpg"
-                      icon={<Activity size={16} className="text-brand-gold" />}
-                    />
-                  </div>
-                </div>
-              </div>
             </div>
 
             <div className="space-y-2">
