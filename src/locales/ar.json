@@ -43,7 +43,7 @@
     "idLabel": "رقم التعريف"
   },
   "notifications": {
-    "markAllReadSuccess": "تم تعليم جميع الإشعارات كمقروءة",
+    "markAllReadSuccess": "تم تحديد جميع الإشعارات كمقروءة",
     "deleteSuccess": "تم حذف الإشعار بنجاح"
   },
   "common": {
@@ -244,7 +244,7 @@
     "processing": "جاري النشر...",
     "updateProcessing": "جاري التحديث...",
     "updateSubmit": "حفظ التعديلات",
-    "success": "تم استلام إعلانك بنجاح، وهو الآن قيد المراجعة. سيتم نشره بعد موافقة الإدارة عليه.",
+    "success": "تم استلام إعلانك بنجاح. الإعلان قيد المراجعة",
     "investorTypesTitle": "أنواع المستثمرين",
     "companyType": "شركة (مستثمر)",
     "angelType": "مستثمر ملاك",

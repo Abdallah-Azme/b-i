@@ -489,64 +489,6 @@ export const AddListing: React.FC = () => {
                     />
                     {renderError("legalEntity")}
                   </div>
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 mb-2 text-sm font-medium text-gray-300">
-                      <Activity size={16} className="text-brand-gold" />
-                      <label>
-                        {t("common.financial")}{" "}
-                        <span className="text-brand-gold">*</span>
-                      </label>
-                    </div>
-                    <select
-                      name="financialHealth"
-                      value={formData.financialHealth}
-                      onChange={handleChange}
-                      className={`w-full bg-[#121212] border ${errors.financialHealth ? "border-red-500" : "border-white/15"} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`}
-                    >
-                      {FINANCIAL_STATUS_ORDER.map((status) => (
-                        <option key={status} value={status}>
-                          {t(FINANCIAL_HEALTH_MAP[status].labelKey)}
-                        </option>
-                      ))}
-                    </select>
-                    {renderError("financialHealth")}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 mb-2 text-sm font-medium text-gray-300">
-                    <FileEdit size={16} className="text-brand-gold" />
-                    <label>
-                      {t("auth.investmentReason")}{" "}
-                      <span className="text-brand-gold">*</span>
-                    </label>
-                  </div>
-                  <textarea
-                    name="investmentReason"
-                    rows={3}
-                    value={formData.investmentReason}
-                    placeholder={t("listing.demoReason")}
-                    onChange={handleChange}
-                    className={`w-full bg-[#121212] border ${errors.investmentReason ? "border-red-500" : "border-white/15"} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`}
-                  />
-                  {renderError("investmentReason")}
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 mb-2 text-sm font-medium text-gray-300">
-                    <FileText size={16} className="text-brand-gold" />
-                    <label>
-                      {t("auth.fullDetails")}{" "}
-                      <span className="text-brand-gold">*</span>
-                    </label>
-                  </div>
-                  <textarea
-                    name="fullDetails"
-                    rows={5}
-                    value={formData.fullDetails}
-                    placeholder={t("listing.demoDetails")}
-                    onChange={handleChange}
-                    className={`w-full bg-[#121212] border ${errors.fullDetails ? "border-red-500" : "border-white/15"} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`}
-                  />
-                  {renderError("fullDetails")}
                 </div>
                 {/* File Uploads */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
@@ -787,6 +729,83 @@ export const AddListing: React.FC = () => {
                       {renderError("shareToSell")}
                     </div>
                   )}
+                </div>
+              </div>
+
+              {/* SECTION 3: Premium / Booklet Info */}
+              <div className="bg-black/20 border border-blue-500/20 rounded-xl p-6 space-y-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="p-2 bg-blue-500/10 rounded-lg text-blue-400">
+                    <FileText size={20} />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg">
+                      {t("listing.bookletInfo")}
+                    </h3>
+                    <p className="text-xs text-gray-400">
+                      {t("listing.bookletInfoDesc")}
+                    </p>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 mb-2 text-sm font-medium text-gray-300">
+                      <Activity size={16} className="text-brand-gold" />
+                      <label>
+                        {t("common.financial")}{" "}
+                        <span className="text-brand-gold">*</span>
+                      </label>
+                    </div>
+                    <select
+                      name="financialHealth"
+                      value={formData.financialHealth}
+                      onChange={handleChange}
+                      className={`w-full bg-[#121212] border ${errors.financialHealth ? "border-red-500" : "border-white/15"} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`}
+                    >
+                      {FINANCIAL_STATUS_ORDER.map((status) => (
+                        <option key={status} value={status}>
+                          {t(FINANCIAL_HEALTH_MAP[status].labelKey)}
+                        </option>
+                      ))}
+                    </select>
+                    {renderError("financialHealth")}
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 mb-2 text-sm font-medium text-gray-300">
+                      <FileEdit size={16} className="text-brand-gold" />
+                      <label>
+                        {t("auth.investmentReason")}{" "}
+                        <span className="text-brand-gold">*</span>
+                      </label>
+                    </div>
+                    <textarea
+                      name="investmentReason"
+                      rows={3}
+                      value={formData.investmentReason}
+                      placeholder={t("listing.demoReason")}
+                      onChange={handleChange}
+                      className={`w-full bg-[#121212] border ${errors.investmentReason ? "border-red-500" : "border-white/15"} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`}
+                    />
+                    {renderError("investmentReason")}
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 mb-2 text-sm font-medium text-gray-300">
+                      <FileText size={16} className="text-brand-gold" />
+                      <label>
+                        {t("auth.fullDetails")}{" "}
+                        <span className="text-brand-gold">*</span>
+                      </label>
+                    </div>
+                    <textarea
+                      name="fullDetails"
+                      rows={5}
+                      value={formData.fullDetails}
+                      placeholder={t("listing.demoDetails")}
+                      onChange={handleChange}
+                      className={`w-full bg-[#121212] border ${errors.fullDetails ? "border-red-500" : "border-white/15"} rounded-lg px-4 py-3 text-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 outline-none transition`}
+                    />
+                    {renderError("fullDetails")}
+                  </div>
                 </div>
               </div>
 

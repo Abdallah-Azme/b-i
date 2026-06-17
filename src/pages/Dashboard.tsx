@@ -256,7 +256,7 @@ const ProjectCard: React.FC<{ project: any; type: "ad" | "booklet" }> = ({
         </div>
       )}
 
-      {type === "ad" && (
+      {type === "ad" && status !== "published" && (
         <div className="absolute top-2 left-2 flex flex-col gap-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
           <Link
             to="/advertiser/edit-listing/$id"

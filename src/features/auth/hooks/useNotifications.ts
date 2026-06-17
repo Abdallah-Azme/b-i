@@ -109,9 +109,7 @@ export const useNotificationSoundWatcher = () => {
     savePlayedNotificationSoundIds(playedIds);
 
     if (localStorage.getItem(NOTIFICATION_SOUND_ENABLED_KEY) === 'false') return;
-    newNotificationIds.forEach((_, index) => {
-      window.setTimeout(playNotificationTone, index * 450);
-    });
+    playNotificationTone();
   }, [notificationsData]);
 };
 

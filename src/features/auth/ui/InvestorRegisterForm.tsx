@@ -187,6 +187,7 @@ export const InvestorRegisterForm: React.FC = () => {
                           type="text" 
                           inputMode="numeric"
                           pattern="[0-9]*"
+                          placeholder="1000000"
                           onKeyDown={blockNonNumericKeys}
                           onPaste={(e) => {
                             const pasted = e.clipboardData.getData('text');
@@ -195,7 +196,7 @@ export const InvestorRegisterForm: React.FC = () => {
                             }
                           }}
                           {...fieldProps}
-                          value={formatNumberWithCommas(value)}
+                          value={value ? formatNumberWithCommas(value) : ''}
                           onChange={(e) => {
                              const rawValue = parseLimitedIntegerInput(e.target.value, MAX_MONEY_AMOUNT);
                              onChange(rawValue ? Number(rawValue) : 0);
@@ -218,6 +219,7 @@ export const InvestorRegisterForm: React.FC = () => {
                           type="text" 
                           inputMode="numeric"
                           pattern="[0-9]*"
+                          placeholder="1000000"
                           onKeyDown={blockNonNumericKeys}
                           onPaste={(e) => {
                             const pasted = e.clipboardData.getData('text');
@@ -226,7 +228,7 @@ export const InvestorRegisterForm: React.FC = () => {
                             }
                           }}
                           {...fieldProps}
-                          value={formatNumberWithCommas(value)}
+                          value={value ? formatNumberWithCommas(value) : ''}
                           onChange={(e) => {
                              const rawValue = parseLimitedIntegerInput(e.target.value, MAX_MONEY_AMOUNT);
                              onChange(rawValue ? Number(rawValue) : 0);
